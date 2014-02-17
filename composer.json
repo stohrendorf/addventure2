@@ -1,0 +1,11 @@
+{
+  "name": "application/addventure",
+  "description": "A system for creating a forest of stories.",
+  "license": "AGPL-3.0",
+  "require": {
+    "doctrine/orm": "v2.4.2"
+  },
+  "autoload": {
+    "psr-0": {"": "dao/"}
+  }
+}
