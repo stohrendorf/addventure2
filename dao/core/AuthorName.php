@@ -57,6 +57,9 @@ class AuthorName {
     }
 
     public function setName($name) {
+        if(mb_strlen($name) > 200) {
+            throw new \InvalidArgumentException("Name too long: " . mb_strlen($name));
+        }
         $this->name = $name;
         return $this;
     }

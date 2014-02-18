@@ -45,7 +45,7 @@ class Link {
    */
   public function checkInvariants() {
     if ($this->from == $this->to) {
-      throw new InvalidArgumentException("Self-links are not allowed.");
+      throw new \InvalidArgumentException("Self-links are not allowed.");
     }
   }
 

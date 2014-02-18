@@ -53,6 +53,12 @@ class Episode {
      * @Column(type="text", nullable=true)
      * @var string
      */
+    private $preNotes = null;
+
+    /**
+     * @Column(type="text", nullable=true)
+     * @var string
+     */
     private $text = null;
 
     /**
@@ -115,6 +121,10 @@ class Episode {
         return $this->notes;
     }
 
+    public function getPreNotes() {
+        return $this->preNotes;
+    }
+
     public function getText() {
         return $this->text;
     }
@@ -153,6 +163,9 @@ class Episode {
     }
 
     public function setTitle($title) {
+        if(mb_strlen($title)>255) {
+            throw new \InvalidArgumentException("Title too long");
+        }
         $this->title = $title;
         return $this;
     }
@@ -164,6 +177,11 @@ class Episode {
 
     public function setNotes($notes) {
         $this->notes = $notes;
+        return $this;
+    }
+
+    public function setPreNotes($notes) {
+        $this->preNotes = $notes;
         return $this;
     }
 
