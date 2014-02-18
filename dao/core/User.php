@@ -30,7 +30,7 @@ class User {
    * @Column(type="smallint", nullable=false)
    * @var int
    */
-  private $role;
+  private $role = self::Anonymous;
 
   /**
    * @OneToMany(targetEntity="addventure\AuthorName", mappedBy="user", fetch="LAZY")

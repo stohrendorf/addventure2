@@ -6,6 +6,6 @@
     "doctrine/orm": "v2.4.2"
   },
   "autoload": {
-    "psr-0": {"": "dao/"}
+    "psr-4": {"addventure\\": "dao/core/"}
   }
 }
