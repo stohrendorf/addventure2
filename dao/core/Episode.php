@@ -86,7 +86,7 @@ class Episode {
     private $parent = null;
 
     /**
-     * @ManyToOne(targetEntity="addventure\AuthorName", cascade={"PERSIST"})
+     * @ManyToOne(targetEntity="addventure\AuthorName", inversedBy="episode", cascade={"PERSIST"})
      * @JoinColumn(name="author_id", referencedColumnName="id")
      * @var AuthorName
      */

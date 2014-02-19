@@ -5,7 +5,7 @@ namespace addventure;
 /**
  * @Entity
  * @Table(
- *     indexes={@Index(name="fromIndex", columns={"from"}), @Index(name="toIndex", columns={"to"})}
+ *     indexes={@Index(name="fromIndex", columns={"fromEp"}), @Index(name="toIndex", columns={"toEp"})}
  * )
  * @HasLifecycleCallbacks
  */
@@ -20,18 +20,18 @@ class Link {
   /**
    * @Id
    * @ManyToOne(targetEntity="addventure\Episode")
-   * @JoinColumn(name="from", referencedColumnName="id", nullable=false)
+   * @JoinColumn(name="fromEp", referencedColumnName="id", nullable=false)
    * @var Episode
    */
-  private $from;
+  private $fromEp;
 
   /**
    * @Id
    * @ManyToOne(targetEntity="addventure\Episode")
-   * @JoinColumn(name="to", referencedColumnName="id", nullable=false)
+   * @JoinColumn(name="toEp", referencedColumnName="id", nullable=false)
    * @var Episode
    */
-  private $to;
+  private $toEp;
 
   /**
    * @Column(type="string", nullable=false)
@@ -44,7 +44,7 @@ class Link {
    * @PreUpdate
    */
   public function checkInvariants() {
-    if ($this->from == $this->to) {
+    if ($this->fromEp == $this->toEp) {
       throw new \InvalidArgumentException("Self-links are not allowed.");
     }
   }
@@ -53,12 +53,12 @@ class Link {
     return $this->isBacklink;
   }
 
-  public function getFrom() {
-    return $this->from;
+  public function getFromEp() {
+    return $this->fromEp;
   }
 
-  public function getTo() {
-    return $this->to;
+  public function getToEp() {
+    return $this->toEp;
   }
 
   public function setIsBacklink($isBacklink) {
@@ -66,13 +66,13 @@ class Link {
     return $this;
   }
 
-  public function setFrom(Episode $from) {
-    $this->from = $from;
+  public function setFromEp(Episode $from) {
+    $this->fromEp = $from;
     return $this;
   }
 
-  public function setTo(Episode $to) {
-    $this->to = $to;
+  public function setToEp(Episode $to) {
+    $this->toEp = $to;
     return $this;
   }
 
