@@ -6,7 +6,7 @@ namespace addventure;
  * @Entity
  * @Table(indexes={@Index(name="userIndex", columns={"user_id"})})
  */
-class AuthorName {
+class AuthorName implements IAddventure {
 
     /**
      * @Id
@@ -79,6 +79,14 @@ class AuthorName {
             $this->episode = array();
         }
         $this->episode[] = $e;
+    }
+
+    public function toJson() {
+        return array(
+            'id' => $this->getId(),
+            'user' => $this->getUser()->getId(),
+            'name' => $this->getName()
+        );
     }
 
 }

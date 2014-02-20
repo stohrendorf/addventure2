@@ -3,8 +3,18 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "cbc377e24fd4d339d636cd125de5201b",
+    "hash": "cdac21bf7b74e10b48aab523f0d4bd41",
     "packages": [
+        {
+            "name": "ckeditor",
+            "version": "4.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ckeditor/ckeditor-releases.git",
+                "reference": "4.3.x/full"
+            },
+            "type": "library"
+        },
         {
             "name": "doctrine/annotations",
             "version": "v1.1.2",

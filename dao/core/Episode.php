@@ -15,7 +15,7 @@ namespace addventure;
  *     }
  * )
  */
-class Episode {
+class Episode implements IAddventure {
 
     /**
      * @Id
@@ -163,7 +163,7 @@ class Episode {
     }
 
     public function setTitle($title) {
-        if(mb_strlen($title)>255) {
+        if(mb_strlen($title) > 255) {
             throw new \InvalidArgumentException("Title too long");
         }
         $this->title = $title;
@@ -232,6 +232,20 @@ class Episode {
     public function setOldId($oldId) {
         $this->oldId = $oldId;
         return $this;
+    }
+
+    public function toJson() {
+        $tmp = array(
+            'id' => $this->getId(),
+            'title' => $this->getTitle()
+        );
+        if($c = $this->getCreated()) {
+            $tmp['created'] = $c->format('c');
+        }
+        if($a = $this->getAuthor()) {
+            $tmp['author'] = $a->toJson();
+        }
+        return $tmp;
     }
 
 }

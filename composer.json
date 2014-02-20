@@ -1,11 +1,35 @@
 {
-  "name": "application/addventure",
-  "description": "A system for creating a forest of stories.",
-  "license": "AGPL-3.0",
-  "require": {
-    "doctrine/orm": "v2.4.2"
-  },
-  "autoload": {
-    "psr-4": {"addventure\\": "dao/core/"}
-  }
+    "name": "application/addventure",
+    "description": "A system for creating a forest of stories.",
+    "license": "AGPL-3.0",
+    "repositories": {
+        "ckeditor": {
+            "type": "package",
+            "package": {
+                "name": "ckeditor",
+                "version": "4.2",
+                "source": {
+                    "url": "https://github.com/ckeditor/ckeditor-releases.git",
+                    "type": "git",
+                    "reference": "4.2.x/full"
+                }
+            },
+            "package": {
+                "name": "ckeditor",
+                "version": "4.3",
+                "source": {
+                    "url": "https://github.com/ckeditor/ckeditor-releases.git",
+                    "type": "git",
+                    "reference": "4.3.x/full"
+                }
+            }
+        }
+    },
+    "require": {
+        "doctrine/orm": "v2.4.2",
+        "ckeditor": "4.3"
+    },
+    "autoload": {
+        "psr-4": {"addventure\\": "dao/core/"}
+    }
 }
