@@ -2,3 +2,4 @@
 /nbproject/private/
 /dao/proxies/*
 /doctrine-bootstrap.php
+/init.sql
