@@ -22,15 +22,15 @@ class SimpleTag {
   private $title;
 
   /**
-   * @ManyToMany(targetEntity="addventure\Episode", inversedBy="simpleTag", fetch="EXTRA_LAZY")
+   * @ManyToMany(targetEntity="addventure\Episode", inversedBy="simpleTags", fetch="EXTRA_LAZY")
    * @JoinTable(
    *     name="EpisodeToSimpleTag", 
    *     joinColumns={@JoinColumn(name="simple_tag_id", referencedColumnName="id", nullable=false)}, 
    *     inverseJoinColumns={@JoinColumn(name="episode_id", referencedColumnName="id", nullable=false)}
    * )
-   * @var array
+   * @var Episode[]
    */
-  private $episode;
+  private $episodes;
 
   public function getId() {
     return $this->id;
@@ -40,8 +40,8 @@ class SimpleTag {
     return $this->title;
   }
 
-  public function getEpisode() {
-    return $this->episode;
+  public function getEpisodes() {
+    return $this->episodes;
   }
 
   public function setId($id) {
@@ -54,8 +54,8 @@ class SimpleTag {
     return $this;
   }
 
-  public function setEpisode($episode) {
-    $this->episode = $episode;
+  public function setEpisodes($episodes) {
+    $this->episodes = $episodes;
     return $this;
   }
 

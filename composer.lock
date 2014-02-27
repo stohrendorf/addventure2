@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "cdac21bf7b74e10b48aab523f0d4bd41",
+    "hash": "619f4513594c6d7c17334dc16136723f",
     "packages": [
         {
             "name": "ckeditor",
@@ -563,6 +563,138 @@
             "time": "2014-02-08 16:35:09"
         },
         {
+            "name": "frameworks/jquery",
+            "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/frameworks/jquery.git",
+                "reference": "50938c691a9b45bd84103f2686a69eeae2a41ed8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/frameworks/jquery/zipball/50938c691a9b45bd84103f2686a69eeae2a41ed8",
+                "reference": "50938c691a9b45bd84103f2686a69eeae2a41ed8",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "jQuery JavaScript Library",
+            "homepage": "http://jquery.com",
+            "time": "2014-01-24 18:22:45"
+        },
+        {
+            "name": "pear/log",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pear/Log.git",
+                "reference": "36e9aa3bfb3848e1f780fd222f953fe20f561532"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pear/Log/zipball/36e9aa3bfb3848e1f780fd222f953fe20f561532",
+                "reference": "36e9aa3bfb3848e1f780fd222f953fe20f561532",
+                "shasum": ""
+            },
+            "require": {
+                "pear/pear_exception": "*",
+                "php": ">5.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*"
+            },
+            "suggest": {
+                "pear/db": "Install optionally via your project's composer.json"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Log": "./"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "include-path": [
+                ""
+            ],
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jon Parise",
+                    "email": "jon@php.net",
+                    "homepage": "http://www.indelible.org",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PEAR Logging Framework",
+            "homepage": "http://pear.github.io/Log/",
+            "keywords": [
+                "log",
+                "logging"
+            ],
+            "time": "2014-02-19 04:11:12"
+        },
+        {
+            "name": "pear/pear_exception",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pear/PEAR_Exception.git",
+                "reference": "ae6d888a572dae2476c89adccb8af45ee8c2afbe"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pear/PEAR_Exception/zipball/ae6d888a572dae2476c89adccb8af45ee8c2afbe",
+                "reference": "ae6d888a572dae2476c89adccb8af45ee8c2afbe",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=4.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*"
+            },
+            "type": "class",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "PEAR": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "include-path": [
+                "."
+            ],
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Helgi Thormar",
+                    "email": "dufuz@php.net"
+                },
+                {
+                    "name": "Greg Beaver",
+                    "email": "cellog@php.net",
+                    "role": "lead"
+                }
+            ],
+            "description": "The PEAR Exception base class.",
+            "homepage": "https://github.com/pear/PEAR_Exception",
+            "keywords": [
+                "exception"
+            ],
+            "time": "2014-02-17 18:20:10"
+        },
+        {
             "name": "psr/log",
             "version": "1.0.0",
             "source": {
@@ -599,6 +731,50 @@
                 "psr-3"
             ],
             "time": "2012-12-21 11:40:51"
+        },
+        {
+            "name": "smarty/smarty",
+            "version": "v3.1.16",
+            "source": {
+                "type": "svn",
+                "url": "http://smarty-php.googlecode.com/svn",
+                "reference": "/tags/v3.1.16/@4802"
+            },
+            "require": {
+                "php": ">=5.2"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "distribution/libs/Smarty.class.php",
+                    "distribution/libs/SmartyBC.class.php",
+                    "distribution/libs/sysplugins/smarty_security.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Monte Ohrt",
+                    "email": "monte@ohrt.com"
+                },
+                {
+                    "name": "Uwe Tews",
+                    "email": "uwe.tews@googlemail.com"
+                },
+                {
+                    "name": "Rodney Rehm",
+                    "email": "rodney.rehm@medialize.de"
+                }
+            ],
+            "description": "Smarty - the compiling PHP template engine",
+            "homepage": "http://www.smarty.net",
+            "keywords": [
+                "templating"
+            ],
+            "time": "2013-12-17 16:56:58"
         },
         {
             "name": "symfony/icu",
@@ -763,6 +939,48 @@
             "time": "2014-02-12 19:27:03"
         },
         {
+            "name": "twbs/bootstrap",
+            "version": "v3.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/twbs/bootstrap.git",
+                "reference": "a365d8689c3f3cee7f1acf86b61270ecca8e106d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/a365d8689c3f3cee7f1acf86b61270ecca8e106d",
+                "reference": "a365d8689c3f3cee7f1acf86b61270ecca8e106d",
+                "shasum": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0.x-dev"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jacob Thornton",
+                    "email": "jacobthornton@gmail.com"
+                },
+                {
+                    "name": "Mark Otto",
+                    "email": "markdotto@gmail.com"
+                }
+            ],
+            "description": "Sleek, intuitive, and powerful mobile first front-end framework for faster and easier web development.",
+            "homepage": "http://getbootstrap.com",
+            "keywords": [
+                "bootstrap",
+                "css"
+            ],
+            "time": "2014-02-13 17:24:59"
+        },
+        {
             "name": "twig/twig",
             "version": "v1.15.1",
             "source": {
@@ -827,9 +1045,9 @@
 
     ],
     "minimum-stability": "stable",
-    "stability-flags": [
-
-    ],
+    "stability-flags": {
+        "pear/log": 20
+    },
     "platform": [
 
     ],

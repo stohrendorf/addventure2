@@ -7,7 +7,7 @@ if(!isset($argv[1])) {
 require 'doctrine-bootstrap.php';
 
 /**
- * @var addventure\AuthorName
+ * @global addventure\AuthorName $author
  */
 $author = $entityManager->getRepository('addventure\AuthorName')->findOneBy(array('name' => $argv[1]));
 if(!$author) {

@@ -34,9 +34,9 @@ class User {
 
   /**
    * @OneToMany(targetEntity="addventure\AuthorName", mappedBy="user", fetch="LAZY")
-   * @var array
+   * @var AuthorName[]
    */
-  private $authorName;
+  private $authorNames;
 
   public function getId() {
     return $this->id;
@@ -50,8 +50,8 @@ class User {
     return $this->role;
   }
 
-  public function getAuthorName() {
-    return $this->authorName;
+  public function getAuthorNames() {
+    return $this->authorNames;
   }
 
   public function setId($id) {
@@ -69,8 +69,8 @@ class User {
     return $this;
   }
 
-  public function setAuthorName($authorName) {
-    $this->authorName = $authorName;
+  public function setAuthorNames($authorNames) {
+    $this->authorName = $authorNames;
     return $this;
   }
 

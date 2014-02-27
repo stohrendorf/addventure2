@@ -23,9 +23,9 @@ class StorylineTag {
 
   /**
    * @OneToMany(targetEntity="addventure\Episode", mappedBy="storylineTag", fetch="EXTRA_LAZY")
-   * @var array
+   * @var Episode[]
    */
-  private $episode;
+  private $episodes;
 
   public function getId() {
     return $this->id;
@@ -35,8 +35,8 @@ class StorylineTag {
     return $this->name;
   }
 
-  public function getEpisode() {
-    return $this->episode;
+  public function getEpisodes() {
+    return $this->episodes;
   }
 
   public function setId($id) {
@@ -49,8 +49,8 @@ class StorylineTag {
     return $this;
   }
 
-  public function setEpisode($episode) {
-    $this->episode = $episode;
+  public function setEpisodes($episodes) {
+    $this->episodes = $episodes;
     return $this;
   }
 

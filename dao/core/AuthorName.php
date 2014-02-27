@@ -23,7 +23,7 @@ class AuthorName implements IAddventure {
     private $name = null;
 
     /**
-     * @ManyToOne(targetEntity="addventure\User", inversedBy="authorName", fetch="LAZY", cascade={"PERSIST"})
+     * @ManyToOne(targetEntity="addventure\User", inversedBy="authorNames", fetch="LAZY", cascade={"PERSIST"})
      * @JoinColumn(name="user_id", referencedColumnName="id", nullable=false)
      * @var User
      */
@@ -31,12 +31,12 @@ class AuthorName implements IAddventure {
 
     /**
      * @OneToMany(targetEntity="addventure\Episode", mappedBy="author", fetch="EXTRA_LAZY")
-     * @var array
+     * @var Episode[]
      */
-    private $episode = null;
+    private $episodes = null;
 
-    public function getEpisode() {
-        return $this->episode;
+    public function getEpisodes() {
+        return $this->episodes;
     }
 
     public function getId() {
@@ -57,6 +57,9 @@ class AuthorName implements IAddventure {
     }
 
     public function setName($name) {
+        if(empty($name)) {
+            throw new \InvalidArgumentException("Name must not be empty");
+        }
         if(mb_strlen($name) > 200) {
             throw new \InvalidArgumentException("Name too long: " . mb_strlen($name));
         }
@@ -69,24 +72,41 @@ class AuthorName implements IAddventure {
         return $this;
     }
 
-    public function setEpisode(array $episode) {
-        $this->episode = $episode;
+    public function setEpisodes($episodes) {
+        $this->episodes = $episodes;
         return $this;
     }
 
     public function addEpisode(Episode $e) {
-        if($this->episode == null) {
-            $this->episode = array();
+        if($this->episodes == null) {
+            $this->episodes = new \Doctrine\Common\Collections\ArrayCollection();
         }
-        $this->episode[] = $e;
+        $this->episodes . add($e);
     }
 
     public function toJson() {
         return array(
             'id' => $this->getId(),
-            'user' => $this->getUser()->getId(),
+            'user' => ($this->getUser() != null ? $this->getUser()->getId() : null),
             'name' => $this->getName()
         );
+    }
+
+    public function toSmarty() {
+        return array(
+            'id' => $this->getId(),
+            'user' => ($this->getUser() != null ? $this->getUser()->getId() : null),
+            'name' => $this->getName()
+        );
+    }
+
+    public function toRss(\SimpleXMLElement &$parent) {
+        
+    }
+
+    public function toAtom(\SimpleXMLElement &$entry) {
+        $a = $entry->addChild('author');
+        $a->addChild('name', htmlspecialchars($this->getName()));
     }
 
 }
