@@ -1,170 +1,205 @@
 <?php
 
-require 'doctrine-bootstrap.php';
+/*
+ *---------------------------------------------------------------
+ * APPLICATION ENVIRONMENT
+ *---------------------------------------------------------------
+ *
+ * You can load different configurations depending on your
+ * current environment. Setting the environment also influences
+ * things like logging and error reporting.
+ *
+ * This can be set to anything, but default usage is:
+ *
+ *     development
+ *     testing
+ *     production
+ *
+ * NOTE: If you change these, also change the error_reporting() code below
+ *
+ */
+	define('ENVIRONMENT', 'development');
+/*
+ *---------------------------------------------------------------
+ * ERROR REPORTING
+ *---------------------------------------------------------------
+ *
+ * Different environments will require different levels of error reporting.
+ * By default development will show errors but testing and live will hide them.
+ */
 
-$s = new Smarty();
-$s->setTemplateDir(__DIR__ . '/templates');
-$s->setCacheDir(__DIR__ . '/templates/cache');
-$s->setCompileDir(__DIR__ . '/templates/compiled');
-$s->setConfigDir(__DIR__ . '/templates/config');
+if (defined('ENVIRONMENT'))
+{
+	switch (ENVIRONMENT)
+	{
+		case 'development':
+			error_reporting(E_ALL);
+		break;
+	
+		case 'testing':
+		case 'production':
+			error_reporting(0);
+		break;
 
-function usecaseFixAuthors() {
-    global $s, $entityManager, $logger;
-    $logger->debug('Usecase: maintenance.fixauthors');
-    $docId = NULL;
-    if(isset($_GET['docid'])) {
-        $docId = filter_input(INPUT_GET, 'docid', FILTER_SANITIZE_NUMBER_INT);
-        $ep = $entityManager->getRepository('addventure\Episode')->find($docId);
-        if(!$ep) {
-            echo "Invalid DocID!";
-        }
-        elseif(!$ep->getAuthor()) {
-            echo "Doc has no author!";
-        }
-        elseif(!$ep->getNotes()) {
-            echo "Doc has no notes!";
-        }
-        else {
-            $author = findOrCreateAuthor($ep->getAuthor()->getName() . $ep->getNotes());
-            if($author != null) {
-                $oldAuthor = $ep->getAuthor();
-                $oldNotes = $ep->getNotes();
-                $logger->debug('Fixing authors for ' . count($oldAuthor->getEpisodes()) . ' episode(s)');
-                foreach($oldAuthor->getEpisodes() as $ep2) {
-                    if($ep2->getNotes() !== $oldNotes) {
-                        continue;
-                    }
-                    $ep2->setAuthor($author);
-                    $ep2->setNotes(null);
-                    $entityManager->persist($ep2);
-                }
-                $entityManager->flush();
-            }
-        }
-    }
-    $dql = 'SELECT e, LENGTH(e.notes) AS HIDDEN l FROM addventure\Episode e WHERE e.notes IS NOT NULL ORDER BY l';
-    $q = $entityManager->createQuery($dql);
-    $q->setMaxResults(300);
-    try {
-        foreach($q->getResult() as $ep) {
-            $s->append('episodes', $ep->toSmarty());
-        }
-    }
-    catch(\Exception $e) {
-        $logger->crit($e);
-    }
-    $s->display('fixauthors.tpl');
+		default:
+			exit('The application environment is not set correctly.');
+	}
 }
 
-require_once 'addventure-util.php';
+/*
+ *---------------------------------------------------------------
+ * SYSTEM FOLDER NAME
+ *---------------------------------------------------------------
+ *
+ * This variable must contain the name of your "system" folder.
+ * Include the path if the folder is not in the same  directory
+ * as this file.
+ *
+ */
+	$system_path = 'system';
 
-if(isset($_GET['doc'])) {
-    $ep = $entityManager->find('addventure\Episode', filter_input(INPUT_GET, 'doc', FILTER_SANITIZE_NUMBER_INT));
-    if($ep) {
-        if($ep->getText() === NULL) {
-            $s->display('create.tpl');
-        }
-        else {
-            $chain = filter_input(INPUT_GET, 'chain', FILTER_SANITIZE_NUMBER_INT);
-            if($chain === false || $chain === null || $chain <= 0) {
-                $s->assign('episode', $ep->toSmarty());
-                $s->display('episode.tpl');
-            }
-            else {
-                $eps = array();
-                $s->assign('targetEpisode', $ep->getId());
-                while($ep && --$chain >= 0) {
-                    $sm = $ep->toSmarty();
-                    $parent = $ep->getParent();
-                    if($parent) {
-                        $link = $entityManager->find('addventure\Link', array('fromEp' => $parent->getId(), 'toEp' => $ep->getId()));
-                        if(!$link) {
-                            $logger->crit('No link from doc #' . $parent->getId() . ' to doc #' . $ep->getId());
-                            $sm['chosen'] = 'o.O MAGIC';
-                        }
-                        else {
-                            $sm['chosen'] = $link->getTitle();
-                        }
-                    }
-                    array_unshift($eps, $sm);
-                    $ep = $parent;
-                }
-                $s->assign('episodes', $eps);
-                $s->display('chain.tpl');
-            }
-        }
-    }
-}
-elseif(isset($_GET['maintenance'])) {
-    switch(filter_input(INPUT_GET, 'maintenance', FILTER_SANITIZE_STRING)) {
-        case 'fixauthors':
-            usecaseFixAuthors();
-            break;
-        case 'reportTitle':
-            $logger->debug('reportTitle: ' . $_GET['docid']);
-            returnToReferrer();
-            break;
-        case 'reportNotes':
-            $logger->debug('reportNotes: ' . $_GET['docid']);
-            returnToReferrer();
-            break;
-        default:
-            echo "EEEK";
-            break;
-    }
-}
-elseif(isset($_GET['user'])) {
-    $userId = filter_input(INPUT_GET, 'user', FILTER_SANITIZE_NUMBER_INT);
-    $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT);
-    if($page === null || $page === false) {
-        $page = 0;
-    }
-    $numEpisodes = $entityManager->getRepository('addventure\Episode')->findByUser(
-            $userId, function(addventure\Episode $ep) use($s) {
-        $s->append('episodes', $ep->toSmarty());
-    }, $page
-    );
-    $s->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
-    $d = $entityManager->getRepository('addventure\Episode')->firstCreatedByUser($userId);
-    if($d) {
-        $s->assign('firstCreated', $d->format("l, d M Y H:i"));
-    }
-    $d = $entityManager->getRepository('addventure\Episode')->lastCreatedByUser($userId);
-    if($d) {
-        $s->assign('lastCreated', $d->format("l, d M Y H:i"));
-    }
-    $s->assign('episodeCount', $numEpisodes);
-    $s->assign('userid', $userId);
-    $s->assign('page', $page);
-    $maxPage = floor(($numEpisodes + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
-    $s->assign('pagination', createPagination(0, $maxPage - 1, $page, './?user=' . $userId . '&'));
-    $s->display('by_user.tpl');
-}
-elseif(isset($_GET['recent'])) {
-    $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT);
-    if($user !== null && $user !== false) {
-        $eps = $entityManager->getRepository('addventure\Episode')->getRecentEpisodesByUser(-1, $user, $page);
-    }
-    else {
-        $eps = $entityManager->getRepository('addventure\Episode')->getRecentEpisodes(-1, $page);
-    }
-    $maxPage = floor(($eps->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
-    $s->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
-    $s->assign('pagination', createPagination(0, $maxPage - 1, $page, './?recent&'));
-    foreach($eps as $ep) {
-        $s->append('episodes', $ep->toSmarty());
-    }
-    $s->display('recent.tpl');
-}
-elseif(isset($_GET['log'])) {
-    echo '<pre>';
-    echo file_get_contents('addventure.log');
-    echo '</pre>';
-}
-elseif(isset($_GET['illegal'])) {
-    $logger->debug('Illegal: ' . $_GET['illegal']);
-    returnToReferrer();
-}
-else {
-    $s->display('main.tpl');
-}
+/*
+ *---------------------------------------------------------------
+ * APPLICATION FOLDER NAME
+ *---------------------------------------------------------------
+ *
+ * If you want this front controller to use a different "application"
+ * folder then the default one you can set its name here. The folder
+ * can also be renamed or relocated anywhere on your server.  If
+ * you do, use a full server path. For more info please see the user guide:
+ * http://codeigniter.com/user_guide/general/managing_apps.html
+ *
+ * NO TRAILING SLASH!
+ *
+ */
+	$application_folder = 'application';
+
+/*
+ * --------------------------------------------------------------------
+ * DEFAULT CONTROLLER
+ * --------------------------------------------------------------------
+ *
+ * Normally you will set your default controller in the routes.php file.
+ * You can, however, force a custom routing by hard-coding a
+ * specific controller class/function here.  For most applications, you
+ * WILL NOT set your routing here, but it's an option for those
+ * special instances where you might want to override the standard
+ * routing in a specific front controller that shares a common CI installation.
+ *
+ * IMPORTANT:  If you set the routing here, NO OTHER controller will be
+ * callable. In essence, this preference limits your application to ONE
+ * specific controller.  Leave the function name blank if you need
+ * to call functions dynamically via the URI.
+ *
+ * Un-comment the $routing array below to use this feature
+ *
+ */
+	// The directory name, relative to the "controllers" folder.  Leave blank
+	// if your controller is not in a sub-folder within the "controllers" folder
+	// $routing['directory'] = '';
+
+	// The controller class file name.  Example:  Mycontroller
+	// $routing['controller'] = '';
+
+	// The controller function you wish to be called.
+	// $routing['function']	= '';
+
+
+/*
+ * -------------------------------------------------------------------
+ *  CUSTOM CONFIG VALUES
+ * -------------------------------------------------------------------
+ *
+ * The $assign_to_config array below will be passed dynamically to the
+ * config class when initialized. This allows you to set custom config
+ * items or override any default config values found in the config.php file.
+ * This can be handy as it permits you to share one application between
+ * multiple front controller files, with each file containing different
+ * config values.
+ *
+ * Un-comment the $assign_to_config array below to use this feature
+ *
+ */
+	// $assign_to_config['name_of_config_item'] = 'value of config item';
+
+
+
+// --------------------------------------------------------------------
+// END OF USER CONFIGURABLE SETTINGS.  DO NOT EDIT BELOW THIS LINE
+// --------------------------------------------------------------------
+
+/*
+ * ---------------------------------------------------------------
+ *  Resolve the system path for increased reliability
+ * ---------------------------------------------------------------
+ */
+
+	// Set the current directory correctly for CLI requests
+	if (defined('STDIN'))
+	{
+		chdir(dirname(__FILE__));
+	}
+
+	if (realpath($system_path) !== FALSE)
+	{
+		$system_path = realpath($system_path).'/';
+	}
+
+	// ensure there's a trailing slash
+	$system_path = rtrim($system_path, '/').'/';
+
+	// Is the system path correct?
+	if ( ! is_dir($system_path))
+	{
+		exit("Your system folder path does not appear to be set correctly. Please open the following file and correct this: ".pathinfo(__FILE__, PATHINFO_BASENAME));
+	}
+
+/*
+ * -------------------------------------------------------------------
+ *  Now that we know the path, set the main path constants
+ * -------------------------------------------------------------------
+ */
+	// The name of THIS file
+	define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));
+
+	// The PHP file extension
+	// this global constant is deprecated.
+	define('EXT', '.php');
+
+	// Path to the system folder
+	define('BASEPATH', str_replace("\\", "/", $system_path));
+
+	// Path to the front controller (this file)
+	define('FCPATH', str_replace(SELF, '', __FILE__));
+
+	// Name of the "system folder"
+	define('SYSDIR', trim(strrchr(trim(BASEPATH, '/'), '/'), '/'));
+
+
+	// The path to the "application" folder
+	if (is_dir($application_folder))
+	{
+		define('APPPATH', $application_folder.'/');
+	}
+	else
+	{
+		if ( ! is_dir(BASEPATH.$application_folder.'/'))
+		{
+			exit("Your application folder path does not appear to be set correctly. Please open the following file and correct this: ".SELF);
+		}
+
+		define('APPPATH', BASEPATH.$application_folder.'/');
+	}
+
+/*
+ * --------------------------------------------------------------------
+ * LOAD THE BOOTSTRAP FILE
+ * --------------------------------------------------------------------
+ *
+ * And away we go...
+ *
+ */
+require_once BASEPATH.'core/CodeIgniter.php';
+
+/* End of file index.php */
+/* Location: ./index.php */
