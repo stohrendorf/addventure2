@@ -9,7 +9,7 @@
             <ol start="{$firstIndex+1}">
                 {foreach $episodes as $episode}
                     <li>
-                        <a href="?doc={$episode.id}">
+                        <a href="{$url.site}/doc/{$episode.id}">
                             {if !empty($episode.title)}
                                 {$episode.title}
                             {else}
@@ -17,7 +17,7 @@
                             {/if}
                         </a>
                         {if isset($episode.author)}
-                            by <a href="./?user={$episode.author.user}">{$episode.author.name}</a>
+                            by <a href="{$url.site}/recent/user/{$episode.author.user}">{$episode.author.name}</a>
                         {/if}
                         {if isset($episode.created)}
                             on {$episode.created}

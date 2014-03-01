@@ -7,10 +7,10 @@ namespace addventure;
  */
 class Report {
 
-    const REPORTED = 0;
+    const ILLEGAL = 0;
     const WRONG_TOP_NOTES = 1;
     const WRONG_BOTTOM_NOTES = 2;
-    const NEEDS_EDIT = 3;
+    const FORMATTING = 3;
 
     /**
      * @Id
@@ -25,7 +25,7 @@ class Report {
      * @Column(type="integer", nullable=false)
      * @var integer
      */
-    private $type = self::REPORTED;
+    private $type = self::ILLEGAL;
 
     public function getEpisode() {
         return $this->episode;

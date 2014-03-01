@@ -39,8 +39,19 @@ $logger = Log::singleton('file', 'addventure.log', '');
 if(ADDVENTURE_DEV_MODE) {
     define('JSON_FLAGS', JSON_PRETTY_PRINT);
     $logger->setMask(PEAR_LOG_ALL);
+    error_reporting(E_ALL);
 }
 else {
     define('JSON_FLAGS', 0);
     $logger->setMask(PEAR_LOG_WARNING);
+    error_reporting(0);
+}
+
+function getFullLogData() {
+    if(file_exists('addventure.log')) {
+        return file_get_contents('addventure.log');
+    }
+    else {
+        return '';
+    }
 }

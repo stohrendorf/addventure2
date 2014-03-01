@@ -3,12 +3,12 @@
     <head>
         <title>{block name=title}{/block}</title>
         <meta charset="UTF-8"/>
-        <script src="vendor/frameworks/jquery/jquery.min.js"></script>
-        <script src="vendor/twbs/bootstrap/dist/js/bootstrap.min.js"></script>
-        <link href="vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"/>
-        <link href="vendor/twbs/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet"/>
-        <link href="./rss.php?what=recent&count=100" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes (RSS 2.0)"/>
-        <link href="./atom.php?what=recent&count=100" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes (ATOM)"/>
+        <script src="{$url.jquery}"></script>
+        <script src="{$url.bootstrap.js}"></script>
+        <link href="{$url.bootstrap.css}" rel="stylesheet"/>
+        <link href="{$url.bootstrap.theme}" rel="stylesheet"/>
+        <link href="{$url.site}/rss.php?what=recent&count=100" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes (RSS 2.0)"/>
+        <link href="{$url.site}/atom.php?what=recent&count=100" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes (ATOM)"/>
         {literal}<style>
                 a:visited{color:purple;}
                 a.unwritten-episode{color:#AA0000;}
@@ -29,20 +29,20 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="./"><span class="glyphicon glyphicon-tree-deciduous"></span>Plank</a>
+                    <a class="navbar-brand" href="{$url.site}"><span class="glyphicon glyphicon-tree-deciduous"></span>Plank</a>
                 </div>
                 <div class="collapse navbar-collapse" id="navbar-collapse">
                     <ul class="nav navbar-nav">
                         <li><a href="./">Trunk of the Tree</a></li>
-                        <li{if isset($smarty.get.recent)} class="active"{/if}><a href="./?recent">The Freshest Leaves</a></li>
+                        <li{if isset($smarty.get.recent)} class="active"{/if}><a href="{$url.site}/recent">The Freshest Leaves</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Login <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <form class="navbar-form form-signin" method="POST" action="./">
-                                        <h5 class="form-signin-heading">Log in or <a href="./?register">register</a>.</h5>
+                                    <form class="navbar-form form-signin" method="POST" action="{$url.site}/login">
+                                        <h5 class="form-signin-heading">Log in or <a href="{$url.site}/register">register</a>.</h5>
                                         <input class="form-control" type="email" placeholder="E-Mail" name="email" required autofocus/>
                                         <input class="form-control" type="password" placeholder="Password" name="password" required/>
                                         <label class="checkbox">

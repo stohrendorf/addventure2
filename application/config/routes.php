@@ -40,6 +40,11 @@
 
 $route['default_controller'] = "welcome";
 $route['404_override'] = '';
+$route['user/(:num)'] = 'recent/user/$1';
+$route['recent/(:num)/(:num)'] = 'recent/user/$1/$2';
+$route['recent/(:num)'] = 'recent/index/$1';
+$route['doc/(:num)'] = 'doc/index/$1';
+$route['chain/(:num)/(:num)'] = 'doc/chain/$1/$2';
 
 
 /* End of file routes.php */

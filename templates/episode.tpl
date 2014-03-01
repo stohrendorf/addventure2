@@ -5,8 +5,8 @@
 
 {block name="headElements" append}
     {if isset($episode.author)}
-        <link href="./rss.php?what=recent&count=100&user={$episode.author.user}" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes written by {$episode.author.name|escape} (RSS 2.0)"/>
-        <link href="./atom.php?what=recent&count=100&user={$episode.author.user}" rel="alternate" type="application/atom+xml" title="The 100 most recent episodes written by {$episode.author.name|escape} (ATOM)"/>
+        <link href="{$url.site}/rss.php?what=recent&count=100&user={$episode.author.user}" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes written by {$episode.author.name|escape} (RSS 2.0)"/>
+        <link href="{$url.site}/atom.php?what=recent&count=100&user={$episode.author.user}" rel="alternate" type="application/atom+xml" title="The 100 most recent episodes written by {$episode.author.name|escape} (ATOM)"/>
     {/if}
 {/block}
 
@@ -15,17 +15,17 @@
     <div class="panel panel-primary">
         <div class="panel-body">
             #{$episode.id}
-            {if isset($episode.author)}is written by <a href="?user={$episode.author.user}">{$episode.author.name}</a>.{/if}
+            {if isset($episode.author)}is written by <a href="{$url.site}/user/{$episode.author.user}">{$episode.author.name}</a>.{/if}
             {if isset($episode.created)}({$episode.created}){/if}
-            <a href="?illegal={$episode.id}" style="color:red;" class="pull-right" id="report"
+            <a href="{$url.site}/maintenance/illegal/{$episode.id}" style="color:red;" class="pull-right" id="report"
                data-toggle="tooltip" data-placement="right" title="This function is for reporting content that breaks the rules, not for crying about a bad story."> <span class="glyphicon glyphicon-fire"></span> Report inappropriate content</a>
         </div>
         <div class="panel-footer">
             It has been seen {$episode.hitcount} times, and {$episode.likes} people liked it, while {$episode.dislikes} didn't.
             <div class="pull-right">
                 What do <em>you</em> think?
-                <a href="?like={$episode.id}"> <span class="glyphicon glyphicon-heart"></span> I like it!</a>
-                <a href="?dislike={$episode.id}"> <span class="glyphicon glyphicon-heart-empty"></span> Na, could have been better...</a>
+                <a href="{$url.site}/like/{$episode.id}"> <span class="glyphicon glyphicon-heart"></span> I like it!</a>
+                <a href="{$url.site}/dislike/{$episode.id}"> <span class="glyphicon glyphicon-heart-empty"></span> Na, could have been better...</a>
             </div>
             <div class="clearfix"></div>
         </div>
@@ -36,7 +36,7 @@
             <div class="panel-heading">Author's Notes</div>
             <div class="panel-body">{$episode.preNotes}</div>
             <div class="panel-footer"><small>This note has been <em>automatically</em> taken from the episode's legacy title, as it seemed pretty long.
-                    But machines aren't perfect: do you think this is wrong? <a href="?maintenance=reportTitle&docid={$episode.id}">Report it!</a></small></div>
+                    But machines aren't perfect: do you think this is wrong? <a href="{$url.site}/maintenance/reportTitle/{$episode.id}">Report it!</a></small></div>
         </div>
     {/if}
 
@@ -47,7 +47,7 @@
             <div class="panel-heading">Author's Notes</div>
             <div class="panel-body">{$episode.notes}</div>
             <div class="panel-footer"><small>This note has been <em>automatically</em> extracted from the legacy episode's author name.
-                    But machines aren't perfect: do you think this was done wrong? <a href="?maintenance=reportNotes&docid={$episode.id}">Report it!</a></small></div>
+                    But machines aren't perfect: do you think this was done wrong? <a href="{$url.site}/maintenance/reportNotes/{$episode.id}">Report it!</a></small></div>
         </div>
     {/if}
     <div class="panel panel-primary">
@@ -55,7 +55,7 @@
             {if count($episode.children)>0}
                 {foreach $episode.children as $link}
                     <p style="margin:0 0 0.3em 1em;">
-                        <a href="?doc={$link.toEp}"
+                        <a href="{$url.site}/doc/{$link.toEp}"
                            {if !$link.isWritten}
                                class="unwritten-episode" data-toggle="tooltip" data-placement="left" title="If you feel inspired now, you can add a new leaf to the tree.">
                                <span class="glyphicon glyphicon-pencil"></span>
@@ -75,7 +75,7 @@
                 <ul>
                     {foreach $episode.backlinks as $link}
                         <li>
-                            <a href="?doc={$link.fromEp}">
+                            <a href="{$url.site}/doc/{$link.fromEp}">
                                 {$link.title|escape}
                             </a>
                         </li>
@@ -91,7 +91,7 @@
             });
             $('#report').tooltip();</script>
             {if isset($episode.parent)}
-            <div class="panel-footer"><a href="?doc={$episode.parent}"><span class="glyphicon glyphicon-circle-arrow-left"></span> Go to the parent episode.</a></div>
+            <div class="panel-footer"><a href="{$url.site}/doc/{$episode.parent}"><span class="glyphicon glyphicon-circle-arrow-left"></span> Go to the parent episode.</a></div>
         {/if}
     </div>
 

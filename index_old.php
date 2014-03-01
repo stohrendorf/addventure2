@@ -142,6 +142,7 @@ elseif(isset($_GET['user'])) {
 }
 elseif(isset($_GET['recent'])) {
     $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_NUMBER_INT);
+    $user = filter_input(INPUT_GET, 'user', FILTER_SANITIZE_NUMBER_INT);
     if($user !== null && $user !== false) {
         $eps = $entityManager->getRepository('addventure\Episode')->getRecentEpisodesByUser(-1, $user, $page);
     }

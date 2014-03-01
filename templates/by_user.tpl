@@ -4,8 +4,8 @@
 {/block}
 
 {block name="headElements" append}
-    <link href="./rss.php?what=recent&count=100&user={$userid}" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes written by user #{$userid} (RSS 2.0)"/>
-    <link href="./atom.php?what=recent&count=100&user={$userid}" rel="alternate" type="application/atom+xml" title="The 100 most recent episodes written by user #{$userid} (ATOM)"/>
+    <link href="{$url.site}/rss.php?what=recent&count=100&user={$userid}" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes written by user #{$userid} (RSS 2.0)"/>
+    <link href="{$url.site}/atom.php?what=recent&count=100&user={$userid}" rel="alternate" type="application/atom+xml" title="The 100 most recent episodes written by user #{$userid} (ATOM)"/>
 {/block}
 
 {block name=body}
@@ -17,7 +17,7 @@
             <ol start="{$firstIndex+1}">
                 {foreach $episodes as $episode}
                     <li>
-                        <a href="?doc={$episode.id}">
+                        <a href="{$url.site}/doc/{$episode.id}">
                             {if !empty($episode.title)}
                                 {$episode.title}
                             {else}

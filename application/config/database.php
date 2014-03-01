@@ -49,9 +49,9 @@ $active_group = 'default';
 $active_record = TRUE;
 
 $db['default']['hostname'] = 'localhost';
-$db['default']['username'] = '';
-$db['default']['password'] = '';
-$db['default']['database'] = '';
+$db['default']['username'] = ADDVENTURE_DB_USER;
+$db['default']['password'] = ADDVENTURE_DB_PASSWORD;
+$db['default']['database'] = ADDVENTURE_DB_SCHEMA;
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
