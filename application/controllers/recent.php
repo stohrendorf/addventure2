@@ -19,7 +19,7 @@ class Recent extends CI_Controller {
         $maxPage = floor(($eps->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
         $smarty = createSmarty();
         $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
-        $smarty->assign('pagination', createPagination(0, $maxPage - 1, $page, site_url('recent') . '/'));
+        $smarty->assign('pagination', createPagination($maxPage, $page, site_url('recent') . '/'));
         foreach($eps as $ep) {
             $smarty->append('episodes', $ep->toSmarty());
         }
@@ -56,7 +56,7 @@ class Recent extends CI_Controller {
         $smarty->assign('userid', $userId);
         $smarty->assign('page', $page);
         $maxPage = floor(($numEpisodes + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
-        $smarty->assign('pagination', createPagination(0, $maxPage - 1, $page, site_url('recent/user', $userId) . '/'));
+        $smarty->assign('pagination', createPagination($maxPage, $page, site_url('recent/user', $userId) . '/'));
         $smarty->display('by_user.tpl');
     }
 

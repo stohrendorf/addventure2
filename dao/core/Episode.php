@@ -342,7 +342,7 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
             throw new \InvalidArgumentException('Page is not numeric.');
         }
 
-        $dql = 'SELECT e FROM addventure\Episode e ORDER BY e.created DESC';
+        $dql = 'SELECT e FROM addventure\Episode e WHERE e.text IS NOT NULL ORDER BY e.created DESC';
         $qb = $this->getEntityManager()->createQuery($dql)->setFirstResult($page * $count)->setMaxResults($count);
         return new \Doctrine\ORM\Tools\Pagination\Paginator($qb, false);
     }
@@ -365,7 +365,7 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
             return NULL;
         }
         $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('e')->from('addventure\Episode', 'e')->orderBy('e.created', 'DESC');
+        $qb->select('e')->from('addventure\Episode', 'e')->where('e.text IS NOT NULL')->orderBy('e.created', 'DESC');
         foreach($user->getAuthorNames() as $a) {
             $qb->orWhere('e.author=' . $a->getId());
         }
