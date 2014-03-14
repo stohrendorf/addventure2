@@ -20,11 +20,11 @@ class Doc extends CI_Controller {
         $ep = $entityManager->find('addventure\Episode', $docId);
         if($ep) {
             if($ep->getText() === NULL) {
-                $smarty->display('create.tpl');
+                $smarty->display('doc_create.tpl');
             }
             else {
                 $smarty->assign('episode', $ep->toSmarty());
-                $smarty->display('episode.tpl');
+                $smarty->display('doc_episode.tpl');
             }
         }
         else {
@@ -50,7 +50,8 @@ class Doc extends CI_Controller {
             if($parent) {
                 $link = $entityManager->find('addventure\Link', array('fromEp' => $parent->getId(), 'toEp' => $ep->getId()));
                 if(!$link) {
-                    $logger->crit('No link from doc #' . $parent->getId() . ' to doc #' . $ep->getId());
+                    $this->load->library('log');
+                    $this->log->crit('No link from doc #' . $parent->getId() . ' to doc #' . $ep->getId());
                     $sm['chosen'] = 'o.O MAGIC';
                 }
                 else {
@@ -61,7 +62,7 @@ class Doc extends CI_Controller {
             $ep = $parent;
         }
         $smarty->assign('episodes', $eps);
-        $smarty->display('chain.tpl');
+        $smarty->display('doc_chain.tpl');
     }
 
 }

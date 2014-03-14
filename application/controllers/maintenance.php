@@ -7,19 +7,20 @@ if(!defined('BASEPATH')) {
 class Maintenance extends CI_Controller {
 
     private function report($docId, $description, $type) {
-        global $logger, $entityManager;
+        $this->load->library('log');
+        global $entityManager;
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === null || $docId === false) {
-            $logger->warn('Maintenance/' . $description . ' - invalid DocID');
+            $this->log->warning('Maintenance/' . $description . ' - invalid DocID');
             show_404();
         }
         $ep = $entityManager->find('addventure\Episode', $docId);
         if(!$ep) {
-            $logger->warning('Maintenance/' . $description . ' - Document not found: ' . $docId);
+            $this->log->warning('Maintenance/' . $description . ' - Document not found: ' . $docId);
             show_404();
             return;
         }
-        $logger->debug('Maintenance/' . $description . ': ' . $docId);
+        $this->log->debug('Maintenance/' . $description . ': ' . $docId);
         $report = new addventure\Report();
         $report->setEpisode($ep);
         $report->setType($type);
@@ -28,7 +29,7 @@ class Maintenance extends CI_Controller {
             $entityManager->flush();
         }
         catch(PDOException $e) {
-            $logger->debug('Maintenance/' . $description . ': Duplicate ' . $docId);
+            $this->log->debug('Maintenance/' . $description . ': Duplicate ' . $docId);
         }
     }
 

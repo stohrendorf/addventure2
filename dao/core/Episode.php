@@ -100,7 +100,7 @@ class Episode implements IAddventure {
     private $storylineTag = null;
 
     /**
-     * @ManyToMany(targetEntity="addventure\SimpleTag", mappedBy="episodes")
+     * @ManyToMany(targetEntity="addventure\SimpleTag", mappedBy="episodes", cascade={"PERSIST","REMOVE"})
      * @var SimpleTag[]
      */
     private $simpleTags = null;
@@ -248,6 +248,16 @@ class Episode implements IAddventure {
         $this->linkable = $linkable;
         return $this;
     }
+    
+    public function addSimpleTag(SimpleTag $tag) {
+        if($tag===null) {
+            return;
+        }
+        if(!$this->simpleTags) {
+            $this->simpleTags = array();
+        }
+        $this->simpleTags[] = $tag;
+    }
 
     public function toJson() {
         $tmp = array(
@@ -348,7 +358,6 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
     }
 
     public function getRecentEpisodesByUser($count, $user, $page = null) {
-        global $logger;
         if(!is_numeric($count) || $count < 1 || $count > ADDVENTURE_MAX_RECENT) {
             $count = ADDVENTURE_MAX_RECENT;
         }
@@ -371,6 +380,7 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         }
         $qb->setFirstResult($page * $count);
         $qb->setMaxResults($count);
+        global $logger;
         $logger->debug('First result: ' . $page * $count);
         $qb = $qb->getQuery();
         return new \Doctrine\ORM\Tools\Pagination\Paginator($qb, false);

@@ -33,26 +33,23 @@
                 </div>
                 <div class="collapse navbar-collapse" id="navbar-collapse">
                     <ul class="nav navbar-nav">
-                        <li><a href="./">Trunk of the Tree</a></li>
+                        <li><a href="{$url.site}">Trunk of the Tree</a></li>
                         <li{if isset($smarty.get.recent)} class="active"{/if}><a href="{$url.site}/recent">The Freshest Leaves</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
+                        {if $client.userid!=-1}
+                            <li><span class="navbar-text">Welcome, {$client.email}!</span></li>
+                            <li><a href="{$url.site}/account/logout"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
+                        {else}
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Login <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <form class="navbar-form form-signin" method="POST" action="{$url.site}/login">
-                                        <h5 class="form-signin-heading">Log in or <a href="{$url.site}/register">register</a>.</h5>
-                                        <input class="form-control" type="email" placeholder="E-Mail" name="email" required autofocus/>
-                                        <input class="form-control" type="password" placeholder="Password" name="password" required/>
-                                        <label class="checkbox">
-                                            <input type="checkbox" value="rememberme"/> Remember me
-                                        </label>                               
-                                        <button class="btn btn-default btn-block" type="submit">Login!</button>
-                                    </form>
+                                    {login_form}
                                 </li>
                             </ul>
                         </li>
+                        {/if}
                     </ul>
                 </div>
             </div>

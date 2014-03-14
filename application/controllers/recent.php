@@ -57,7 +57,7 @@ class Recent extends CI_Controller {
         $smarty->assign('page', $page);
         $maxPage = floor(($numEpisodes + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url('recent/user', $userId) . '/'));
-        $smarty->display('by_user.tpl');
+        $smarty->display('recent_user.tpl');
     }
 
 }

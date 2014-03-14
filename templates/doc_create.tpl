@@ -1,7 +1,7 @@
 {extends 'layout.tpl'}
 {block name=headElements}
-    <script src="vendor/ckeditor/ckeditor.js"></script>
-    <script>
+    <script src="{$url.ckeditor}"></script>
+    <script type="text/javascript">
         CKEDITOR.config.removePlugins = 'div,preview,newpage,iframe,flash,templates,forms,colordialog,table,tabletools,table,pagebreak,filebrowser,save,elementspath,print,showblocks,showborders,sourcearea,tab';
     </script>
 {/block}
