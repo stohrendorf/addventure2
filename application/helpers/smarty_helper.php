@@ -23,6 +23,9 @@ if(!function_exists('createSmarty')) {
                 $role = $user->getRole();
                 $email = $user->getEmail();
             }
+            else {
+                $userid = -1;
+            }
         }
 
         $smarty = new Smarty();
