@@ -13,7 +13,7 @@ class Doc extends CI_Controller {
         global $entityManager;
         $smarty = createSmarty();
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
-        if($docId===false || $docId===null) {
+        if($docId === false || $docId === null) {
             show_error('Invalid doc id');
             return;
         }
@@ -23,8 +23,63 @@ class Doc extends CI_Controller {
                 $smarty->display('doc_create.tpl');
             }
             else {
+                $ep->setHitCount($ep->getHitCount() + 1);
+                $entityManager->persist($ep);
+                $entityManager->flush();
                 $smarty->assign('episode', $ep->toSmarty());
                 $smarty->display('doc_episode.tpl');
+            }
+        }
+        else {
+            show_error('Document not found');
+            return;
+        }
+    }
+
+    public function like($docId) {
+        $this->load->helper('url');
+        global $entityManager;
+        $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
+        if($docId === false || $docId === null) {
+            show_error('Invalid doc id');
+            return;
+        }
+        $ep = $entityManager->find('addventure\Episode', $docId);
+        if($ep) {
+            if($ep->getText() === NULL) {
+                show_error('Document not found');
+            }
+            else {
+                $ep->setLikes($ep->getLikes() + 1);
+                $entityManager->persist($ep);
+                $entityManager->flush();
+                redirect(site_url(array('doc',$docId)));
+            }
+        }
+        else {
+            show_error('Document not found');
+            return;
+        }
+    }
+
+    public function dislike($docId) {
+        $this->load->helper('url');
+        global $entityManager;
+        $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
+        if($docId === false || $docId === null) {
+            show_error('Invalid doc id');
+            return;
+        }
+        $ep = $entityManager->find('addventure\Episode', $docId);
+        if($ep) {
+            if($ep->getText() === NULL) {
+                show_error('Document not found');
+            }
+            else {
+                $ep->setDislikes($ep->getDislikes() + 1);
+                $entityManager->persist($ep);
+                $entityManager->flush();
+                redirect(site_url(array('doc',$docId)));
             }
         }
         else {

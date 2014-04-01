@@ -29,9 +29,9 @@
                             on {$episode.created}
                         {/if}
                         <span class="pull-right">
-                        <span class="glyphicon glyphicon-eye-open"></span>{$episode.hitcount}
-                        <span class="glyphicon glyphicon-heart"></span>{$episode.likes}
-                        <span class="glyphicon glyphicon-heart-empty"></span>{$episode.dislikes}
+                        <span class="glyphicon glyphicon-eye-open" style="color:dodgerblue;"></span>{$episode.hitcount}
+                        <span class="glyphicon glyphicon-heart" style="color:darkred;"></span>{$episode.likes}
+                        <span class="glyphicon glyphicon-heart-empty" style="color:darkred;"></span>{$episode.dislikes}
                         </span>
                     </li>
                 {/foreach}

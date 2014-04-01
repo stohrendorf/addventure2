@@ -405,7 +405,7 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         $qb->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
         global $logger;
         $logger->debug('First result: ' . $page * ADDVENTURE_RESULTS_PER_PAGE);
-        $qb->select('e')->from('addventure\Episode', 'e')->orderBy('e.created', 'ASC');
+        $qb->select('e')->from('addventure\Episode', 'e')->orderBy('e.created', 'DESC');
         foreach($user->getAuthorNames() as $a) {
             $qb->orWhere('e.author=' . $a->getId());
         }

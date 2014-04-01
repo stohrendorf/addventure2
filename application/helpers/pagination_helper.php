@@ -9,12 +9,13 @@ function createPagination($numPages, $cur, $baseUrl, $margin = 5) {
     $right = (($cur + $margin) < $numPages) ? $cur + $margin : $numPages;
 
     $res = '<ul class="pagination">';
-    $res .= '<li><a href="'.$baseUrl.'0"><span class="glyphicon glyphicon-step-backward"></span></a></li>';
     if($cur > 0) {
-        $res .= '<li><a href="' . $baseUrl . ($cur - 1) . '">&laquo;</a></li>';
+        $res .= '<li><a href="'.$baseUrl.'0"><span class="glyphicon glyphicon-step-backward"></span></a></li>';
+        $res .= '<li><a href="' . $baseUrl . ($cur - 1) . '"><span class="glyphicon glyphicon-backward"></span></a></li>';
     }
     else {
-        $res .= '<li class="disabled"><a href="#">&laquo;</a></li>';
+        $res .= '<li class="disabled"><a href="#"><span class="glyphicon glyphicon-step-backward"></span></a></li>';
+        $res .= '<li class="disabled"><a href="#"><span class="glyphicon glyphicon-backward"></span></a></li>';
     }
     for($i = $left; $i < $right; ++$i) {
         if($i == $cur) {
@@ -28,12 +29,13 @@ function createPagination($numPages, $cur, $baseUrl, $margin = 5) {
         }
     }
     if($cur < $numPages-1) {
-        $res .= '<li><a href="' . $baseUrl . ($cur + 1) . '">&raquo;</a></li>';
+        $res .= '<li><a href="' . $baseUrl . ($cur + 1) . '"><span class="glyphicon glyphicon-forward"></span></a></li>';
+        $res .= '<li><a href="'.$baseUrl.($numPages-1).'"><span class="glyphicon glyphicon-step-forward"></span></a></li>';
     }
     else {
-        $res .= '<li class="disabled"><a href="#">&raquo;</a></li>';
+        $res .= '<li class="disabled"><a href="#"><span class="glyphicon glyphicon-forward"></span></a></li>';
+        $res .= '<li class="disabled"><a href="#"><span class="glyphicon glyphicon-step-forward"></span></a></li>';
     }
-    $res .= '<li><a href="'.$baseUrl.($numPages-1).'"><span class="glyphicon glyphicon-step-forward"></span></a></li>';
     $res .= '</ul>';
     return $res;
 }

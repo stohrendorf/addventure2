@@ -44,6 +44,8 @@ $route['user/(:num)'] = 'recent/user/$1';
 $route['recent/(:num)/(:num)'] = 'recent/user/$1/$2';
 $route['recent/(:num)'] = 'recent/index/$1';
 $route['doc/(:num)'] = 'doc/index/$1';
+$route['like/(:num)'] = 'doc/like/$1';
+$route['dislike/(:num)'] = 'doc/dislike/$1';
 $route['chain/(:num)/(:num)'] = 'doc/chain/$1/$2';
 
 
