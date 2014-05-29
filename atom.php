@@ -18,7 +18,7 @@ function printRecent() {
     $count = filter_input(INPUT_GET, 'count', FILTER_SANITIZE_NUMBER_INT);
     $user = filter_input(INPUT_GET, 'user', FILTER_SANITIZE_NUMBER_INT);
     try {
-        if($user!==null && $user !== false) {
+        if($user !== null && $user !== false) {
             $eps = $entityManager->getRepository('addventure\Episode')->getRecentEpisodesByUser($count, $user);
         }
         else {

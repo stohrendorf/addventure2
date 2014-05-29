@@ -5,13 +5,14 @@ if(!defined('BASEPATH')) {
 }
 
 class CI_Log {
+
     /**
      * @var Log
      */
     private $logger;
 
     public function __construct() {
-        $this->logger = Log::singleton('file', FCPATH . DIRECTORY_SEPARATOR . 'addventure.log', '');
+        $this->logger = Log::singleton('file', implode(DIRECTORY_SEPARATOR, array(FCPATH, 'logs', 'addventure.log')), '');
         if(ADDVENTURE_DEV_MODE) {
             $this->logger->setMask(PEAR_LOG_ALL);
         }
@@ -19,7 +20,7 @@ class CI_Log {
             $this->logger->setMask(PEAR_LOG_WARNING);
         }
     }
-    
+
     /**
      * Compatibility layer.
      */
@@ -36,7 +37,7 @@ class CI_Log {
                 break;
         }
     }
-    
+
     public function crit($msg) {
         $this->logger->crit($msg);
     }

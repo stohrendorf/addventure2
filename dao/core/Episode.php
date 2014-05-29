@@ -111,6 +111,22 @@ class Episode implements IAddventure {
      */
     private $linkable = false;
 
+    /**
+     * @OneToMany(targetEntity="addventure\Comment", mappedBy="episode", cascade={"PERSIST","REMOVE"}, orphanRemoval=true, fetch="LAZY")
+     * @OrderBy({"created" = "ASC"})
+     * @var Comment[]
+     */
+    private $comments = null;
+
+    public function getComments() {
+        return $this->comments;
+    }
+
+    public function setComments(Comment $comments) {
+        $this->comments = $comments;
+        return $this;
+    }
+
     public function getId() {
         return $this->id;
     }
@@ -248,15 +264,24 @@ class Episode implements IAddventure {
         $this->linkable = $linkable;
         return $this;
     }
-    
+
     public function addSimpleTag(SimpleTag $tag) {
-        if($tag===null) {
+        if($tag === null) {
             return;
         }
         if(!$this->simpleTags) {
             $this->simpleTags = array();
         }
         $this->simpleTags[] = $tag;
+        return $this;
+    }
+
+    public function addComment(Comment $cmt) {
+        if(!$this->comments) {
+            $this->comments = array();
+        }
+        $this->comments[] = $cmt;
+        return $this;
     }
 
     public function toJson() {
@@ -274,40 +299,44 @@ class Episode implements IAddventure {
     }
 
     public function toSmarty() {
-        $tmp = array(
+        $result = array(
             'id' => $this->getId(),
             'title' => $this->getTitle()
         );
         if(($c = $this->getCreated())) {
-            $tmp['created'] = $c->format("l, d M Y H:i");
+            $result['created'] = $c->format("l, d M Y H:i");
         }
         if(($a = $this->getAuthor())) {
-            $tmp['author'] = $a->toSmarty();
+            $result['author'] = $a->toSmarty();
         }
-        $tmp['text'] = $this->getText();
-        $tmp['hitcount'] = $this->getHitCount();
-        $tmp['likes'] = $this->getLikes();
-        $tmp['dislikes'] = $this->getDislikes();
-        $tmp['notes'] = $this->getNotes();
-        $tmp['preNotes'] = $this->getPreNotes();
-        $tmp['linkable'] = $this->getLinkable();
+        $result['text'] = $this->getText();
+        $result['hitcount'] = $this->getHitCount();
+        $result['likes'] = $this->getLikes();
+        $result['dislikes'] = $this->getDislikes();
+        $result['notes'] = $this->getNotes();
+        $result['preNotes'] = $this->getPreNotes();
+        $result['linkable'] = $this->getLinkable();
         if(($p = $this->getParent())) {
-            $tmp['parent'] = $p->getId();
+            $result['parent'] = $p->getId();
         }
         global $entityManager; // HACK
-        $tmp['children'] = array();
+        $result['children'] = array();
         $dql = 'SELECT l FROM addventure\Link l WHERE l.fromEp=?1 ORDER BY l.toEp';
         $q = $entityManager->createQuery($dql)->setParameter(1, $this->getId());
         foreach($q->getResult() as $child) {
-            $tmp['children'][] = $child->toSmarty();
+            $result['children'][] = $child->toSmarty();
         }
-        $tmp['backlinks'] = array();
+        $result['backlinks'] = array();
         $dql = 'SELECT l FROM addventure\Link l WHERE l.toEp=?1 AND l.isBacklink=TRUE ORDER BY l.fromEp';
         $q = $entityManager->createQuery($dql)->setParameter(1, $this->getId());
         foreach($q->getResult() as $child) {
-            $tmp['backlinks'][] = $child->toSmarty();
+            $result['backlinks'][] = $child->toSmarty();
         }
-        return $tmp;
+        $result['comments'] = array();
+        foreach($this->comments as $cmt) {
+            $result['comments'][] = $cmt->toSmarty();
+        }
+        return $result;
     }
 
     public function toRss(\SimpleXMLElement &$channel) {

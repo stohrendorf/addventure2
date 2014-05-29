@@ -9,26 +9,17 @@ if(!function_exists('createSmarty')) {
     function createSmarty() {
         $CI = & get_instance();
         $CI->load->helper('url');
-        $CI->load->library('session');
-        $role = \addventure\User::Anonymous;
-        $blocked = false;
-        $userid = -1;
-        $email = '';
-        if($CI->session->userdata('userid') !== FALSE) {
-            global $entityManager;
-            $userid = $CI->session->userdata('userid');
-            $user = $entityManager->find('addventure\User', $userid);
-            if($user) {
-                $blocked = $user->getBlocked();
-                $role = $user->getRole();
-                $email = $user->getEmail();
-            }
-            else {
-                $userid = -1;
-            }
-        }
+        $CI->load->library('userinfo');
 
         $smarty = new Smarty();
+
+        if($CI->userinfo->user) {
+            $smarty->assign('client', $CI->userinfo->user->toSmarty());
+        }
+        else {
+            $smarty->assign('client', \addventure\User::defaultSmarty());
+        }
+
         $smarty->setTemplateDir(TEMPLATEPATH);
         $smarty->setCacheDir(TEMPLATEPATH . '/cache');
         $smarty->setCompileDir(TEMPLATEPATH . '/compiled');
@@ -37,6 +28,7 @@ if(!function_exists('createSmarty')) {
         $smarty->assign('url', array(
             'base' => rtrim(base_url(), '/'),
             'site' => site_url(),
+            'current' => $CI->uri->uri_string(),
             'jquery' => base_url('vendor/frameworks/jquery/jquery.min.js'),
             'ckeditor' => base_url('vendor/ckeditor/ckeditor.js'),
             'bootstrap' => array(
@@ -44,12 +36,6 @@ if(!function_exists('createSmarty')) {
                 'css' => base_url('vendor/twbs/bootstrap/dist/css/bootstrap.min.css'),
                 'theme' => base_url('vendor/twbs/bootstrap/dist/css/bootstrap-theme.min.css')
             )
-        ));
-        $smarty->assign('client', array(
-            'blocked' => $blocked,
-            'userid' => $userid,
-            'role' => $role,
-            'email' => $email
         ));
         return $smarty;
     }

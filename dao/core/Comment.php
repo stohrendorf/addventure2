@@ -8,10 +8,13 @@ namespace addventure;
  *     indexes={
  *         @Index(name="episodeIndex", columns={"episode_id"}),
  *         @Index(name="authorIndex", columns={"author_name_id"})
+ *     },
+ *     uniqueConstraints={
+ *         @UniqueConstraint(name="episodeTimestampComment", columns={"episode_id","created"})
  *     }
  * )
  */
-class Comment {
+class Comment implements IAddventure {
 
   /**
    * @Id
@@ -34,7 +37,7 @@ class Comment {
   private $text;
 
   /**
-   * @ManyToOne(targetEntity="addventure\Episode", fetch="LAZY")
+   * @ManyToOne(targetEntity="addventure\Episode", fetch="LAZY", inversedBy="comments")
    * @JoinColumn(name="episode_id", referencedColumnName="id", nullable=false)
    * @var Episode
    */
@@ -43,7 +46,7 @@ class Comment {
   /**
    * @ManyToOne(targetEntity="addventure\AuthorName")
    * @JoinColumn(name="author_name_id", referencedColumnName="id")
-   * @var string
+   * @var AuthorName
    */
   private $authorName;
 
@@ -87,9 +90,30 @@ class Comment {
     return $this;
   }
 
-  public function setAuthorName($authorName) {
+  public function setAuthorName(AuthorName $authorName) {
     $this->authorName = $authorName;
     return $this;
   }
 
+  public function toAtom(\SimpleXMLElement &$parent) {
+      throw new \RuntimeException("Not implemented");
+  }
+
+  public function toJson() {
+      throw new \RuntimeException("Not implemented");
+  }
+
+  public function toRss(\SimpleXMLElement &$parent) {
+      throw new \RuntimeException("Not implemented");
+  }
+
+  public function toSmarty() {
+      return array(
+          'author' => ($this->authorName ? $this->authorName->toSmarty() : null),
+          'created' => $this->created->format("l, d M Y H:i"),
+          'text' => $this->text
+      );
+  }
+
+  
 }

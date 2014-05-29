@@ -27,7 +27,7 @@ class User {
      * @var string
      */
     private $email;
-    
+
     /**
      * @Column(type="string", unique=false, nullable=true)
      * @var string
@@ -45,7 +45,7 @@ class User {
      * @var AuthorName[]
      */
     private $authorNames;
-    
+
     /**
      * @Column(type="boolean", nullable=false)
      * @var bool
@@ -67,11 +67,11 @@ class User {
     public function getAuthorNames() {
         return $this->authorNames;
     }
-    
+
     public function getPassword() {
         return $this->password;
     }
-    
+
     public function getBlocked() {
         return $this->blocked;
     }
@@ -87,7 +87,7 @@ class User {
     }
 
     public function setRole($role) {
-        if($role<0 || $role>self::Administrator) {
+        if($role < 0 || $role > self::Administrator) {
             throw new \InvalidArgumentException("Invalid user role specified");
         }
         $this->role = $role;
@@ -102,8 +102,65 @@ class User {
     public function setPassword($pw) {
         $this->password = $pw;
     }
-    
+
     public function setBlocked($b) {
         $this->blocked = $b;
     }
+
+    public function isAnonymous() {
+        return $this->role === self::Anonymous;
+    }
+
+    public function isAwaitingApproval() {
+        return $this->role === self::AwaitApproval;
+    }
+
+    public function isRegistered() {
+        return $this->role === self::Registered;
+    }
+
+    public function isModerator() {
+        return $this->role === self::Moderator;
+    }
+
+    public function isAdministrator() {
+        return $this->role == self::Administrator;
+    }
+
+    public function canCreateEpisode() {
+        return !$this->blocked && $this->role >= self::Registered;
+    }
+
+    public function canCreateComment() {
+        return !$this->blocked && $this->role >= self::Registered;
+    }
+
+    public function canSubscribe() {
+        return !$this->blocked && $this->role >= self::Registered;
+    }
+
+    public function toSmarty() {
+        return array(
+            'blocked' => $this->getBlocked(),
+            'userid' => $this->getId(),
+            'role' => $this->getRole(),
+            'email' => $this->getEmail(),
+            'canCreateEpisode' => $this->canCreateEpisode(),
+            'canCreateComment' => $this->canCreateComment(),
+            'canSubscribe' => $this->canSubscribe()
+        );
+    }
+
+    public static function defaultSmarty() {
+        return array(
+            'blocked' => false,
+            'userid' => -1,
+            'role' => self::Anonymous,
+            'email' => '',
+            'canCreateEpisode' => false,
+            'canCreateComment' => false,
+            'canSubscribe' => false
+        );
+    }
+
 }

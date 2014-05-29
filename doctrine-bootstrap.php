@@ -24,7 +24,12 @@ else {
     $doctrineCache = new \Doctrine\Common\Cache\ArrayCache();
 }
 
-$doctrineConfig = Setup::createAnnotationMetadataConfiguration(array(__DIR__ . "/dao/core"), ADDVENTURE_DEV_MODE, __DIR__ . "/dao/proxies", $doctrineCache);
+$doctrineConfig = Setup::createAnnotationMetadataConfiguration(
+        array(__DIR__ . "/dao/core"),
+        ADDVENTURE_DEV_MODE,
+        __DIR__ . "/dao/proxies",
+        $doctrineCache);
+$doctrineConfig->setAutoGenerateProxyClasses(false);
 
 /**
  * @global Doctrine\ORM\EntityManager $entityManager
@@ -35,7 +40,7 @@ $entityManager = EntityManager::create($doctrineDbConfig, $doctrineConfig);
 /**
  * @global Log $logger
  */
-$logger = Log::singleton('file', 'addventure.log', '');
+$logger = Log::singleton('file', 'logs/addventure.log', '');
 if(ADDVENTURE_DEV_MODE) {
     define('JSON_FLAGS', JSON_PRETTY_PRINT);
     $logger->setMask(PEAR_LOG_ALL);
@@ -48,8 +53,8 @@ else {
 }
 
 function getFullLogData() {
-    if(file_exists('addventure.log')) {
-        return file_get_contents('addventure.log');
+    if(file_exists('logs/addventure.log')) {
+        return file_get_contents('logs/addventure.log');
     }
     else {
         return '';

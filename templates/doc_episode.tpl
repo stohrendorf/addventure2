@@ -11,7 +11,11 @@
 {/block}
 
 {block name=body}
-    {if isset($episode.title)}<h3>{$episode.title}</h3>{/if}
+    {if !empty($episode.title)}
+        <h3>{$episode.title}</h3>
+    {else}
+        <h3>Episode #{$episode.id}</h3>
+    {/if}
     <div class="panel panel-primary">
         <div class="panel-body">
             #{$episode.id}
@@ -31,46 +35,36 @@
         </div>
     </div>
 
-    {if isset($episode.preNotes)}
-        <div class="panel panel-primary">
-            <div class="panel-heading">Author's Notes</div>
-            <div class="panel-body">{$episode.preNotes}</div>
-            <div class="panel-footer"><small>This note has been <em>automatically</em> taken from the episode's legacy title, as it seemed pretty long.
-                    But machines aren't perfect: do you think this is wrong? <a href="{$url.site}/maintenance/reportTitle/{$episode.id}">Report it!</a></small></div>
-        </div>
-    {/if}
-
-    <div class="panel panel-default"><div class="panel-body" style="background-color:#fffcee;">{$episode.text}</div></div>
-
-    {if isset($episode.notes)}
-        <div class="panel panel-primary">
-            <div class="panel-heading">Author's Notes</div>
-            <div class="panel-body">{$episode.notes}</div>
-            <div class="panel-footer"><small>This note has been <em>automatically</em> extracted from the legacy episode's author name.
-                    But machines aren't perfect: do you think this was done wrong? <a href="{$url.site}/maintenance/reportNotes/{$episode.id}">Report it!</a></small></div>
-        </div>
-    {/if}
+    {call name="showEpisode"}
     <div class="panel panel-primary">
         <div class="panel-body" id="links">
-            {if count($episode.children)>0}
-                {foreach $episode.children as $link}
-                    <p style="margin:0 0 0.3em 1em;">
-                        <a href="{$url.site}/doc/{$link.toEp}"
-                           {if !$link.isWritten}
-                               class="unwritten-episode" data-toggle="tooltip" data-placement="left" title="If you feel inspired now, you can add a new leaf to the tree.">
-                               <span class="glyphicon glyphicon-pencil"></span>
-                           {elseif !$link.isBacklink}
-                               ><span class="glyphicon glyphicon-arrow-right"></span>
-                           {else}
-                               data-toggle="tooltip" data-placement="left" title="This will take you to a (possibly) distant relative.">
-                               <span class="glyphicon glyphicon-random"></span>
-                           {/if}
-                           {$link.title|escape}
-                        </a>
-                    </p>
-                {/foreach}
+            {$canSubscribe=false}
+            {foreach $episode.children as $link}
+                <p style="margin:0 0 0.3em 1em;">
+                    <a href="{$url.site}/doc/{$link.toEp}"
+                       {if !$link.isWritten}
+                           class="unwritten-episode" data-toggle="tooltip" data-placement="left" title="If you feel inspired now, you can add a new leaf to the tree.">
+                           <span class="glyphicon glyphicon-pencil"></span>
+                           {$canSubscribe=true}
+                       {elseif !$link.isBacklink}
+                           ><span class="glyphicon glyphicon-arrow-right"></span>
+                       {else}
+                           data-toggle="tooltip" data-placement="left" title="This will take you to a (possibly) distant relative.">
+                           <span class="glyphicon glyphicon-random"></span>
+                       {/if}
+                       {$link.title|escape}
+                    </a>
+                </p>
+            {/foreach}
+            {if $canSubscribe && $client.canSubscribe}
+                <p>
+                    <a type="button" href="{$url.site}/doc/subscribe/{$episode.id}" class="btn btn-block btn-default btn-sm">
+                        <span class="glyphicon glyphicon-envelope"></span>
+                        Notify me when new options are filled.
+                    </a>
+                </p>
             {/if}
-            {if count($episode.backlinks)>0}
+            {if !empty($episode.backlinks)}
                 <h5>Backlinks to this Episode</h5>
                 <ul>
                     {foreach $episode.backlinks as $link}
@@ -86,11 +80,13 @@
                 <p class="text-center text-info"><span class="glyphicon glyphicon-info-sign"></span> This episode is linkable.</p>
             {/if}
         </div>
-        <script type="text/javascript">$('#links>p>a').each(function(i, e) {
+        <script type="text/javascript">
+            $('#links>p>a').each(function(i, e) {
                 $(e).tooltip();
             });
-            $('#report').tooltip();</script>
-            {if isset($episode.parent)}
+            $('#report').tooltip();
+        </script>
+        {if isset($episode.parent)}
             <div class="panel-footer"><a href="{$url.site}/doc/{$episode.parent}"><span class="glyphicon glyphicon-circle-arrow-left"></span> Go to the parent episode.</a></div>
         {/if}
     </div>
