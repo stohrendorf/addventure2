@@ -264,6 +264,15 @@ class Episode implements IAddventure {
         $this->linkable = $linkable;
         return $this;
     }
+    
+    public function getAutoTitle() {
+        if(!empty($this->title)) {
+            return $this->title;
+        }
+        else {
+            return '#' . $this->id;
+        }
+    }
 
     public function addSimpleTag(SimpleTag $tag) {
         if($tag === null) {
@@ -297,11 +306,36 @@ class Episode implements IAddventure {
         }
         return $tmp;
     }
+    
+    private static function createTree(array &$dest, \addventure\Episode &$ep, $depth = 0) {
+        if($depth>2) {
+            return null;
+        }
+        global $entityManager;
+        //$links = $entityManager->find('addventure\Link', array('fromEp' => $ep->getId()));
+        $q = $entityManager->createQuery('SELECT l FROM addventure\Link l WHERE l.fromEp=?1 AND l.isBacklink=FALSE ORDER BY l.toEp')->setParameter(1, $ep->getId())->getResult();
+        $destArr = array('title'=>$ep->getAutoTitle(), 'id'=>$ep->getId(), 'children'=>array());
+        foreach($q as $child) {
+            $childEp = $entityManager->find('addventure\Episode', $child->getToEp());
+            if($childEp->getText() === null) {
+                continue;
+            }
+            self::createTree($destArr['children'], $childEp, $depth+1);
+            // do some GC...
+            $entityManager->detach($childEp);
+            $childEp = null;
+        }
+        $dest[] = $destArr;
+    }
 
     public function toSmarty() {
         $result = array(
             'id' => $this->getId(),
-            'title' => $this->getTitle()
+            'title' => $this->getTitle(),
+            'autoTitle' => $this->getAutoTitle(),
+            'children' => array(),
+            'backlinks' => array(),
+            'comments' => array()
         );
         if(($c = $this->getCreated())) {
             $result['created'] = $c->format("l, d M Y H:i");
@@ -319,20 +353,25 @@ class Episode implements IAddventure {
         if(($p = $this->getParent())) {
             $result['parent'] = $p->getId();
         }
+        
         global $entityManager; // HACK
-        $result['children'] = array();
         $dql = 'SELECT l FROM addventure\Link l WHERE l.fromEp=?1 ORDER BY l.toEp';
         $q = $entityManager->createQuery($dql)->setParameter(1, $this->getId());
         foreach($q->getResult() as $child) {
-            $result['children'][] = $child->toSmarty();
+            $ch = $child->toSmarty();
+            $ch['subtree'] = array();
+            if( !$child->getIsBacklink() ) {
+                self::createTree($ch['subtree'], $entityManager->find('addventure\Episode', $child->getToEp()));
+                $ch['subtree'] = $ch['subtree'][0]['children'];
+            }
+            $result['children'][] = $ch;
         }
-        $result['backlinks'] = array();
+        
         $dql = 'SELECT l FROM addventure\Link l WHERE l.toEp=?1 AND l.isBacklink=TRUE ORDER BY l.fromEp';
         $q = $entityManager->createQuery($dql)->setParameter(1, $this->getId());
         foreach($q->getResult() as $child) {
             $result['backlinks'][] = $child->toSmarty();
         }
-        $result['comments'] = array();
         foreach($this->comments as $cmt) {
             $result['comments'][] = $cmt->toSmarty();
         }
@@ -341,8 +380,7 @@ class Episode implements IAddventure {
 
     public function toRss(\SimpleXMLElement &$channel) {
         $item = $channel->addChild('item');
-        $t = $this->getTitle();
-        $item->addChild('title', empty($t) ? '&lt;No title specified&gt;' : htmlspecialchars($t));
+        $item->addChild('title', htmlspecialchars($this->getAutoTitle()));
         $item->addChild('link', htmlspecialchars('http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER["REQUEST_URI"]) . '?doc=' . $this->getId()));
         $a = $this->getAuthor();
         $item->addChild('author', $a ? htmlspecialchars($a->getName()) : '');
@@ -353,8 +391,7 @@ class Episode implements IAddventure {
     public function toAtom(\SimpleXMLElement &$feed) {
         $entry = $feed->addChild('entry');
         $entry->addChild('id', 'addventure:episode:' . $this->getId());
-        $t = $this->getTitle();
-        $entry->addChild('title', empty($t) ? '&lt;No title specified&gt;' : htmlspecialchars($t));
+        $entry->addChild('title', htmlspecialchars($this->getAutoTitle()));
         $entry->addChild('updated', $this->getCreated() ? $this->getCreated()->format(\DateTime::ATOM) : '');
         $l = $entry->addChild('link');
         $l->addAttribute('rel', 'alternate');

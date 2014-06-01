@@ -81,6 +81,9 @@ class Link implements IAddventure {
     }
 
     public function setTitle($title) {
+        if(mb_strlen($title) > 255) {
+            throw new \InvalidArgumentException('Link title too long: ' . mb_strlen($title));
+        }
         $this->title = $title;
         return $this;
     }

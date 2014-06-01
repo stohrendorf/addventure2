@@ -7,8 +7,8 @@
         <script src="{$url.bootstrap.js}"></script>
         <link href="{$url.bootstrap.css}" rel="stylesheet"/>
         <link href="{$url.bootstrap.theme}" rel="stylesheet"/>
-        <link href="{$url.base}/rss.php?what=recent&count=100" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes (RSS 2.0)"/>
-        <link href="{$url.base}/atom.php?what=recent&count=100" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes (ATOM)"/>
+        <link href="{$url.base}/rss.php?what=recent&amp;count=100" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes (RSS 2.0)"/>
+        <link href="{$url.base}/atom.php?what=recent&amp;count=100" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes (ATOM)"/>
         {literal}<style>
                 a:visited{color:purple;}
                 a.unwritten-episode{color:#AA0000;}
@@ -42,21 +42,21 @@
                             <li><span class="navbar-text">Welcome, {$client.email}!</span></li>
                             <li><a href="{$url.site}/account/logout"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
                         {else}
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Login <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    {login_form}
-                                </li>
-                            </ul>
-                        </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Login <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        {login_form}
+                                    </li>
+                                </ul>
+                            </li>
                         {/if}
                     </ul>
                 </div>
             </div>
         </nav>
         <article class="content container page-body">
-        {block name=body}{/block}
-    </article>
-</body>
+            {block name=body}{/block}
+        </article>
+    </body>
 </html>

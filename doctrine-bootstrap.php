@@ -7,7 +7,8 @@ use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 
 $doctrineDbConfig = array(
-    'driver' => 'pdo_mysql',
+    'host' => 'localhost',
+    'driver' => ADDVENTURE_DB_DRIVER,
     'user' => ADDVENTURE_DB_USER,
     'password' => ADDVENTURE_DB_PASSWORD,
     'dbname' => ADDVENTURE_DB_SCHEMA

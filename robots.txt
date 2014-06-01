@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /like/*
+Disallow: /dislike/*
+Disallow: /maintenance/illegal/*
+Disallow: /account/register

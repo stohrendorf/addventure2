@@ -1,4 +1,7 @@
 {extends 'layout.tpl'}
+{block name=title}
+    The Trunk of the Addventure
+{/block}
 {block name=body}
     <h3>Hello little tree climber!</h3>
     <p>
@@ -26,7 +29,4 @@
     <li>DON'T OVERUSE CAPITALS!!! OR PUNCTUATION!!!!!!!</li>
 </ul>
 </p>
-{/block}
-{block name=title}
-    The Trunk of the Addventure
 {/block}

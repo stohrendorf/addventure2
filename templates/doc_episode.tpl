@@ -5,26 +5,38 @@
 
 {block name="headElements" append}
     {if isset($episode.author)}
-        <link href="{$url.site}/rss.php?what=recent&count=100&user={$episode.author.user}" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes written by {$episode.author.name|escape} (RSS 2.0)"/>
-        <link href="{$url.site}/atom.php?what=recent&count=100&user={$episode.author.user}" rel="alternate" type="application/atom+xml" title="The 100 most recent episodes written by {$episode.author.name|escape} (ATOM)"/>
+        <link href="{$url.base}/rss.php?what=recent&amp;count=100&amp;user={$episode.author.user}" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes written by {$episode.author.name|escape} (RSS 2.0)"/>
+        <link href="{$url.base}/atom.php?what=recent&amp;count=100&amp;user={$episode.author.user}" rel="alternate" type="application/atom+xml" title="The 100 most recent episodes written by {$episode.author.name|escape} (ATOM)"/>
     {/if}
 {/block}
 
 {block name=body}
-    {if !empty($episode.title)}
-        <h3>{$episode.title}</h3>
-    {else}
-        <h3>Episode #{$episode.id}</h3>
-    {/if}
-    <div class="panel panel-primary">
-        <div class="panel-body">
-            #{$episode.id}
-            {if isset($episode.author)}is written by <a href="{$url.site}/user/{$episode.author.user}">{$episode.author.name}</a>.{/if}
-            {if isset($episode.created)}({$episode.created}){/if}
+    {function name=childTree depth=2}
+        {foreach $tree as $child}
+            <div style="margin:0 0 0.3em {2*$depth}em; font-size: {(100-6*$depth)}%;">
+                <a href="{$url.site}/doc/{$child.id}">{$child.title}</a>
+                {if isset($child.children)}
+                    {call name=childTree tree=$child.children depth={$depth+1}}
+                {/if}
+            </div>
+        {/foreach}
+    {/function}
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <h3 style="display:inline;" class="panel-title">
+                &raquo;{$episode.autoTitle}&laquo;
+                {if isset($episode.author) or isset($episode.created)}
+                    <span class="text-info">
+                        {if isset($episode.author)} by <a href="{$url.site}/user/{$episode.author.user}">{$episode.author.name}</a>{/if}
+                        {if isset($episode.created)} @ {$episode.created}{/if}
+                    </span>
+                {/if}
+            </h3>
             <a href="{$url.site}/maintenance/illegal/{$episode.id}" style="color:red;" class="pull-right" id="report"
                data-toggle="tooltip" data-placement="right" title="This function is for reporting content that breaks the rules, not for crying about a bad story."> <span class="glyphicon glyphicon-fire"></span> Report inappropriate content</a>
+            <span class="clearfix"></span>
         </div>
-        <div class="panel-footer">
+        <div class="panel-body">
             It has been seen {$episode.hitcount} times, and {$episode.likes} people liked it, while {$episode.dislikes} didn't.
             <div class="pull-right">
                 What do <em>you</em> think?
@@ -52,9 +64,10 @@
                            data-toggle="tooltip" data-placement="left" title="This will take you to a (possibly) distant relative.">
                            <span class="glyphicon glyphicon-random"></span>
                        {/if}
-                       {$link.title|escape}
+                       {$link.title}
                     </a>
                 </p>
+                {call name=childTree tree=$link.subtree}
             {/foreach}
             {if $canSubscribe && $client.canSubscribe}
                 <p>
@@ -69,9 +82,7 @@
                 <ul>
                     {foreach $episode.backlinks as $link}
                         <li>
-                            <a href="{$url.site}/doc/{$link.fromEp}">
-                                {$link.title|escape}
-                            </a>
+                            <a href="{$url.site}/doc/{$link.fromEp}">{$link.title}</a>
                         </li>
                     {/foreach}
                 </ul>

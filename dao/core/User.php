@@ -4,6 +4,7 @@ namespace addventure;
 
 /**
  * @Entity
+ * @Table(name="AddventureUsers") because "User" is a reserved word.
  */
 class User {
 

@@ -5,6 +5,10 @@
  */
 define('ADDVENTURE_DEV_MODE', FALSE);
 /**
+ * The database driver.
+ */
+define('ADDVENTURE_DB_DRIVER', 'pdo_mysql');
+/**
  * The database user.
  */
 define('ADDVENTURE_DB_USER', 'A. U. Thor');

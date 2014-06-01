@@ -120,7 +120,7 @@ class Doc extends CI_Controller {
         }
         return $eps;
     }
-
+    
     public function chain($docId, $numEps = 20) {
         $this->load->helper('smarty');
         global $entityManager;
@@ -138,9 +138,12 @@ class Doc extends CI_Controller {
         global $entityManager;
         $rsm = new \Doctrine\ORM\Query\ResultSetMapping();
         $rsm->addScalarResult('id', 'id', 'integer');
+        /*
         $q = $entityManager->createNativeQuery('SELECT r1.id AS id FROM Episode AS r1 JOIN (SELECT (RAND() * (SELECT MAX(e.id) FROM Episode e)) AS id) AS r2'
                 . ' WHERE r1.id >= r2.id AND r1.text IS NOT NULL'
                 . ' ORDER BY r1.id ASC LIMIT 1', $rsm);
+         */
+        $q = $entityManager->createNativeQuery('SELECT id FROM Episode WHERE text IS NOT NULL AND id>=(SELECT RANDOM()*MAX(id) FROM Episode) LIMIT 1', $rsm);
         $this->index($q->getSingleScalarResult());
     }
 }

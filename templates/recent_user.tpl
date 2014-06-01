@@ -4,8 +4,8 @@
 {/block}
 
 {block name="headElements" append}
-    <link href="{$url.base}/rss.php?what=recent&count=100&user={$userid}" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes written by user #{$userid} (RSS 2.0)"/>
-    <link href="{$url.base}/atom.php?what=recent&count=100&user={$userid}" rel="alternate" type="application/atom+xml" title="The 100 most recent episodes written by user #{$userid} (ATOM)"/>
+    <link href="{$url.base}/rss.php?what=recent&amp;count=100&amp;user={$userid}" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes written by user #{$userid} (RSS 2.0)"/>
+    <link href="{$url.base}/atom.php?what=recent&amp;count=100&amp;user={$userid}" rel="alternate" type="application/atom+xml" title="The 100 most recent episodes written by user #{$userid} (ATOM)"/>
 {/block}
 
 {block name=body}
