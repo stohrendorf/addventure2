@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Addventure2" default="dist">
+    <property name="version" value="0.1-devel"/>
+    
+    <fileset dir="." id="corefiles">
+        <include name="*"/>
+        <exclude name="addventure*.tar.gz"/>
+        <exclude name="config.php"/>
+        <exclude name="vendor/**"/>
+    </fileset>
+    <fileset dir="." id="distfiles">
+        <include name="*"/>
+        <exclude name="addventure*.tar.gz"/>
+        <exclude name="config.php"/>
+        <exclude name="logs/**"/>
+        <exclude name="templates/cache/**"/>
+        <exclude name="templates/compiled/**"/>
+        <exclude name="templates/cache/**"/>
+        <exclude name="dao/proxies/**"/>
+    </fileset>
+    
+    <target name="download-vendor">
+        <echo msg="Downloading composer dependencies..."/>
+        <exec command="composer.phar --ansi --no-interaction install --dev" escape="false"/>
+    </target>
+    
+    <target name="dist" depends="download-vendor">
+        <tar destfile="addventure-${version}.tar.gz" compression="gzip">
+            <fileset refid="distfiles"/>
+        </tar>
+    </target>
+</project>

@@ -25,6 +25,9 @@ else {
     $doctrineCache = new \Doctrine\Common\Cache\ArrayCache();
 }
 
+/**
+ * @global \Doctrine\ORM\Configuration $doctrineConfig
+ */
 $doctrineConfig = Setup::createAnnotationMetadataConfiguration(
         array(__DIR__ . "/dao/core"),
         ADDVENTURE_DEV_MODE,
@@ -33,7 +36,7 @@ $doctrineConfig = Setup::createAnnotationMetadataConfiguration(
 $doctrineConfig->setAutoGenerateProxyClasses(false);
 
 /**
- * @global Doctrine\ORM\EntityManager $entityManager
+ * @global \Doctrine\ORM\EntityManager $entityManager
  */
 $entityManager = EntityManager::create($doctrineDbConfig, $doctrineConfig);
 

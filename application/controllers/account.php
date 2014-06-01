@@ -4,6 +4,26 @@ if(!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
+/**
+ * User account controller.
+ * 
+ * The workflow for a new user is as follows:
+ *   1) Enter the 'register' method.  This will first display the 'account_register'
+ *      template for entering the needed information.  If the information is
+ *      incomplete or faulty, the 'account_register_invalid' will be shown.  Else,
+ *      a preliminary account with the role \addventure\User::AwaitApproval will be
+ *      created an E-mail will be sent to the user which contains encrypted data
+ *      for validation.
+ *   2) The user receives his E-mail with the activation link, which points to
+ *      the 'verify' method.  Here, the security token passed in the URL will
+ *      be verified against the stored information, and if everything is OK,
+ *      the account role will be set to \addventure\User::Registered.  But if
+ *      something goes wrong, the 'account_register_invalid' will be shown.
+ *   3) Now, the user has to login to create his session cookie and to store
+ *      the session data in the database.  This could be done in the 'verify'
+ *      step, but it ensures that the E-mail account isn't hijacked, because
+ *      the user has to enter his password again.
+ */
 class Account extends CI_Controller {
 
     private function getVerificationCode($email) {
@@ -53,6 +73,9 @@ class Account extends CI_Controller {
         $message->setSubject('Addventure2 E-Mail Verification');
 
         $verify = site_url(array('account', 'verify', rawurlencode($this->getVerificationCode($email)), rawurlencode(base64_encode($this->encrypt->encode($email)))));
+        /**
+         * @todo Make it a smarty template and support HTML mails.
+         */
         $message->setBody(<<<MSG
 Dear writer!
 
@@ -82,11 +105,15 @@ MSG
         
         $this->load->helper('smarty');
         $smarty = createSmarty();
+        /**
+         * @todo Remove!
+         */
         print_r($token);
         echo '<br/>';
         print_r($email);
         echo '<br/>';
         print_r($this->getVerificationCode($email));
+        
         if(!$user || $user->getRole() !== \addventure\User::AwaitApproval || $token !== $this->getVerificationCode($email)) {
             $smarty->display('account_verify_invalid.tpl');
         }
