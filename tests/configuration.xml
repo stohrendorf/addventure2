@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!-- see http://www.phpunit.de/wiki/Documentation -->
+<!--phpunit bootstrap="/path/to/bootstrap.php"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         stopOnFailure="true">
+</phpunit-->
+
+<phpunit>
+    <testsuites>
+        <testsuite name="Addventure2">
+            <directory>.</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

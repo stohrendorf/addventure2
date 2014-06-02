@@ -81,7 +81,7 @@ class AuthorName implements IAddventure {
         if($this->episodes == null) {
             $this->episodes = new \Doctrine\Common\Collections\ArrayCollection();
         }
-        $this->episodes . add($e);
+        $this->episodes[] = $e;
     }
 
     public function toJson() {

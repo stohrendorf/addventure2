@@ -33,20 +33,26 @@
         "frameworks/jquery": "~2.1",
         "pear/log": "dev-master",
         "swiftmailer/swiftmailer": "~5.0",
-		"ext-apc": "*",
-		"ext-ereg": "*",
-		"ext-filter": "*",
-		"ext-mbstring": "*",
-		"ext-mysql": "*",
-		"ext-mysqli": "*",
-		"ext-PDO": "*",
-		"ext-pdo_mysql": "*",
-		"ext-session": "*",
-		"ext-SimpleXML": "*",
-		"ext-tidy": "*",
-		"php": ">=5.4"
+        "ext-apc": "*",
+        "ext-ereg": "*",
+        "ext-filter": "*",
+        "ext-mbstring": "*",
+        "ext-mysql": "*",
+        "ext-mysqli": "*",
+        "ext-PDO": "*",
+        "ext-pdo_mysql": "*",
+        "ext-session": "*",
+        "ext-SimpleXML": "*",
+        "ext-tidy": "*",
+        "php": ">=5.4"
     },
     "autoload": {
-        "psr-4": {"addventure\\": "dao/core/"}
+        "psr-4": {
+            "addventure\\": "dao/core/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.1",
+        "phpunit/phpunit-skeleton-generator": "~2.0"
     }
 }
