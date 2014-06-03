@@ -33,6 +33,7 @@
         "frameworks/jquery": "~2.1",
         "pear/log": "dev-master",
         "swiftmailer/swiftmailer": "~5.0",
+        "ircmaxell/password-compat": "~1.0",
         "ext-apc": "*",
         "ext-ereg": "*",
         "ext-filter": "*",

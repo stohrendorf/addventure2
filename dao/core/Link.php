@@ -62,6 +62,9 @@ class Link implements IAddventure {
     }
 
     public function setIsBacklink($isBacklink) {
+        if(!is_bool($isBacklink)) {
+            throw new \InvalidArgumentException('isBacklink must be boolean');
+        }
         $this->isBacklink = $isBacklink;
         return $this;
     }
@@ -81,6 +84,7 @@ class Link implements IAddventure {
     }
 
     public function setTitle($title) {
+        $title = preg_replace('/\s+/', ' ', trim($title));
         if(mb_strlen($title) > 255) {
             throw new \InvalidArgumentException('Link title too long: ' . mb_strlen($title));
         }

@@ -8,17 +8,20 @@ if(!defined('BASEPATH')) {
  * User account controller.
  * 
  * The workflow for a new user is as follows:
+ *
  *   1) Enter the 'register' method.  This will first display the 'account_register'
  *      template for entering the needed information.  If the information is
  *      incomplete or faulty, the 'account_register_invalid' will be shown.  Else,
- *      a preliminary account with the role \addventure\User::AwaitApproval will be
+ *      a preliminary account with the role {@see \addventure\User::AwaitApproval} will be
  *      created an E-mail will be sent to the user which contains encrypted data
  *      for validation.
+ * 
  *   2) The user receives his E-mail with the activation link, which points to
  *      the 'verify' method.  Here, the security token passed in the URL will
  *      be verified against the stored information, and if everything is OK,
- *      the account role will be set to \addventure\User::Registered.  But if
+ *      the account role will be set to {@see \addventure\User::Registered}.  But if
  *      something goes wrong, the 'account_register_invalid' will be shown.
+ * 
  *   3) Now, the user has to login to create his session cookie and to store
  *      the session data in the database.  This could be done in the 'verify'
  *      step, but it ensures that the E-mail account isn't hijacked, because
@@ -26,13 +29,12 @@ if(!defined('BASEPATH')) {
  */
 class Account extends CI_Controller {
 
-    private function getVerificationCode($email) {
-        $this->load->library('encrypt');
-        return md5(sha1($email . sha1(md5(ADDVENTURE_KEY))));
+    private static function getVerificationCode($email) {
+        return password_hash($email . password_hash(ADDVENTURE_KEY, PASSWORD_DEFAULT), PASSWORD_DEFAULT);
     }
     
-    private function encodePassword($password) {
-        return sha1($password);
+    private static function encodePassword($password) {
+        return password_hash($password, PASSWORD_DEFAULT);
     }
 
     public function register() {
@@ -55,7 +57,7 @@ class Account extends CI_Controller {
         $user->setEmail($email);
         $user->setRole(\addventure\User::AwaitApproval);
         $this->load->library('encrypt');
-        $user->setPassword($this->encodePassword($password));
+        $user->setPassword(self::encodePassword($password));
         try {
             $entityManager->persist($user);
             $entityManager->flush();
@@ -72,20 +74,20 @@ class Account extends CI_Controller {
         $message->setTo($email);
         $message->setSubject('Addventure2 E-Mail Verification');
 
-        $verify = site_url(array('account', 'verify', rawurlencode($this->getVerificationCode($email)), rawurlencode(base64_encode($this->encrypt->encode($email)))));
+        $verify = site_url(array('account', 'verify', rawurlencode(self::getVerificationCode($email)), rawurlencode(base64_encode($this->encrypt->encode($email)))));
         /**
          * @todo Make it a smarty template and support HTML mails.
          */
-        $message->setBody(<<<MSG
+        $message->setBody(<<<"MSG"
 Dear writer!
 
 To verify your e-mail address, please open the following link in your browser:
 
-$verify
+{$verify}
 
 Happy writing!
 MSG
-        );
+);
         if(!$mailer->send($message, $failures)) {
             $this->load->library('log');
             $this->log->crit('Could not send verification e-mail: ' . print_r($failures,true));
@@ -112,9 +114,9 @@ MSG
         echo '<br/>';
         print_r($email);
         echo '<br/>';
-        print_r($this->getVerificationCode($email));
+        print_r(self::getVerificationCode($email));
         
-        if(!$user || $user->getRole() !== \addventure\User::AwaitApproval || $token !== $this->getVerificationCode($email)) {
+        if(!$user || $user->getRole() !== \addventure\User::AwaitApproval || $token !== self::getVerificationCode($email)) {
             $smarty->display('account_verify_invalid.tpl');
         }
         else {
@@ -128,7 +130,7 @@ MSG
     public function login() {
         $this->load->library('encrypt');
         $email = $this->input->post('email', TRUE);
-        $password = $this->encodePassword($this->input->post('password'));
+        $password = $this->input->post('password');
         $remember = $this->input->post('remember', TRUE);
 
         global $entityManager;
@@ -136,7 +138,7 @@ MSG
 
         $this->load->helper('smarty');
         $smarty = createSmarty();
-        if(!$user || $user->getRole() < \addventure\User::Registered || $user->getPassword() !== $password) {
+        if(!$user || $user->getRole() < \addventure\User::Registered || !password_verify($password, $user->getPassword())) {
             $smarty->display('account_login_invalid.tpl');
         }
         else {

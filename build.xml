@@ -19,14 +19,33 @@
         <exclude name="dao/proxies/**"/>
     </fileset>
     
-    <target name="download-vendor">
+    <target name="download-vendor-dev">
         <echo msg="Downloading composer dependencies..."/>
         <exec command="composer.phar --ansi --no-interaction install --dev" escape="false"/>
+    </target>
+    
+    <target name="download-vendor">
+        <echo msg="Downloading composer dependencies..."/>
+        <exec command="composer.phar --ansi --no-interaction install --no-dev" escape="false"/>
     </target>
     
     <target name="dist" depends="download-vendor">
         <tar destfile="addventure-${version}.tar.gz" compression="gzip">
             <fileset refid="distfiles"/>
         </tar>
+    </target>
+    
+    <target name="docs">
+        <apigen
+            source="."
+            destination="doc/"
+            exclude="*/vendor/*,*/system/*,*/dao/proxies/*,*/templates/*"
+            title="Addventure2 API"
+            todo="true"
+            />
+    </target>
+    
+    <target name="test" depends="download-vendor-dev">
+        <exec command="vendor/bin/phpunit -c tests/configuration.xml" escape="false"/>
     </target>
 </project>

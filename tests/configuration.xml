@@ -8,7 +8,18 @@
          stopOnFailure="true">
 </phpunit-->
 
-<phpunit>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.1/phpunit.xsd">#
+    <filter>
+        <blacklist>
+            <directory suffix=".php">vendor</directory>
+            <directory suffix=".php">system</directory>
+            <directory suffix=".php">templates</directory>
+        </blacklist>
+    </filter>
+    <php>
+        <ini name="mbstring.internal_encoding" value="UTF-8"/>
+    </php>
     <testsuites>
         <testsuite name="Addventure2">
             <directory>.</directory>

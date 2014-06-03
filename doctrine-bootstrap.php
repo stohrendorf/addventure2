@@ -3,6 +3,8 @@
 require_once 'config.php';
 require_once 'vendor/autoload.php';
 
+ini_set('mbstring.internal_encoding', 'UTF-8');
+
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 
