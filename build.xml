@@ -46,6 +46,6 @@
     </target>
     
     <target name="test" depends="download-vendor-dev">
-        <exec command="vendor/bin/phpunit -c tests/configuration.xml" escape="false"/>
+        <exec command="vendor/bin/phpunit -c tests/configuration.xml --log-junit tests/report.xml" escape="false"/>
     </target>
 </project>
