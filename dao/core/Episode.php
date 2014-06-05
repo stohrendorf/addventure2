@@ -328,6 +328,9 @@ class Episode implements IAddventure {
         $dest[] = $destArr;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toSmarty() {
         $result = array(
             'id' => $this->getId(),
@@ -378,6 +381,9 @@ class Episode implements IAddventure {
         return $result;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toRss(\SimpleXMLElement &$channel) {
         $item = $channel->addChild('item');
         $item->addChild('title', htmlspecialchars($this->getAutoTitle()));
@@ -388,6 +394,9 @@ class Episode implements IAddventure {
         $item->addChild('pubDate', $this->getCreated() ? $this->getCreated()->format(\DateTime::RSS) : '');
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toAtom(\SimpleXMLElement &$feed) {
         $entry = $feed->addChild('entry');
         $entry->addChild('id', 'addventure:episode:' . $this->getId());

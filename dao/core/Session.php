@@ -5,6 +5,7 @@ namespace addventure;
 /**
  * @Entity
  * @Table(name="ci_sessions", indexes={@Index(name="last_activity_idx", columns={"last_activity"})})
+ * @codeCoverageIgnore
  */
 class Session {
 

@@ -140,6 +140,9 @@ class User {
         return !$this->blocked && $this->role >= self::Registered;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toSmarty() {
         return array(
             'blocked' => $this->getBlocked(),

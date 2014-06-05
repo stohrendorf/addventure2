@@ -95,18 +95,30 @@ class Comment implements IAddventure {
     return $this;
   }
 
+    /**
+     * @codeCoverageIgnore
+     */
   public function toAtom(\SimpleXMLElement &$parent) {
       throw new \RuntimeException("Not implemented");
   }
 
+    /**
+     * @codeCoverageIgnore
+     */
   public function toJson() {
       throw new \RuntimeException("Not implemented");
   }
 
+    /**
+     * @codeCoverageIgnore
+     */
   public function toRss(\SimpleXMLElement &$parent) {
       throw new \RuntimeException("Not implemented");
   }
 
+    /**
+     * @codeCoverageIgnore
+     */
   public function toSmarty() {
       return array(
           'author' => ($this->authorName ? $this->authorName->toSmarty() : null),

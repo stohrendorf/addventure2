@@ -57,6 +57,7 @@ class AuthorName implements IAddventure {
     }
 
     public function setName($name) {
+        $name = trim($name);
         if(empty($name)) {
             throw new \InvalidArgumentException("Name must not be empty");
         }
@@ -84,6 +85,9 @@ class AuthorName implements IAddventure {
         $this->episodes[] = $e;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toJson() {
         return array(
             'id' => $this->getId(),
@@ -92,6 +96,9 @@ class AuthorName implements IAddventure {
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toSmarty() {
         return array(
             'id' => $this->getId(),
@@ -100,10 +107,16 @@ class AuthorName implements IAddventure {
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toRss(\SimpleXMLElement &$parent) {
         
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toAtom(\SimpleXMLElement &$entry) {
         $a = $entry->addChild('author');
         $a->addChild('name', htmlspecialchars($this->getName()));

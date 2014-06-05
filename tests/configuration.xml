@@ -12,9 +12,9 @@
          xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.1/phpunit.xsd">#
     <filter>
         <blacklist>
-            <directory suffix=".php">vendor</directory>
-            <directory suffix=".php">system</directory>
-            <directory suffix=".php">templates</directory>
+            <directory suffix=".php">../vendor</directory>
+            <directory suffix=".php">../system</directory>
+            <directory suffix=".php">../templates</directory>
         </blacklist>
     </filter>
     <php>

@@ -92,6 +92,9 @@ class Link implements IAddventure {
         return $this;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toJson() {
         return array(
             'isBacklink' => $this->getIsBacklink(),
@@ -101,6 +104,9 @@ class Link implements IAddventure {
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toSmarty() {
         return array(
             'isBacklink' => $this->getIsBacklink(),
@@ -111,10 +117,16 @@ class Link implements IAddventure {
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toRss(\SimpleXMLElement &$parent) {
         
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toAtom(\SimpleXMLElement &$parent) {
         
     }
