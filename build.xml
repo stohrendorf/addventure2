@@ -21,12 +21,22 @@
     
     <target name="download-vendor-dev">
         <echo msg="Downloading composer dependencies..."/>
-        <exec command="./composer.phar --ansi --no-interaction install --dev" escape="false"/>
+        <exec executable="./composer.phar">
+            <arg value="--ansi"/>
+            <arg value="--no-interaction"/>
+            <arg value="install"/>
+            <arg value="--dev"/>
+        </exec>
     </target>
     
     <target name="download-vendor">
         <echo msg="Downloading composer dependencies..."/>
-        <exec command="./composer.phar --ansi --no-interaction install --no-dev" escape="false"/>
+        <exec executable="./composer.phar">
+            <arg value="--ansi"/>
+            <arg value="--no-interaction"/>
+            <arg value="install"/>
+            <arg value="--no-dev"/>
+        </exec>
     </target>
     
     <target name="dist" depends="download-vendor">
@@ -42,10 +52,35 @@
             exclude="*/vendor/*,*/system/*,*/dao/proxies/*,*/templates/*"
             title="Addventure2 API"
             todo="true"
-            />
+        />
     </target>
     
     <target name="test" depends="download-vendor-dev">
-        <exec command="vendor/bin/phpunit -c tests/configuration.xml --log-junit tests/report.xml" escape="false"/>
+        <mkdir dir="reports"/>
+        <echo msg="Running PHPUnit..."/>
+        <exec executable="vendor/bin/phpunit">
+            <arg value="-c"/>
+            <arg value="tests/configuration.xml"/>
+            <arg value="--log-junit"/>
+            <arg value="reports/phpunit.xml"/>
+            <arg value="--coverage-clover"/>
+            <arg value="reports/phpunit-coverage.xml"/>
+        </exec>
+        <echo msg="Running PHPMD..."/>
+        <exec executable="vendor/bin/phpmd">
+            <arg value="./"/>
+            <arg value="xml"/>
+            <arg value="cleancode,codesize,controversial,design,naming,unusedcode"/>
+            <arg value="--reportfile"/>
+            <arg value="reports/pmd.xml"/>
+            <arg value="--exclude"/>
+            <arg value="vendor/*,system/*,dao/proxies/*,templates/compiled/*"/>
+        </exec>
+        <echo msg="Running PHP_CodeSniffer..."/>
+        <exec executable="vendor/bin/phpcs">
+            <arg value="--ignore=vendor/*,system/*,dao/proxies/*,templates/compiled/*,doc/*,tests/*,application/config/*"/>
+            <arg value="--report-xml=reports/phpcs.xml"/>
+            <arg value="."/>
+        </exec>
     </target>
 </project>
