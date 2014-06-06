@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "db86bc0ac7056f94bae679657f095981",
+    "hash": "a0e9370e62f2f858a701ecc5c9d3947a",
     "packages": [
         {
             "name": "ckeditor",
@@ -11,7 +11,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ckeditor/ckeditor-releases.git",
-                "reference": "4.3.x/full"
+                "reference": "full/4.3.x"
             },
             "type": "library"
         },
@@ -53,7 +53,7 @@
             ],
             "authors": [
                 {
-                    "name": "Jonathan Wage",
+                    "name": "Jonathan H. Wage",
                     "email": "jonwage@gmail.com",
                     "homepage": "http://www.jwage.com/",
                     "role": "Creator"
@@ -682,16 +682,16 @@
         },
         {
             "name": "pear/pear_exception",
-            "version": "1.0.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pear/PEAR_Exception.git",
-                "reference": "ae6d888a572dae2476c89adccb8af45ee8c2afbe"
+                "reference": "d5a3e9597040dcc56a4a2053a605e07214951202"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pear/PEAR_Exception/zipball/ae6d888a572dae2476c89adccb8af45ee8c2afbe",
-                "reference": "ae6d888a572dae2476c89adccb8af45ee8c2afbe",
+                "url": "https://api.github.com/repos/pear/PEAR_Exception/zipball/d5a3e9597040dcc56a4a2053a605e07214951202",
+                "reference": "d5a3e9597040dcc56a4a2053a605e07214951202",
                 "shasum": ""
             },
             "require": {
@@ -721,12 +721,13 @@
             "authors": [
                 {
                     "name": "Helgi Thormar",
-                    "email": "dufuz@php.net"
+                    "email": "dufuz@php.net",
+                    "role": "Lead"
                 },
                 {
                     "name": "Greg Beaver",
                     "email": "cellog@php.net",
-                    "role": "lead"
+                    "role": "Lead"
                 }
             ],
             "description": "The PEAR Exception base class.",
@@ -734,7 +735,7 @@
             "keywords": [
                 "exception"
             ],
-            "time": "2014-02-17 18:20:10"
+            "time": "2014-02-21 17:39:41"
         },
         {
             "name": "smarty/smarty",
@@ -2008,6 +2009,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "pear/log": 20,
+        "pear/pear_exception": 20,
         "squizlabs/php_codesniffer": 15
     },
     "platform": {
