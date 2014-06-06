@@ -21,12 +21,12 @@
     
     <target name="download-vendor-dev">
         <echo msg="Downloading composer dependencies..."/>
-        <exec command="composer.phar --ansi --no-interaction install --dev" escape="false"/>
+        <exec command="./composer.phar --ansi --no-interaction install --dev" escape="false"/>
     </target>
     
     <target name="download-vendor">
         <echo msg="Downloading composer dependencies..."/>
-        <exec command="composer.phar --ansi --no-interaction install --no-dev" escape="false"/>
+        <exec command="./composer.phar --ansi --no-interaction install --no-dev" escape="false"/>
     </target>
     
     <target name="dist" depends="download-vendor">
