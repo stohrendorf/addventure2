@@ -45,14 +45,10 @@
         </tar>
     </target>
     
-    <target name="docs">
-        <apigen
-            source="."
-            destination="doc/"
-            exclude="*/vendor/*,*/system/*,*/dao/proxies/*,*/templates/*"
-            title="Addventure2 API"
-            todo="true"
-        />
+    <target name="docs" depends="download-vendor-dev">
+        <echo msg="Creating API docs..."/>
+        <exec executable="vendor/bin/phpdoc">
+        </exec>
     </target>
     
     <target name="test" depends="download-vendor-dev">

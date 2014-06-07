@@ -46,6 +46,7 @@
         "ext-session": "*",
         "ext-SimpleXML": "*",
         "ext-tidy": "*",
+        "ext-spl_types": ">=0.4",
         "php": ">=5.4"
     },
     "autoload": {
@@ -57,6 +58,8 @@
         "phpunit/phpunit": "~4.1",
         "phpunit/phpunit-skeleton-generator": "~2.0",
         "squizlabs/php_codesniffer": "2.0.0a2",
-        "phpmd/phpmd": "~2.0"
+        "phpmd/phpmd": "~2.0",
+        "phpdocumentor/phpdocumentor": "2.*",
+        "ext-xdebug": ">=2.2"
     }
 }

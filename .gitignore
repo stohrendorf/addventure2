@@ -6,3 +6,5 @@
 /templates/cache/*
 /templates/compiled/*
 /logs/*
+/doc/api
+/reports

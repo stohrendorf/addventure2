@@ -1,19 +1,67 @@
 <?php
 
+/**
+ * Classes handling user accounts.
+ * @package DAO
+ */
+
 namespace addventure;
+
+/**
+ * Roles a user can have.
+ * @package DAO
+ * @codeCoverageIgnore
+ */
+class UserRole extends \SplEnum
+{
+    // This is ordered by the amount of rights each role has.
+    /**
+     * An anonymous user, meant to be used for legacy users imported from old systems.
+     */
+    const Anonymous = 0;
+    /**
+     * The user has requested a registration, but hasn't activated his account yet.
+     */
+    const AwaitApproval = 1;
+    /**
+     * The user is registered an can write episodes and comments.
+     */
+    const Registered = 2;
+    /**
+     * The user is a moderator and allowed to edit/delete comments and episodes
+     * and is able to block users.
+     */
+    const Moderator = 3;
+    /**
+     * The user has Moderator rights but can also change the roles of
+     * users.
+     */
+    const Administrator = 4;
+    
+    const __default = self::Anonymous;
+    
+    /**
+     * Construct a new role from a valid integer, or a valid string matching a
+     * constant.
+     * @param string|int $value Enum value
+     * @throws \InvalidArgumentException if an invalid value has been passed
+     */
+    public function __construct($value = self::__default) {
+        if(is_string($value)) {
+            if(!defined("self::$value")) {
+                throw new \InvalidArgumentException("Unknown user role '$value'");
+            }
+            $value = constant("self::$value");
+        }
+        parent::__construct($value);
+    }
+}
 
 /**
  * @Entity
  * @Table(name="AddventureUsers") because "User" is a reserved word.
  */
 class User {
-
-    // This is ordered by the amount of rights each role has.
-    const Anonymous = 0;
-    const AwaitApproval = 1;
-    const Registered = 2;
-    const Moderator = 3;
-    const Administrator = 4;
 
     /**
      * @Id
@@ -43,9 +91,9 @@ class User {
 
     /**
      * @Column(type="smallint", nullable=false)
-     * @var int
+     * @var UserRole
      */
-    private $role = self::Anonymous;
+    private $role;
 
     /**
      * @OneToMany(targetEntity="addventure\AuthorName", mappedBy="user", fetch="LAZY")
@@ -58,6 +106,10 @@ class User {
      * @var bool
      */
     private $blocked = false;
+    
+    public function __construct() {
+        $this->role = new UserRole(UserRole::Anonymous);
+    }
 
     public function getId() {
         return $this->id;
@@ -67,6 +119,9 @@ class User {
         return $this->email;
     }
 
+    /**
+     * @return UserRole
+     */
     public function getRole() {
         return $this->role;
     }
@@ -89,13 +144,17 @@ class User {
     }
 
     public function setEmail($email) {
+        $email = filter_var(trim($email), FILTER_VALIDATE_EMAIL);
+        if(!$email) {
+            throw new \InvalidArgumentException('Invalid E-Mail supplied');
+        }
         $this->email = $email;
         return $this;
     }
 
     public function setRole($role) {
-        if($role < 0 || $role > self::Administrator) {
-            throw new \InvalidArgumentException("Invalid user role specified");
+        if(!($role instanceof UserRole)) {
+            $role = new UserRole($role);
         }
         $this->role = $role;
         return $this;
@@ -115,35 +174,35 @@ class User {
     }
 
     public function isAnonymous() {
-        return $this->role === self::Anonymous;
+        return $this->role === UserRole::Anonymous;
     }
 
     public function isAwaitingApproval() {
-        return $this->role === self::AwaitApproval;
+        return $this->role === UserRole::AwaitApproval;
     }
 
     public function isRegistered() {
-        return $this->role === self::Registered;
+        return $this->role === UserRole::Registered;
     }
 
     public function isModerator() {
-        return $this->role === self::Moderator;
+        return $this->role === UserRole::Moderator;
     }
 
     public function isAdministrator() {
-        return $this->role == self::Administrator;
+        return $this->role == UserRole::Administrator;
     }
 
     public function canCreateEpisode() {
-        return !$this->blocked && $this->role >= self::Registered;
+        return !$this->blocked && $this->role >= UserRole::Registered;
     }
 
     public function canCreateComment() {
-        return !$this->blocked && $this->role >= self::Registered;
+        return !$this->blocked && $this->role >= UserRole::Registered;
     }
 
     public function canSubscribe() {
-        return !$this->blocked && $this->role >= self::Registered;
+        return !$this->blocked && $this->role >= UserRole::Registered;
     }
 
     public function getUsername() {
@@ -186,7 +245,7 @@ class User {
             'blocked' => false,
             'userid' => -1,
             'username' => '',
-            'role' => self::Anonymous,
+            'role' => UserRole::Anonymous,
             'email' => '',
             'canCreateEpisode' => false,
             'canCreateComment' => false,

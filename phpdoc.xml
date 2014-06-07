@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdoc>
+    <title>Addventure2</title>
+    <parser>
+        <target>doc/api</target>
+    </parser>
+    <transformer>
+        <target>doc/api</target>
+    </transformer>
+    <files>
+        <directory>dao/core</directory>
+        <directory>application/controllers</directory>
+        <directory>application/helpers</directory>
+        <directory>application/libraries</directory>
+    </files>
+</phpdoc>

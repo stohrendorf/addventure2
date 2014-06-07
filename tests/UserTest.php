@@ -30,38 +30,91 @@ class UserTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers addventure\User::getId
-     * @todo   Implement testGetId().
+     * @covers addventure\User::setId
      */
-    public function testGetId()
+    public function testGetAndSetId()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $this->object->setId(123);
+        $this->assertEquals(123, $this->object->getId());
     }
 
     /**
      * @covers addventure\User::getEmail
-     * @todo   Implement testGetEmail().
+     * @covers addventure\User::setEmail
      */
-    public function testGetEmail()
+    public function testGetAndSetEmail()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $this->object->setEmail('user@example.com');
+        $this->assertEquals('user@example.com', $this->object->getEmail());
+        
+        $this->object->setEmail(' user.space@example.com  ');
+        $this->assertEquals('user.space@example.com', $this->object->getEmail());
+
+        try {
+            $this->object->setEmail('invalid@mail');
+            $this->fail();
+        }
+        catch(\InvalidArgumentException $ex) {
+        }
+        
+        try {
+            $this->object->setEmail(null);
+            $this->fail();
+        }
+        catch(\InvalidArgumentException $ex) {
+        }
+    }
+
+    /**
+     * @covers addventure\User::getUsername
+     * @covers addventure\User::setUsername
+     */
+    public function testGetAndSetUsername()
+    {
+        $this->object->setUsername('John Doe');
+        $this->assertEquals('John Doe', $this->object->getUsername());
+        
+        $this->object->setUsername('Johnny     Doe  ');
+        $this->assertEquals('Johnny Doe', $this->object->getUsername());
+
+        $this->object->setUsername(' Anna' . str_repeat(' ', 500));
+        $this->assertEquals($this->object->getUsername(), 'Anna');
+
+        try {
+            $this->object->setUsername(null);
+            $this->fail();
+        } catch (\InvalidArgumentException $ex) {
+        }
+        
+        // test UTF-8 length
+        try {
+            // ä * 100 is OK
+            $this->object->setUsername(str_repeat("\xC3\xA4",100));
+        } catch (\InvalidArgumentException $ex) {
+            $this->fail('UTF-8 encoding length (1)');
+        }
+        try {
+            // ä * 101 is not OK
+            $this->object->setUsername(str_repeat("\xC3\xA4",101));
+            $this->fail('UTF-8 encoding length (2)');
+        } catch (\InvalidArgumentException $ex) {
+        }
     }
 
     /**
      * @covers addventure\User::getRole
-     * @todo   Implement testGetRole().
+     * @covers addventure\User::setRole
      */
-    public function testGetRole()
+    public function testGetAndSetRole()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $this->object->setRole(0);
+        $this->assertEquals(UserRole::Anonymous, (int)$this->object->getRole());
+        $this->object->setRole(1);
+        $this->assertEquals(UserRole::AwaitApproval, (int)$this->object->getRole());
+        $this->object->setRole('Registered');
+        $this->assertEquals(UserRole::Registered, (int)$this->object->getRole());
+        $this->object->setRole(UserRole::Moderator);
+        $this->assertEquals(UserRole::Moderator, (int)$this->object->getRole());
     }
 
     /**
@@ -93,42 +146,6 @@ class UserTest extends \PHPUnit_Framework_TestCase
      * @todo   Implement testGetBlocked().
      */
     public function testGetBlocked()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @covers addventure\User::setId
-     * @todo   Implement testSetId().
-     */
-    public function testSetId()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @covers addventure\User::setEmail
-     * @todo   Implement testSetEmail().
-     */
-    public function testSetEmail()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @covers addventure\User::setRole
-     * @todo   Implement testSetRole().
-     */
-    public function testSetRole()
     {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
@@ -268,27 +285,4 @@ class UserTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @covers addventure\User::toSmarty
-     * @todo   Implement testToSmarty().
-     */
-    public function testToSmarty()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @covers addventure\User::defaultSmarty
-     * @todo   Implement testDefaultSmarty().
-     */
-    public function testDefaultSmarty()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
 }
