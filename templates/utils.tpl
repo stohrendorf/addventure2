@@ -49,7 +49,7 @@
     {if !empty($episode.comments)}
         <div class="list-group">
             <h4 class="list-group-item list-group-item-info">
-                Comments...
+                <span class="glyphicon glyphicon-comment"></span> Comments...
             </h4>
             {foreach $episode.comments as $comment}
                 <div class="list-group-item">

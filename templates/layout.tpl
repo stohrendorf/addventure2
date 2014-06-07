@@ -35,7 +35,7 @@
                     <ul class="nav navbar-nav">
                         <li><a href="{$url.site}">Trunk of the Tree</a></li>
                         <li{if ($url.current == 'recent')} class="active"{/if}><a href="{$url.site}/recent">The Freshest Leaves</a></li>
-                        <li{if ($url.current == 'doc/random')} class="active"{/if}><a href="{$url.site}/doc/random">Surprise</a></li>
+                        <li{if ($url.current == 'doc/random')} class="active"{/if}><a href="{$url.site}/doc/random">The White Rabbit</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         {if $client.userid!=-1}

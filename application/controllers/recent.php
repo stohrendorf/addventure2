@@ -33,6 +33,7 @@ class Recent extends CI_Controller {
         global $entityManager;
 
         $userId = filter_var($userId, FILTER_SANITIZE_NUMBER_INT);
+        $user = $entityManager->find('addventure\User', $userId);
         $page = filter_var($page, FILTER_SANITIZE_NUMBER_INT);
         if($page === null || $page === false) {
             $page = 0;
@@ -53,7 +54,7 @@ class Recent extends CI_Controller {
             $smarty->assign('lastCreated', $d->format("l, d M Y H:i"));
         }
         $smarty->assign('episodeCount', $numEpisodes);
-        $smarty->assign('userid', $userId);
+        $smarty->assign('user', $user->toSmarty());
         $smarty->assign('page', $page);
         $maxPage = floor(($numEpisodes + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url(array('recent/user', $userId)) . '/'));

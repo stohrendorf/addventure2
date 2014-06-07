@@ -1,19 +1,19 @@
 {extends 'layout.tpl'}
 {block name=title}
-    Episode {$episode.id}
+    &raquo;{$episode.autoTitle}&laquo; by {$episode.author.name}
 {/block}
 
 {block name="headElements" append}
     {if isset($episode.author)}
-        <link href="{$url.base}/rss.php?what=recent&amp;count=100&amp;user={$episode.author.user}" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes written by {$episode.author.name|escape} (RSS 2.0)"/>
-        <link href="{$url.base}/atom.php?what=recent&amp;count=100&amp;user={$episode.author.user}" rel="alternate" type="application/atom+xml" title="The 100 most recent episodes written by {$episode.author.name|escape} (ATOM)"/>
+        <link href="{$url.base}/rss.php?what=recent&amp;count=100&amp;user={$episode.author.user}" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes by {$episode.author.name|escape} (RSS 2.0)"/>
+        <link href="{$url.base}/atom.php?what=recent&amp;count=100&amp;user={$episode.author.user}" rel="alternate" type="application/atom+xml" title="The 100 most recent episodes by {$episode.author.name|escape} (ATOM)"/>
     {/if}
 {/block}
 
 {block name=body}
     {function name=childTree depth=2}
         {foreach $tree as $child}
-            <div style="margin:0 0 0.3em {2*$depth}em; font-size: {(100-6*$depth)}%;">
+            <div style="margin:0 0 0.3em {1.3*$depth}em; font-size: {(100-6*$depth)}%;">
                 <a href="{$url.site}/doc/{$child.id}">{$child.title}</a>
                 {if isset($child.children)}
                     {call name=childTree tree=$child.children depth={$depth+1}}
@@ -52,6 +52,40 @@
         <div class="panel-body" id="links">
             {$canSubscribe=false}
             {foreach $episode.children as $link}
+                {if !empty($link.subtree)}
+                    <a id="show-descendants" class="pull-right" style="cursor:pointer;" data-toggle="tooltip" data-placement="right" title="Show episode tree. (May contain spoilers!)">
+                        <div style="top:0;right:0;" id="show-descendants-plus"><span class="glyphicon glyphicon-plus-sign" style="font-size:2em;"></span></div>
+                        <div style="top:0;right:0;display:none;" id="show-descendants-minus"><span class="glyphicon glyphicon-minus-sign" style="font-size:2em;"></span></div>
+                    </a>
+                    <script type="text/javascript">
+                        $(function() {
+                            $('#show-descendants').tooltip();
+                            $('#show-descendants').click(function() {
+                                $('div.episode-descendants').each(function(i, e) {
+                                    $(e).collapse('toggle');
+                                    if(i==0) {
+                                        $(e).on('shown.bs.collapse', function() {
+                                            $('html, body').animate({
+                                                scrollTop: $('#links-bottom').offset().top
+                                            }, 'slow');
+                                        });
+                                    }
+                                });
+                                var plus = $('#show-descendants-plus');
+                                var minus = $('#show-descendants-minus');
+                                if(plus.css('display') === 'none') {
+                                    minus.fadeOut('slow', function(){ plus.fadeIn('slow'); });
+                                }
+                                else {
+                                    plus.fadeOut('slow', function(){ minus.fadeIn('slow'); });
+                                }
+                            });
+                        });
+                    </script>
+                    {break}
+                {/if}
+            {/foreach}
+            {foreach $episode.children as $link}
                 <p style="margin:0 0 0.3em 1em;">
                     <a href="{$url.site}/doc/{$link.toEp}"
                        {if !$link.isWritten}
@@ -67,7 +101,11 @@
                        {$link.title}
                     </a>
                 </p>
-                {call name=childTree tree=$link.subtree}
+                {if !empty($link.subtree)}
+                    <div class="episode-descendants collapse">
+                        {call name=childTree tree=$link.subtree}
+                    </div>
+                {/if}
             {/foreach}
             {if $canSubscribe && $client.canSubscribe}
                 <p>
@@ -92,14 +130,17 @@
             {/if}
         </div>
         <script type="text/javascript">
-            $('#links>p>a').each(function(i, e) {
-                $(e).tooltip();
+            $(function() {
+                $('#links>p>a').each(function(i, e) {
+                    $(e).tooltip();
+                });
+                $('#report').tooltip();
             });
-            $('#report').tooltip();
         </script>
         {if isset($episode.parent)}
             <div class="panel-footer"><a href="{$url.site}/doc/{$episode.parent}"><span class="glyphicon glyphicon-circle-arrow-left"></span> Go to the parent episode.</a></div>
         {/if}
+        <span id="links-bottom"></span>
     </div>
 
 {/block}

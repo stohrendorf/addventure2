@@ -30,6 +30,12 @@ class User {
     private $email;
 
     /**
+     * @Column(type="string", length=100, unique=true, nullable=true)
+     * @var string
+     */
+    private $username;
+
+    /**
      * @Column(type="string", unique=false, nullable=true)
      * @var string
      */
@@ -140,6 +146,22 @@ class User {
         return !$this->blocked && $this->role >= self::Registered;
     }
 
+    public function getUsername() {
+        return $this->username;
+    }
+
+    public function setUsername($username) {
+        if($username === null) {
+            throw new \InvalidArgumentException('Username may not be null');
+        }
+        $username = preg_replace('/\s+/', ' ', trim($username));
+        if(mb_strlen($username) > 100) {
+            throw new \InvalidArgumentException('Username too long: ' . mb_strlen($username));
+        }
+        $this->username = $username;
+        return $this;
+    }
+
     /**
      * @codeCoverageIgnore
      */
@@ -147,6 +169,7 @@ class User {
         return array(
             'blocked' => $this->getBlocked(),
             'userid' => $this->getId(),
+            'username' => $this->getUsername(),
             'role' => $this->getRole(),
             'email' => $this->getEmail(),
             'canCreateEpisode' => $this->canCreateEpisode(),
@@ -155,10 +178,14 @@ class User {
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public static function defaultSmarty() {
         return array(
             'blocked' => false,
             'userid' => -1,
+            'username' => '',
             'role' => self::Anonymous,
             'email' => '',
             'canCreateEpisode' => false,
