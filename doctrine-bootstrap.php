@@ -16,6 +16,10 @@ $doctrineDbConfig = array(
     'dbname' => ADDVENTURE_DB_SCHEMA
 );
 
+/**
+ * @global Log $logger
+ */
+$logger = Log::singleton('file', 'logs/addventure.log', '');
 if(php_sapi_name() === 'cli') {
     $doctrineCache = new \Doctrine\Common\Cache\ArrayCache();
 }
@@ -43,10 +47,6 @@ $doctrineConfig->setAutoGenerateProxyClasses(false);
 $entityManager = EntityManager::create($doctrineDbConfig, $doctrineConfig);
 
 
-/**
- * @global Log $logger
- */
-$logger = Log::singleton('file', 'logs/addventure.log', '');
 if(ADDVENTURE_DEV_MODE) {
     define('JSON_FLAGS', JSON_PRETTY_PRINT);
     $logger->setMask(PEAR_LOG_ALL);

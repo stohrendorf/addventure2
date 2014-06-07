@@ -455,8 +455,6 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         }
         $qb->setFirstResult($page * $count);
         $qb->setMaxResults($count);
-        global $logger;
-        $logger->debug('First result: ' . $page * $count);
         $qb = $qb->getQuery();
         return new \Doctrine\ORM\Tools\Pagination\Paginator($qb, false);
     }
@@ -478,8 +476,6 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->setFirstResult($page * ADDVENTURE_RESULTS_PER_PAGE);
         $qb->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
-        global $logger;
-        $logger->debug('First result: ' . $page * ADDVENTURE_RESULTS_PER_PAGE);
         $qb->select('e')->from('addventure\Episode', 'e')->orderBy('e.created', 'DESC');
         foreach($user->getAuthorNames() as $a) {
             $qb->orWhere('e.author=' . $a->getId());
