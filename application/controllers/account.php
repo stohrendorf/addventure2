@@ -52,15 +52,14 @@ class Account extends CI_Controller {
             return;
         }
 
-        global $entityManager;
         $user = new \addventure\User();
         $user->setEmail($email);
         $user->setRole(\addventure\User::AwaitApproval);
         $this->load->library('encrypt');
         $user->setPassword(self::encodePassword($password));
         try {
-            $entityManager->persist($user);
-            $entityManager->flush();
+            $this->load->library('em');
+            $this->em->persistAndFlush($user);
         }
         catch(Exception $e) {
             $smarty->display('account_register_invalid.tpl');
@@ -102,8 +101,8 @@ MSG
         $this->load->library('encrypt');
         $email = $this->encrypt->decode(base64_decode($email));
         
-        global $entityManager;
-        $user = $entityManager->getRepository('addventure\User')->createQueryBuilder('u')->where('u.email = ?1')->setParameter(1, $email)->getQuery()->getOneOrNullResult();
+        $this->load->library('em');
+        $user = $this->em->findUserByMail($email);
         
         $this->load->helper('smarty');
         $smarty = createSmarty();
@@ -121,8 +120,7 @@ MSG
         }
         else {
             $user->setRole(\addventure\User::Registered);
-            $entityManager->persist($user);
-            $entityManager->flush();
+            $this->em->persistAndFlush($user);
             redirect(site_url());
         }
     }
@@ -133,8 +131,8 @@ MSG
         $password = $this->input->post('password');
         $remember = $this->input->post('remember', TRUE);
 
-        global $entityManager;
-        $user = $entityManager->getRepository('addventure\User')->createQueryBuilder('u')->where('u.email = ?1')->setParameter(1, $email)->getQuery()->getOneOrNullResult();
+        $this->load->library('em');
+        $user = $this->em->findUserByMail($email);
 
         $this->load->helper('smarty');
         $smarty = createSmarty();

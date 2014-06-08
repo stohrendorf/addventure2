@@ -10,12 +10,12 @@ class Recent extends CI_Controller {
         $this->load->helper('pagination');
         $this->load->helper('url');
         $this->load->helper('smarty');
-        global $entityManager;
         $page = filter_var($page, FILTER_SANITIZE_NUMBER_INT);
         if(!$page) {
             $page = 0;
         }
-        $eps = $entityManager->getRepository('addventure\Episode')->getRecentEpisodes(-1, $page);
+        $this->load->library('em');
+        $eps = $this->em->getEpisodeRepository()->getRecentEpisodes(-1, $page);
         $maxPage = floor(($eps->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
         $smarty = createSmarty();
         $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
@@ -30,26 +30,26 @@ class Recent extends CI_Controller {
         $this->load->helper('pagination');
         $this->load->helper('url');
         $this->load->helper('smarty');
-        global $entityManager;
+        $this->load->library('em');
 
         $userId = filter_var($userId, FILTER_SANITIZE_NUMBER_INT);
-        $user = $entityManager->find('addventure\User', $userId);
+        $user = $this->em->findUser($userId);
         $page = filter_var($page, FILTER_SANITIZE_NUMBER_INT);
         if($page === null || $page === false) {
             $page = 0;
         }
         $smarty = createSmarty();
-        $numEpisodes = $entityManager->getRepository('addventure\Episode')->findByUser(
-                $userId, function(addventure\Episode $ep) use($smarty) {
-            $smarty->append('episodes', $ep->toSmarty());
-        }, $page
+        $numEpisodes = $this->em->getEpisodeRepository()->findByUser(
+            $userId, function(addventure\Episode $ep) use($smarty) {
+                $smarty->append('episodes', $ep->toSmarty());
+            }, $page
         );
         $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
-        $d = $entityManager->getRepository('addventure\Episode')->firstCreatedByUser($userId);
+        $d = $this->em->getEpisodeRepository()->firstCreatedByUser($userId);
         if($d) {
             $smarty->assign('firstCreated', $d->format("l, d M Y H:i"));
         }
-        $d = $entityManager->getRepository('addventure\Episode')->lastCreatedByUser($userId);
+        $d = $this->em->getEpisodeRepository()->lastCreatedByUser($userId);
         if($d) {
             $smarty->assign('lastCreated', $d->format("l, d M Y H:i"));
         }

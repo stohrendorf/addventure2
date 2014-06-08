@@ -8,13 +8,13 @@ class Maintenance extends CI_Controller {
 
     private function report($docId, $description, $type) {
         $this->load->library('log');
-        global $entityManager;
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === null || $docId === false) {
             $this->log->warning('Maintenance/' . $description . ' - invalid DocID');
             show_404();
         }
-        $ep = $entityManager->find('addventure\Episode', $docId);
+        $this->load->library('em');
+        $ep = $this->em->findEpisode($docId);
         if(!$ep) {
             $this->log->warning('Maintenance/' . $description . ' - Document not found: ' . $docId);
             show_404();
@@ -25,8 +25,7 @@ class Maintenance extends CI_Controller {
         $report->setEpisode($ep);
         $report->setType($type);
         try {
-            $entityManager->persist($report);
-            $entityManager->flush();
+            $this->em->persistAndFlush($report);
         }
         catch(PDOException $e) {
             $this->log->debug('Maintenance/' . $description . ': Duplicate ' . $docId);
@@ -57,8 +56,8 @@ class Maintenance extends CI_Controller {
 
     public function reports() {
         echo '<ul>';
-        global $entityManager;
-        foreach($entityManager->createQuery('SELECT r FROM addventure\Report r')->getResult() as $r) {
+        $this->load->library('em');
+        foreach($this->em->getAllReports() as $r) {
             echo '<li>' . $r->getEpisode()->getId() . ' as ' . $r->getType() . '</li>';
         }
         echo '</ul>';

@@ -7,7 +7,7 @@ if(!defined('BASEPATH')) {
 class Userinfo {
 
     /**
-     * @var \addventure\User
+     * @var \addventure\User|null
      */
     public $user = null;
 
@@ -16,8 +16,8 @@ class Userinfo {
         $CI->load->library('session');
         if($CI->session->userdata('userid') !== FALSE) {
             $userid = $CI->session->userdata('userid');
-            global $entityManager;
-            $this->user = $entityManager->find('addventure\User', $userid);
+            $CI->load->library('em');
+            $this->user = $CI->em->findUser($userid);
         }
     }
 
