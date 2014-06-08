@@ -31,11 +31,9 @@
         "smarty/smarty": "~3.1",
         "twbs/bootstrap": "~3.1",
         "frameworks/jquery": "~2.1",
-        "pear/log": "dev-master",
-        "pear/pear_exception": "1.0.*@dev",
         "swiftmailer/swiftmailer": "~5.0",
         "ircmaxell/password-compat": "~1.0",
-        "ext-apc": "*",
+        "monolog/monolog": "~1.9",
         "ext-ereg": "*",
         "ext-filter": "*",
         "ext-mbstring": "*",
@@ -61,5 +59,8 @@
         "phpmd/phpmd": "~2.0",
         "phpdocumentor/phpdocumentor": "2.*",
         "ext-xdebug": ">=2.2"
+    },
+    "suggest": {
+        "ext-apc": "*"
     }
 }

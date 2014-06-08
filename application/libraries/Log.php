@@ -7,18 +7,13 @@ if(!defined('BASEPATH')) {
 class CI_Log {
 
     /**
-     * @var Log
+     * @var \Monolog\Logger
      */
     private $logger;
 
     public function __construct() {
-        $this->logger = Log::singleton('file', implode(DIRECTORY_SEPARATOR, array(FCPATH, 'logs', 'addventure.log')), '');
-        if(ADDVENTURE_DEV_MODE) {
-            $this->logger->setMask(PEAR_LOG_ALL);
-        }
-        else {
-            $this->logger->setMask(PEAR_LOG_WARNING);
-        }
+        global $logger;
+        $this->logger = $logger;
     }
 
     /**
@@ -27,35 +22,35 @@ class CI_Log {
     public function write_log($level = 'error', $msg, $php_error = FALSE) {
         switch(strtoupper($level)) {
             case 'ERROR':
-                $this->logger->err($msg);
+                $this->logger->addError($msg);
                 break;
             case 'DEBUG':
-                $this->logger->debug($msg);
+                $this->logger->addDebug($msg);
                 break;
             default: // in CI, only error and debug are used.
-                $this->logger->info("[LEVEL $level]: $msg");
+                $this->logger->addInfo("[LEVEL $level]: $msg");
                 break;
         }
     }
 
     public function crit($msg) {
-        $this->logger->crit($msg);
+        $this->logger->addCritical($msg);
     }
 
     public function error($msg) {
-        $this->logger->error($msg);
+        $this->logger->addError($msg);
     }
 
     public function warning($msg) {
-        $this->logger->warning($msg);
+        $this->logger->addWarning($msg);
     }
 
     public function debug($msg) {
-        $this->logger->debug($msg);
+        $this->logger->addDebug($msg);
     }
 
     public function info($msg) {
-        $this->logger->info($msg);
+        $this->logger->addInfo($msg);
     }
 
 }

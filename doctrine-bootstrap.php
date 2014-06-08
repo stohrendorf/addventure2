@@ -16,20 +16,24 @@ $doctrineDbConfig = array(
     'dbname' => ADDVENTURE_DB_SCHEMA
 );
 
-/**
- * @global Log $logger
- */
-$logger = Log::singleton('file', 'logs/addventure.log', '');
-if(php_sapi_name() === 'cli') {
-    $doctrineCache = new \Doctrine\Common\Cache\ArrayCache();
+define('LOG_FILENAME', implode(DIRECTORY_SEPARATOR, array(__DIR__, 'logs', 'addventure.log')));
+$logger = new \Monolog\Logger('');
+$logger->pushHandler(new Monolog\Handler\StreamHandler(LOG_FILENAME, ADDVENTURE_DEV_MODE ? \Monolog\Logger::DEBUG : \Monolog\Logger::WARNING));
+Monolog\ErrorHandler::register($logger);
+
+if(php_sapi_name() !== 'cli' && !extension_loaded('apc')) {
+    $logger->warning('You are seeing this message because you haven\' enabled APC in your server. Please do so to get better performance');
 }
-elseif(extension_loaded('apc')) {
-    $doctrineCache = new Doctrine\Common\Cache\ApcCache();
+if(ADDVENTURE_DEV_MODE) {
+    $logger->warning('You are running the Addventure in development mode');
+    define('JSON_FLAGS', JSON_PRETTY_PRINT);
+    error_reporting(E_ALL);
 }
 else {
-    $logger->warning('You are seeing this message because you haven\' enabled APC in your server. Please do so to get better performance');
-    $doctrineCache = new \Doctrine\Common\Cache\ArrayCache();
+    define('JSON_FLAGS', 0);
+    error_reporting(0);
 }
+
 
 /**
  * @global \Doctrine\ORM\Configuration $doctrineConfig
@@ -37,26 +41,12 @@ else {
 $doctrineConfig = Setup::createAnnotationMetadataConfiguration(
         array(__DIR__ . "/dao/core"),
         ADDVENTURE_DEV_MODE,
-        __DIR__ . "/dao/proxies",
-        $doctrineCache);
-$doctrineConfig->setAutoGenerateProxyClasses(false);
+        __DIR__ . "/dao/proxies");
 
 /**
  * @global \Doctrine\ORM\EntityManager $entityManager
  */
 $entityManager = EntityManager::create($doctrineDbConfig, $doctrineConfig);
-
-
-if(ADDVENTURE_DEV_MODE) {
-    define('JSON_FLAGS', JSON_PRETTY_PRINT);
-    $logger->setMask(PEAR_LOG_ALL);
-    error_reporting(E_ALL);
-}
-else {
-    define('JSON_FLAGS', 0);
-    $logger->setMask(PEAR_LOG_WARNING);
-    error_reporting(0);
-}
 
 function getFullLogData() {
     if(file_exists('logs/addventure.log')) {
