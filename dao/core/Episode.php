@@ -185,6 +185,7 @@ class Episode implements IAddventure {
     }
 
     public function setTitle($title) {
+        $title = trim(preg_replace('/\s+/', ' ', $title));
         if(mb_strlen($title) > 255) {
             throw new \InvalidArgumentException("Title too long");
         }
@@ -265,6 +266,10 @@ class Episode implements IAddventure {
         return $this;
     }
     
+    /**
+     * An automatically generated title if the original title is empty, or the original title.
+     * @return string
+     */
     public function getAutoTitle() {
         if(!empty($this->title)) {
             return $this->title;
@@ -323,7 +328,7 @@ class Episode implements IAddventure {
             self::createTree($destArr['children'], $childEp, $depth+1);
             // do some GC...
             $entityManager->detach($childEp);
-            $childEp = null;
+            unset($childEp);
         }
         $dest[] = $destArr;
     }

@@ -10,56 +10,77 @@ namespace addventure;
 /**
  * Roles a user can have.
  * @package DAO
- * @codeCoverageIgnore
  */
-class UserRole extends \SplEnum
-{
+class UserRole {
+
+    private $value;
+
     // This is ordered by the amount of rights each role has.
     /**
      * An anonymous user, meant to be used for legacy users imported from old systems.
      */
     const Anonymous = 0;
+
     /**
      * The user has requested a registration, but hasn't activated his account yet.
      */
     const AwaitApproval = 1;
+
     /**
      * The user is registered an can write episodes and comments.
      */
     const Registered = 2;
+
     /**
      * The user is a moderator and allowed to edit/delete comments and episodes
      * and is able to block users.
      */
     const Moderator = 3;
+
     /**
      * The user has Moderator rights but can also change the roles of
      * users.
      */
     const Administrator = 4;
-    
-    const __default = self::Anonymous;
-    
+
     /**
      * Construct a new role from a valid integer, or a valid string matching a
      * constant.
      * @param string|int $value Enum value
      * @throws \InvalidArgumentException if an invalid value has been passed
      */
-    public function __construct($value = self::__default) {
+    public function __construct($value = self::Anonymous) {
+        $this->set($value);
+    }
+
+    public function set($value) {
         if(is_string($value)) {
             if(!defined("self::$value")) {
                 throw new \InvalidArgumentException("Unknown user role '$value'");
             }
-            $value = constant("self::$value");
+            $this->value = constant("self::$value");
         }
-        parent::__construct($value);
+        elseif(is_numeric($value)) {
+            if($value < self::Anonymous || $value > self::Administrator) {
+                throw new \InvalidArgumentException("Unknown user role '$value'");
+            }
+            $this->value = $value;
+        }
+        else {
+            throw new \InvalidArgumentException("Unknown user role '$value'");
+        }
     }
+
+    public function get() {
+        return $this->value;
+    }
+
 }
 
 /**
  * @Entity
  * @Table(name="AddventureUsers") because "User" is a reserved word.
+ * @package DAO
  */
 class User {
 
@@ -106,7 +127,7 @@ class User {
      * @var bool
      */
     private $blocked = false;
-    
+
     public function __construct() {
         $this->role = new UserRole(UserRole::Anonymous);
     }
@@ -213,9 +234,12 @@ class User {
         if($username === null) {
             throw new \InvalidArgumentException('Username may not be null');
         }
-        $username = preg_replace('/\s+/', ' ', trim($username));
-        if(mb_strlen($username) > 100) {
-            throw new \InvalidArgumentException('Username too long: ' . mb_strlen($username));
+        $username = trim(preg_replace('/\s+/', ' ', $username));
+        if(empty($username)) {
+            throw new \InvalidArgumentException("Username must not be empty");
+        }
+        elseif(mb_strlen($username) > 100) {
+            throw new \InvalidArgumentException("Username too long: " . mb_strlen($username));
         }
         $this->username = $username;
         return $this;

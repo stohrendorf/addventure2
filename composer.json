@@ -44,7 +44,6 @@
         "ext-session": "*",
         "ext-SimpleXML": "*",
         "ext-tidy": "*",
-        "ext-spl_types": ">=0.4",
         "php": ">=5.4"
     },
     "autoload": {

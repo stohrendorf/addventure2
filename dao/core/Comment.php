@@ -81,7 +81,7 @@ class Comment implements IAddventure {
   }
 
   public function setText($text) {
-    $this->text = $text;
+    $this->text = trim($text);
     return $this;
   }
 

@@ -86,6 +86,12 @@ class UserTest extends \PHPUnit_Framework_TestCase
         } catch (\InvalidArgumentException $ex) {
         }
         
+        try {
+            $this->object->setUsername('');
+            $this->fail();
+        } catch (\InvalidArgumentException $ex) {
+        }
+        
         // test UTF-8 length
         try {
             // ä * 100 is OK
@@ -108,13 +114,13 @@ class UserTest extends \PHPUnit_Framework_TestCase
     public function testGetAndSetRole()
     {
         $this->object->setRole(0);
-        $this->assertEquals(UserRole::Anonymous, (int)$this->object->getRole());
+        $this->assertEquals(UserRole::Anonymous, $this->object->getRole()->get());
         $this->object->setRole(1);
-        $this->assertEquals(UserRole::AwaitApproval, (int)$this->object->getRole());
+        $this->assertEquals(UserRole::AwaitApproval, $this->object->getRole()->get());
         $this->object->setRole('Registered');
-        $this->assertEquals(UserRole::Registered, (int)$this->object->getRole());
+        $this->assertEquals(UserRole::Registered, $this->object->getRole()->get());
         $this->object->setRole(UserRole::Moderator);
-        $this->assertEquals(UserRole::Moderator, (int)$this->object->getRole());
+        $this->assertEquals(UserRole::Moderator, $this->object->getRole()->get());
     }
 
     /**
