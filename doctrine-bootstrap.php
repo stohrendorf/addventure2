@@ -1,6 +1,6 @@
 <?php
 
-require_once 'config.php';
+(@include_once 'config.php') or require_once 'config-testing.php';
 require_once 'vendor/autoload.php';
 
 ini_set('mbstring.internal_encoding', 'UTF-8');
