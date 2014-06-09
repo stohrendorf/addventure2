@@ -45,14 +45,7 @@ class StorylineTag {
     }
 
     public function setName($name) {
-        $name = trim(preg_replace('/\s+/', ' ', $name));
-        if(empty($name)) {
-            throw new \InvalidArgumentException("Tag title must not be empty");
-        }
-        elseif(mb_strlen($name) > 200) {
-            throw new \InvalidArgumentException("Tag title too long: " . mb_strlen($name));
-        }
-        $this->name = $name;
+        $this->name = simplifyWhitespace($name, 200, false);
         return $this;
     }
 

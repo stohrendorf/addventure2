@@ -129,7 +129,7 @@ class User {
     private $blocked = false;
 
     public function __construct() {
-        $this->role = new UserRole(UserRole::Anonymous);
+        $this->role = UserRole::Anonymous;
     }
 
     public function getId() {
@@ -144,7 +144,7 @@ class User {
      * @return UserRole
      */
     public function getRole() {
-        return $this->role;
+        return new UserRole($this->role);
     }
 
     public function getAuthorNames() {
@@ -177,7 +177,7 @@ class User {
         if(!($role instanceof UserRole)) {
             $role = new UserRole($role);
         }
-        $this->role = $role;
+        $this->role = $role->get();
         return $this;
     }
 
@@ -231,17 +231,7 @@ class User {
     }
 
     public function setUsername($username) {
-        if($username === null) {
-            throw new \InvalidArgumentException('Username may not be null');
-        }
-        $username = trim(preg_replace('/\s+/', ' ', $username));
-        if(empty($username)) {
-            throw new \InvalidArgumentException("Username must not be empty");
-        }
-        elseif(mb_strlen($username) > 100) {
-            throw new \InvalidArgumentException("Username too long: " . mb_strlen($username));
-        }
-        $this->username = $username;
+        $this->username = simplifyWhitespace($username, 100, false);
         return $this;
     }
 

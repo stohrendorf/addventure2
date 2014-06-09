@@ -57,14 +57,7 @@ class AuthorName implements IAddventure {
     }
 
     public function setName($name) {
-        $name = trim(preg_replace('/\s+/', ' ', $name));
-        if(empty($name)) {
-            throw new \InvalidArgumentException("Name must not be empty");
-        }
-        elseif(mb_strlen($name) > 200) {
-            throw new \InvalidArgumentException("Name too long: " . mb_strlen($name));
-        }
-        $this->name = $name;
+        $this->name = simplifyWhitespace($name, 200, false);
         return $this;
     }
 

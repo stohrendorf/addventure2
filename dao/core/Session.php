@@ -6,6 +6,8 @@ namespace addventure;
  * @Entity
  * @Table(name="ci_sessions", indexes={@Index(name="last_activity_idx", columns={"last_activity"})})
  * @codeCoverageIgnore
+ * Do not use this class! Its sole purpose is to create the table needed to store the session
+ * information handled by CodeIgniter.
  */
 class Session {
 

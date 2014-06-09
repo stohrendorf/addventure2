@@ -50,14 +50,7 @@ class SimpleTag {
     }
 
     public function setTitle($title) {
-        $title = trim(preg_replace('/\s+/', ' ', $title));
-        if(empty($title)) {
-            throw new \InvalidArgumentException("Tag title must not be empty");
-        }
-        elseif(mb_strlen($title) > 200) {
-            throw new \InvalidArgumentException("Tag title too long: " . mb_strlen($title));
-        }
-        $this->title = $title;
+        $this->title = simplifyWhitespace($title, 200, false);
         return $this;
     }
 

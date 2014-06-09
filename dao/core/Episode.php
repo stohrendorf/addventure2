@@ -185,11 +185,7 @@ class Episode implements IAddventure {
     }
 
     public function setTitle($title) {
-        $title = trim(preg_replace('/\s+/', ' ', $title));
-        if(mb_strlen($title) > 255) {
-            throw new \InvalidArgumentException("Title too long");
-        }
-        $this->title = $title;
+        $this->title = simplifyWhitespace($title, 255);
         return $this;
     }
 

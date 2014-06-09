@@ -1,7 +1,9 @@
 <?php
 namespace addventure;
 
-class AuthorNameTest extends \PHPUnit_Framework_TestCase
+require 'DoctrineTestCase.php';
+
+class AuthorNameTest extends DoctrineTestCase
 {
     /**
      * @var AuthorName
@@ -105,27 +107,37 @@ class AuthorNameTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers addventure\AuthorName::setEpisodes
-     * @todo   Implement testSetEpisodes().
+     * @covers addventure\AuthorName::addEpisode
      */
-    public function testSetEpisodes()
+    public function testaddEpisode1()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
+        $user = new User();
+        $user->setUsername('A. U. Thor');
+        $this->getEm()->persist($user);
 
+        $this->object->setId(999);
+        $this->object->setUser($user);
+        $this->object->setName('Johnny Doe');
+        $this->getEm()->persist($this->object);
+        $this->getEm()->flush();
+
+        $ep = new Episode();
+        $ep->setAuthor($this->object);
+        $ep->setOldId(123);
+        $this->getEm()->persist($ep);
+        $this->getEm()->flush();
+        
+        $this->object->addEpisode($ep);
+        $this->getEm()->persist($this->object);
+        $this->getEm()->flush();
+    }
+    
     /**
      * @covers addventure\AuthorName::addEpisode
-     * @todo   Implement testAddEpisode().
+     * @depends testaddEpisode1
      */
-    public function testAddEpisode()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+    public function testAddEpisode2() {
+        $this->assertEquals(1, count($this->object->getEpisodes()));
     }
-
+    
 }

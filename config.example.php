@@ -1,9 +1,11 @@
 <?php
 
 /**
- * Set to TRUE to enable more verbose logging and other things possibly helpful in development.
+ * Set to 'development' to enable more verbose logging and other things possibly helpful in development.
  */
-define('ADDVENTURE_DEV_MODE', FALSE);
+if(!defined('ENVIRONMENT')) {
+    define('ENVIRONMENT', 'production');
+}
 /**
  * The database driver.
  */

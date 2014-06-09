@@ -84,11 +84,7 @@ class Link implements IAddventure {
     }
 
     public function setTitle($title) {
-        $title = trim(preg_replace('/\s+/', ' ', $title));
-        if(mb_strlen($title) > 255) {
-            throw new \InvalidArgumentException('Link title too long: ' . mb_strlen($title));
-        }
-        $this->title = $title;
+        $this->title = simplifyWhitespace($title, 255, false);
         return $this;
     }
 
