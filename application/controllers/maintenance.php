@@ -48,19 +48,4 @@ class Maintenance extends CI_Controller {
         $this->report($docId, 'Formatting', addventure\Report::FORMATTING);
     }
 
-    public function log() {
-        echo '<pre>';
-        echo getFullLogData();
-        echo '</pre>';
-    }
-
-    public function reports() {
-        echo '<ul>';
-        $this->load->library('em');
-        foreach($this->em->getAllReports() as $r) {
-            echo '<li>' . $r->getEpisode()->getId() . ' as ' . $r->getType() . '</li>';
-        }
-        echo '</ul>';
-    }
-
 }

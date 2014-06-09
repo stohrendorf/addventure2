@@ -1,6 +1,6 @@
 {extends 'layout.tpl'}
 {block name=title}
-    &raquo;{$episode.autoTitle}&laquo; by {$episode.author.name}
+    &raquo;{$episode.autoTitle}&laquo;{if isset($episode.author)} by {$episode.author.name}{/if}
 {/block}
 
 {block name="headElements" append}

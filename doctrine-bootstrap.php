@@ -47,12 +47,3 @@ $doctrineConfig = Setup::createAnnotationMetadataConfiguration(
  * @global \Doctrine\ORM\EntityManager $entityManager
  */
 $entityManager = EntityManager::create($doctrineDbConfig, $doctrineConfig);
-
-function getFullLogData() {
-    if(file_exists('logs/addventure.log')) {
-        return file_get_contents('logs/addventure.log');
-    }
-    else {
-        return '';
-    }
-}
