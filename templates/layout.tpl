@@ -36,6 +36,15 @@
                         <li><a href="{$url.site}">Trunk of the Tree</a></li>
                         <li{if ($url.current == 'recent')} class="active"{/if}><a href="{$url.site}/recent">The Freshest Leaves</a></li>
                         <li{if ($url.current == 'doc/random')} class="active"{/if}><a href="{$url.site}/doc/random">The White Rabbit</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">The Tree House <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{$url.site}/treehouse/mostread"><span class="glyphicon glyphicon-eye-open"></span> Most read episodes</a></li>
+                                <li><a href="{$url.site}/treehouse/mostliked"><span class="glyphicon glyphicon-heart"></span> Most liked episodes</a></li>
+                                <li><a href="{$url.site}/treehouse/mosthated"><span class="glyphicon glyphicon-heart-empty"></span> Most hated episodes</a></li>
+                                <li><a href="{$url.site}/treehouse/mostepisodes"><span class="glyphicon glyphicon-pencil"></span> Write-a-holics</a></li>
+                            </ul>
+                        </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         {if $client.userid!=-1}
