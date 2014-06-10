@@ -562,16 +562,9 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
                 ->where('e.text IS NOT NULL')
                 ->groupBy('u.id')
                 ->orderBy('episodeCount', 'DESC');
-        echo $qb->getDQL();
         $qb->setFirstResult($page * $count);
         $qb->setMaxResults($count);
         $result = new \Doctrine\ORM\Tools\Pagination\Paginator($qb->getQuery(), false);
-        
-        foreach($result as $x) {
-            echo '<br/>';
-            print_r($x[0]->toSmarty());
-            break;
-        }
         
         return $result;
     }
