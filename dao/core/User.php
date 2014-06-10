@@ -80,6 +80,7 @@ class UserRole {
 /**
  * @Entity
  * @Table(name="AddventureUsers") because "User" is a reserved word.
+ * @HasLifecycleCallbacks
  * @package DAO
  */
 class User {
@@ -112,7 +113,6 @@ class User {
 
     /**
      * @Column(type="smallint", nullable=false)
-     * @var UserRole
      */
     private $role;
 
@@ -130,6 +130,26 @@ class User {
 
     public function __construct() {
         $this->role = UserRole::Anonymous;
+    }
+
+    /**
+     * @PrePersist
+     * @PreUpdate
+     */
+    public function checkInvariants() {
+        if($this->role !== UserRole::Anonymous) {
+            if(empty($this->username)) {
+                throw new \InvalidArgumentException("Non-anonymous users must have a non-empty username.");
+            }
+            if(empty($this->password)) {
+                throw new \InvalidArgumentException("Non-anonymous users must have set a password.");
+            }
+        }
+        else {
+            if(!empty($this->password)) {
+                throw new \InvalidArgumentException("Anonymous users must not have set a password.");
+            }
+        }
     }
 
     public function getId() {
@@ -231,7 +251,12 @@ class User {
     }
 
     public function setUsername($username) {
-        $this->username = simplifyWhitespace($username, 100, false);
+        if($username === null) {
+            $this->username = null;
+        }
+        else {
+            $this->username = simplifyWhitespace($username, 100, false);
+        }
         return $this;
     }
 

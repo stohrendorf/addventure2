@@ -111,11 +111,19 @@ class AuthorNameTest extends DoctrineTestCase
      */
     public function testaddEpisode1()
     {
+        /*
+         * Episode:
+         *   id = 123
+         *   author:
+         *     id = AUTO
+         *     name = 'Johnny Doe'
+         *     user:
+         *       username = 'A. U. Thor'
+         */
         $user = new User();
         $user->setUsername('A. U. Thor');
         $this->getEm()->persist($user);
 
-        $this->object->setId(999);
         $this->object->setUser($user);
         $this->object->setName('Johnny Doe');
         $this->getEm()->persist($this->object);
@@ -130,14 +138,10 @@ class AuthorNameTest extends DoctrineTestCase
         $this->object->addEpisode($ep);
         $this->getEm()->persist($this->object);
         $this->getEm()->flush();
-    }
-    
-    /**
-     * @covers addventure\AuthorName::addEpisode
-     * @depends testaddEpisode1
-     */
-    public function testAddEpisode2() {
+        
+        $thisId = $this->object->getId();
+        
+        $this->object = $this->getEm()->find('addventure\AuthorName', $thisId);
         $this->assertEquals(1, count($this->object->getEpisodes()));
     }
-    
 }
