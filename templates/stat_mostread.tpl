@@ -1,4 +1,4 @@
 {extends 'common_episodelist.tpl'}
 {block name=title}
-    The freshest leaves
+    The most read episodes
 {/block}

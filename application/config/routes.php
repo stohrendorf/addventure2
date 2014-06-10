@@ -47,6 +47,8 @@ $route['doc/(:num)'] = 'doc/index/$1';
 $route['like/(:num)'] = 'doc/like/$1';
 $route['dislike/(:num)'] = 'doc/dislike/$1';
 $route['chain/(:num)/(:num)'] = 'doc/chain/$1/$2';
+$route['treehouse/(:any)/(:num)'] = 'stat/$1/$2';
+$route['treehouse/(:any)'] = 'stat/$1';
 
 
 /* End of file routes.php */

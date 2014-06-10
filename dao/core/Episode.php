@@ -430,15 +430,17 @@ class Episode implements IAddventure {
 }
 
 class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
-
+    
     /**
-     * Get the globally recent episodes
+     * Get a descending ordered episode list
+     * @param string $column The column name to order by
+     * @param string $order Either 'ASC' or 'DESC'
      * @param string|int $count The number of results per page
      * @param string|int $page The page index
      * @return \Doctrine\ORM\Tools\Pagination\Paginator
      * @throws \InvalidArgumentException if the page is invalid
      */
-    public function getRecentEpisodes($count, $page = null) {
+    private function getOrderedEpisodeList($column, $order, $count, $page = null) {
         if(!is_numeric($count) || $count < 1 || $count > ADDVENTURE_RESULTS_PER_PAGE) {
             $count = ADDVENTURE_RESULTS_PER_PAGE;
         }
@@ -450,9 +452,53 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
             throw new \InvalidArgumentException('Page is not numeric.');
         }
 
-        $dql = 'SELECT e FROM addventure\Episode e WHERE e.text IS NOT NULL ORDER BY e.created DESC';
+        $dql = "SELECT e FROM addventure\Episode e WHERE e.text IS NOT NULL ORDER BY e.$column $order";
         $qb = $this->getEntityManager()->createQuery($dql)->setFirstResult($page * $count)->setMaxResults($count);
         return new \Doctrine\ORM\Tools\Pagination\Paginator($qb, false);
+    }
+
+    /**
+     * Get the globally recent episodes
+     * @param string|int $count The number of results per page
+     * @param string|int $page The page index
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     * @throws \InvalidArgumentException if the page is invalid
+     */
+    public function getRecentEpisodes($count, $page = null) {
+        return $this->getOrderedEpisodeList('created', 'DESC', $count, $page);
+    }
+
+    /**
+     * Get the most read episodes
+     * @param string|int $count The number of results per page
+     * @param string|int $page The page index
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     * @throws \InvalidArgumentException if the page is invalid
+     */
+    public function getMostReadEpisodes($count, $page = null) {
+        return $this->getOrderedEpisodeList('hitCount', 'DESC', $count, $page);
+    }
+
+    /**
+     * Get the most liked episodes
+     * @param string|int $count The number of results per page
+     * @param string|int $page The page index
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     * @throws \InvalidArgumentException if the page is invalid
+     */
+    public function getMostLikedEpisodes($count, $page = null) {
+        return $this->getOrderedEpisodeList('likes', 'DESC', $count, $page);
+    }
+
+    /**
+     * Get the most hated episodes
+     * @param string|int $count The number of results per page
+     * @param string|int $page The page index
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     * @throws \InvalidArgumentException if the page is invalid
+     */
+    public function getMostHatedEpisodes($count, $page = null) {
+        return $this->getOrderedEpisodeList('dislikes', 'DESC', $count, $page);
     }
 
     /**
@@ -486,8 +532,48 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         }
         $qb->setFirstResult($page * $count);
         $qb->setMaxResults($count);
-        $qb = $qb->getQuery();
-        return new \Doctrine\ORM\Tools\Pagination\Paginator($qb, false);
+        return new \Doctrine\ORM\Tools\Pagination\Paginator($qb->getQuery(), false);
+    }
+
+    /**
+     * Get the users ordered by their episode count
+     * @param string|int $count The number of results per page
+     * @param string|int $page The page index
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     * @throws \InvalidArgumentException if the page is invalid
+     */
+    public function getMostEpisodesByUser($count, $page = null) {
+        if(!is_numeric($count) || $count < 1 || $count > ADDVENTURE_RESULTS_PER_PAGE) {
+            $count = ADDVENTURE_RESULTS_PER_PAGE;
+        }
+
+        if($page === false || $page === null) {
+            $page = 0;
+        }
+        elseif(!is_numeric($page)) {
+            throw new \InvalidArgumentException('Page is not numeric.');
+        }
+        
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('u', 'COUNT(e.id) AS episodeCount')
+                ->from('addventure\User', 'u')
+                ->join('addventure\AuthorName', 'n', 'WITH', 'n.user = u.id')
+                ->join('addventure\Episode', 'e', 'WITH', 'e.author = n.id')
+                ->where('e.text IS NOT NULL')
+                ->groupBy('u.id')
+                ->orderBy('episodeCount', 'DESC');
+        echo $qb->getDQL();
+        $qb->setFirstResult($page * $count);
+        $qb->setMaxResults($count);
+        $result = new \Doctrine\ORM\Tools\Pagination\Paginator($qb->getQuery(), false);
+        
+        foreach($result as $x) {
+            echo '<br/>';
+            print_r($x[0]->toSmarty());
+            break;
+        }
+        
+        return $result;
     }
 
     public function findByUser($userId, callable $func, $page = 0) {
