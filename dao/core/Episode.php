@@ -101,10 +101,10 @@ class Episode implements IAddventure {
     private $storylineTag = null;
 
     /**
-     * @ManyToMany(targetEntity="addventure\SimpleTag", mappedBy="episodes", cascade={"PERSIST","REMOVE"})
+     * @ManyToMany(targetEntity="addventure\SimpleTag", mappedBy="episodes")
      * @var SimpleTag[]
      */
-    private $simpleTags = null;
+    private $simpleTags;
 
     /**
      * @Column(type="boolean", nullable=false)
@@ -118,6 +118,10 @@ class Episode implements IAddventure {
      * @var Comment[]
      */
     private $comments = null;
+    
+    public function __construct() {
+        $this->simpleTags = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     public function getComments() {
         return $this->comments;
@@ -276,25 +280,6 @@ class Episode implements IAddventure {
         }
     }
 
-    public function addSimpleTag(SimpleTag $tag) {
-        if($tag === null) {
-            return;
-        }
-        if(!$this->simpleTags) {
-            $this->simpleTags = array();
-        }
-        $this->simpleTags[] = $tag;
-        return $this;
-    }
-
-    public function addComment(Comment $cmt) {
-        if(!$this->comments) {
-            $this->comments = array();
-        }
-        $this->comments[] = $cmt;
-        return $this;
-    }
-
     public function toJson() {
         $tmp = array(
             'id' => $this->getId(),
@@ -353,7 +338,8 @@ class Episode implements IAddventure {
             'autoTitle' => $this->getAutoTitle(),
             'children' => array(),
             'backlinks' => array(),
-            'comments' => array()
+            'comments' => array(),
+            'tags' => array()
         );
         if(($c = $this->getCreated())) {
             $result['created'] = $c->format("l, d M Y H:i");
@@ -391,8 +377,14 @@ class Episode implements IAddventure {
         foreach($q->getResult() as $child) {
             $result['backlinks'][] = $child->toSmarty();
         }
-        foreach($this->comments as $cmt) {
+        foreach($this->getComments() as $cmt) {
             $result['comments'][] = $cmt->toSmarty();
+        }
+        foreach($this->getSimpleTags() as $tag) {
+            $result['tags'][] = array(
+                'title' => $tag->getTitle(),
+                'id' => $tag->getId()
+            );
         }
         return $result;
     }

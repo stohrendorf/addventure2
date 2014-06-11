@@ -33,8 +33,12 @@ class AuthorName implements IAddventure {
      * @OneToMany(targetEntity="addventure\Episode", mappedBy="author", fetch="EXTRA_LAZY")
      * @var Episode[]
      */
-    private $episodes = null;
+    private $episodes;
 
+    public function __construct() {
+        $this->episodes = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+    
     public function getEpisodes() {
         return $this->episodes;
     }
@@ -69,13 +73,6 @@ class AuthorName implements IAddventure {
     public function setEpisodes($episodes) {
         $this->episodes = $episodes;
         return $this;
-    }
-
-    public function addEpisode(Episode $e) {
-        if($this->episodes == null) {
-            $this->episodes = new \Doctrine\Common\Collections\ArrayCollection();
-        }
-        $this->episodes[] = $e;
     }
 
     /**

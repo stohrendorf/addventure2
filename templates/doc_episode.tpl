@@ -35,6 +35,12 @@
             <a href="{$url.site}/maintenance/illegal/{$episode.id}" style="color:red;" class="pull-right" id="report"
                data-toggle="tooltip" data-placement="right" title="This function is for reporting content that breaks the rules, not for crying about a bad story."> <span class="glyphicon glyphicon-fire"></span> Report inappropriate content</a>
             <span class="clearfix"></span>
+            {if !empty($episode.tags)}
+                <span class="glyphicon glyphicon-tags"></span>
+                {foreach $episode.tags as $tag}
+                    <a href="docs/bytag/{$tag.id}">{$tag.title}</a>
+                {/foreach}
+            {/if}
         </div>
         <div class="panel-body">
             It has been seen {$episode.hitcount} times, and {$episode.likes} people liked it, while {$episode.dislikes} didn't.

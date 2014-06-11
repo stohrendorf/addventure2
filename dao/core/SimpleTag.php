@@ -31,6 +31,10 @@ class SimpleTag {
      * @var Episode[]
      */
     private $episodes;
+    
+    public function __construct() {
+        $this->episodes = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     public function getId() {
         return $this->id;

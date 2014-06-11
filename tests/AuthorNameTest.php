@@ -106,9 +106,6 @@ class AuthorNameTest extends DoctrineTestCase
         $this->object->setUser(null);
     }
 
-    /**
-     * @covers addventure\AuthorName::addEpisode
-     */
     public function testaddEpisode1()
     {
         /*
@@ -135,7 +132,7 @@ class AuthorNameTest extends DoctrineTestCase
         $this->getEm()->persist($ep);
         $this->getEm()->flush();
         
-        $this->object->addEpisode($ep);
+        $this->object->getEpisodes()->add($ep);
         $this->getEm()->persist($this->object);
         $this->getEm()->flush();
         
