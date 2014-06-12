@@ -17,7 +17,7 @@
  * @property CI_Hooks $hooks
  * @property CI_Image_lib $image_lib
  * @property CI_Input $input
- * @property CI_Language $language
+ * @property CI_Lang $lang
  * @property CI_Loader $load
  * @property CI_Log $log
  * @property CI_Model $model

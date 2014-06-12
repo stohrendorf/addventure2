@@ -24,35 +24,40 @@
             <div class="container-fluid">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
-                        <span class="sr-only">Toggle the plank</span>
+                        <span class="sr-only">{"toggle_plank"|i18n}</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="{$url.site}"><span class="glyphicon glyphicon-tree-deciduous" style="color:green;"></span>Plank</a>
+                    <a class="navbar-brand" href="{$url.site}"><span class="glyphicon glyphicon-tree-deciduous" style="color:green;"></span>{'plank'|i18n}</a>
                 </div>
                 <div class="collapse navbar-collapse" id="navbar-collapse">
                     <ul class="nav navbar-nav">
-                        <li><a href="{$url.site}">Trunk of the Tree</a></li>
-                        <li{if ($url.current == 'recent')} class="active"{/if}><a href="{$url.site}/recent">The Freshest Leaves</a></li>
-                        <li{if ($url.current == 'doc/random')} class="active"{/if}><a href="{$url.site}/doc/random">The White Rabbit</a></li>
+                        <li><a href="{$url.site}">{"trunk_of_tree"|i18n}</a></li>
+                        <li{if ($url.current == 'recent')} class="active"{/if}><a href="{$url.site}/recent">{"freshest_leaves"|i18n}</a></li>
+                        <li{if ($url.current == 'doc/random')} class="active"{/if}><a href="{$url.site}/doc/random">{"white_rabbit"|i18n}</a></li>
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">The Tree House <b class="caret"></b></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{"tree_house"|i18n} <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="{$url.site}/treehouse/mostread"><span class="glyphicon glyphicon-eye-open"></span> Most read episodes</a></li>
-                                <li><a href="{$url.site}/treehouse/mostliked"><span class="glyphicon glyphicon-heart"></span> Most liked episodes</a></li>
-                                <li><a href="{$url.site}/treehouse/mosthated"><span class="glyphicon glyphicon-heart-empty"></span> Most hated episodes</a></li>
-                                <li><a href="{$url.site}/treehouse/mostepisodes"><span class="glyphicon glyphicon-pencil"></span> Write-a-holics</a></li>
+                                <li><a href="{$url.site}/treehouse/mostread"><span class="glyphicon glyphicon-eye-open"></span> {"most_read"|i18n}</a></li>
+                                <li><a href="{$url.site}/treehouse/mostliked"><span class="glyphicon glyphicon-heart"></span> {"most_liked"|i18n}</a></li>
+                                <li><a href="{$url.site}/treehouse/mosthated"><span class="glyphicon glyphicon-heart-empty"></span> {"most_hated"|i18n}</a></li>
+                                <li><a href="{$url.site}/treehouse/mostepisodes"><span class="glyphicon glyphicon-pencil"></span> {"write_a_holics"|i18n}</a></li>
                             </ul>
                         </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         {if $client.userid!=-1}
-                            <li><span class="navbar-text">Welcome, {$client.email}!</span></li>
-                            <li><a href="{$url.site}/account/logout"><span class="glyphicon glyphicon-off"></span> Log out</a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">{$client.username} <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{$url.site}/account/logout"><span class="glyphicon glyphicon-off"></span> {"log_out"|i18n}</a></li>
+                                    <li><a href="{$url.site}/account/changepassword"><span class="glyphicon glyphicon-cog"></span> {"change_password"|i18n}</a></li>
+                                </ul>
+                            </li>
                         {else}
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Login <b class="caret"></b></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">{"log_in"|i18n} <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li>
                                         {login_form}

@@ -31,6 +31,22 @@ class EM {
         return $user;
     }
     
+    /**
+     * Try to find a user by his username address.
+     * @param string $name Username
+     * @return \addventure\User|null
+     */
+    public function findUserByName($name) {
+        $em = $this->getEntityManager();
+        $user = $em->getRepository('addventure\User')
+                ->createQueryBuilder('u')
+                ->where('u.username = ?1')
+                ->setParameter(1, $name)
+                ->getQuery()
+                ->getOneOrNullResult();
+        return $user;
+    }
+    
     public function persistAndFlush($object) {
         $em = $this->getEntityManager();
         $em->persist($object);

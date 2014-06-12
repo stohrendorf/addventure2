@@ -132,12 +132,12 @@ MSG
 
     public function login() {
         $this->load->library('encrypt');
-        $email = $this->input->post('email', TRUE);
+        $name = $this->input->post('username', TRUE);
         $password = $this->input->post('password');
         $remember = $this->input->post('remember', TRUE);
 
         $this->load->library('em');
-        $user = $this->em->findUserByMail($email);
+        $user = $this->em->findUserByName($name);
 
         $this->load->helper('smarty');
         $smarty = createSmarty();
