@@ -5,8 +5,8 @@
 
 {block name="headElements" append}
     {if isset($episode.author)}
-        <link href="{$url.base}/rss.php?what=recent&amp;count=100&amp;user={$episode.author.user}" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes by {$episode.author.name|escape} (RSS 2.0)"/>
-        <link href="{$url.base}/atom.php?what=recent&amp;count=100&amp;user={$episode.author.user}" rel="alternate" type="application/atom+xml" title="The 100 most recent episodes by {$episode.author.name|escape} (ATOM)"/>
+        <link href="{$url.site}/feed/rss/{$episode.author.user}" rel="alternate" type="application/rss+xml" title="Recent episodes by &raquo;{$episode.author.name|escape}&laquo; (RSS 2.0)"/>
+        <link href="{$url.site}/feed/atom/{$episode.author.user}" rel="alternate" type="application/atom+xml" title="Recent episodes by &raquo;{$episode.author.name|escape}&laquo; (ATOM)"/>
     {/if}
 {/block}
 

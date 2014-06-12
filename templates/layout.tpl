@@ -7,8 +7,8 @@
         <script src="{$url.bootstrap.js}"></script>
         <link href="{$url.bootstrap.css}" rel="stylesheet"/>
         <link href="{$url.bootstrap.theme}" rel="stylesheet"/>
-        <link href="{$url.base}/rss.php?what=recent&amp;count=100" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes (RSS 2.0)"/>
-        <link href="{$url.base}/atom.php?what=recent&amp;count=100" rel="alternate" type="application/rss+xml" title="The 100 most recent episodes (ATOM)"/>
+        <link href="{$url.site}/feed/rss" rel="alternate" type="application/rss+xml" title="Recent episodes (RSS 2.0)"/>
+        <link href="{$url.site}/feed/atom" rel="alternate" type="application/atom+xml" title="Recent episodes (ATOM)"/>
         {literal}<style>
                 a:visited{color:purple;}
                 a.unwritten-episode{color:#AA0000;}

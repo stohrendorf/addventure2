@@ -42,3 +42,7 @@ define('ADDVENTURE_EMAIL_ADDRESS', 'noreply@add.venture');
  * The name of the sender of the e-mails.
  */
 define('ADDVENTURE_EMAIL_NAME', 'Addventure2');
+/**
+ * Number of episodes in a feed.
+ */
+define('ADDVENTURE_FEED_SIZE', 100);
