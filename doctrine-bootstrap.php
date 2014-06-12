@@ -7,7 +7,7 @@ ini_set('mbstring.internal_encoding', 'UTF-8');
 define('LOG_FILENAME', implode(DIRECTORY_SEPARATOR, array(__DIR__, 'logs', 'addventure.log')));
 
 $logger = new \Monolog\Logger('');
-$logger->pushHandler(new Monolog\Handler\StreamHandler(LOG_FILENAME, (ENVIRONMENT !== 'production') ? \Monolog\Logger::DEBUG : \Monolog\Logger::WARNING));
+$logger->pushHandler(new Monolog\Handler\RotatingFileHandler(LOG_FILENAME, 7, (ENVIRONMENT !== 'production') ? \Monolog\Logger::DEBUG : \Monolog\Logger::WARNING));
 if(ENVIRONMENT !== 'testing') {
     Monolog\ErrorHandler::register($logger);
 }
