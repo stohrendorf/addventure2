@@ -12,55 +12,58 @@
 |
 */
 
-$smileys = array(
+// This code assumes that all smiley images have a size of 22x22
 
-//	smiley			image name						width	height	alt
+$smileys = array();
+$oxygen_smileys = array(
+    // Code / Image basename / Image ALT-tag
+    array(':-)', 'face-smile', 'Smile'),
+    array(':)', 'face-smile-grin', 'Grin'),
+    array(':-D', 'face-smile-big', 'Big Smile'),
+    array(':D', 'face-smile-big', 'Big Smile'),
+    array(';-)', 'face-wink', 'Wink'),
+    array(';)', 'face-wink', 'Wink'),
+    array(':-|', 'face-smile-plain', 'Plain Smile'),
+    array(':|', 'face-smile-plain', 'Plain Smile'),
+    array(':-/', 'face-uncertain', 'Uncertain'),
+    array(':-(', 'face-sad', 'Sad'),
+    array(':(', 'face-sad', 'Sad'),
+    array(':-*', 'face-kiss', 'Kiss'),
+    array(':-O', 'face-surprise', 'Surprise'),
+    array(':O', 'face-surprise', 'Surprise'),
+    array(':-P', 'face-raspberry', 'Tongue Wink'),
+    array(':P', 'face-raspberry', 'Tongue Wink'),
+    array('>:(', 'face-angry', 'Angry'),
+    array('>:-(', 'face-angry', 'Angry'),
+    array(":'-(", 'face-crying', 'Crying'),
+    array(":'(", 'face-crying', 'Crying'),
+    array(':-X', 'face-quiet', 'Quiet'),
+    array(':X', 'face-quiet', 'Quiet'),
+    array(':-#', 'face-quiet', 'Quiet'),
+    array(':#', 'face-quiet', 'Quiet'),
 
-	':-)'			=>	array('grin.gif',			'19',	'19',	'grin'),
-	':lol:'			=>	array('lol.gif',			'19',	'19',	'LOL'),
-	':cheese:'		=>	array('cheese.gif',			'19',	'19',	'cheese'),
-	':)'			=>	array('smile.gif',			'19',	'19',	'smile'),
-	';-)'			=>	array('wink.gif',			'19',	'19',	'wink'),
-	';)'			=>	array('wink.gif',			'19',	'19',	'wink'),
-	':smirk:'		=>	array('smirk.gif',			'19',	'19',	'smirk'),
-	':roll:'		=>	array('rolleyes.gif',		'19',	'19',	'rolleyes'),
-	':-S'			=>	array('confused.gif',		'19',	'19',	'confused'),
-	':wow:'			=>	array('surprise.gif',		'19',	'19',	'surprised'),
-	':bug:'			=>	array('bigsurprise.gif',	'19',	'19',	'big surprise'),
-	':-P'			=>	array('tongue_laugh.gif',	'19',	'19',	'tongue laugh'),
-	'%-P'			=>	array('tongue_rolleye.gif',	'19',	'19',	'tongue rolleye'),
-	';-P'			=>	array('tongue_wink.gif',	'19',	'19',	'tongue wink'),
-	':P'			=>	array('raspberry.gif',		'19',	'19',	'raspberry'),
-	':blank:'		=>	array('blank.gif',			'19',	'19',	'blank stare'),
-	':long:'		=>	array('longface.gif',		'19',	'19',	'long face'),
-	':ohh:'			=>	array('ohh.gif',			'19',	'19',	'ohh'),
-	':grrr:'		=>	array('grrr.gif',			'19',	'19',	'grrr'),
-	':gulp:'		=>	array('gulp.gif',			'19',	'19',	'gulp'),
-	'8-/'			=>	array('ohoh.gif',			'19',	'19',	'oh oh'),
-	':down:'		=>	array('downer.gif',			'19',	'19',	'downer'),
-	':red:'			=>	array('embarrassed.gif',	'19',	'19',	'red face'),
-	':sick:'		=>	array('sick.gif',			'19',	'19',	'sick'),
-	':shut:'		=>	array('shuteye.gif',		'19',	'19',	'shut eye'),
-	':-/'			=>	array('hmm.gif',			'19',	'19',	'hmmm'),
-	'>:('			=>	array('mad.gif',			'19',	'19',	'mad'),
-	':mad:'			=>	array('mad.gif',			'19',	'19',	'mad'),
-	'>:-('			=>	array('angry.gif',			'19',	'19',	'angry'),
-	':angry:'		=>	array('angry.gif',			'19',	'19',	'angry'),
-	':zip:'			=>	array('zip.gif',			'19',	'19',	'zipper'),
-	':kiss:'		=>	array('kiss.gif',			'19',	'19',	'kiss'),
-	':ahhh:'		=>	array('shock.gif',			'19',	'19',	'shock'),
-	':coolsmile:'	=>	array('shade_smile.gif',	'19',	'19',	'cool smile'),
-	':coolsmirk:'	=>	array('shade_smirk.gif',	'19',	'19',	'cool smirk'),
-	':coolgrin:'	=>	array('shade_grin.gif',		'19',	'19',	'cool grin'),
-	':coolhmm:'		=>	array('shade_hmm.gif',		'19',	'19',	'cool hmm'),
-	':coolmad:'		=>	array('shade_mad.gif',		'19',	'19',	'cool mad'),
-	':coolcheese:'	=>	array('shade_cheese.gif',	'19',	'19',	'cool cheese'),
-	':vampire:'		=>	array('vampire.gif',		'19',	'19',	'vampire'),
-	':snake:'		=>	array('snake.gif',			'19',	'19',	'snake'),
-	':exclaim:'		=>	array('exclaim.gif',		'19',	'19',	'excaim'),
-	':question:'	=>	array('question.gif',		'19',	'19',	'question') // no comma after last item
-
-		);
-
-/* End of file smileys.php */
-/* Location: ./application/config/smileys.php */
+    array('*_*', 'face-in-love', 'In Love'),
+    array('*-*', 'face-in-love', 'In Love'),
+    array('<3', 'heart', 'Heart'),
+    
+    array(':lol:', 'face-laugh', 'LOL'),
+    array(':+1:', 'opinion-agree', 'Agree'),
+    array(':agree:', 'opinion-agree', 'Agree'),
+    array(':-1:', 'opinion-disagree', 'Disagree'),
+    array(':disagree:', 'opinion-disagree', 'Disagree'),
+    array(':sick:', 'face-sick', 'Sick'),
+    array(':ninja:', 'face-ninja', 'Ninja'),
+    array(':pirate:', 'face-pirate', 'Pirate'),
+    array(':devil:', 'face-angry', 'Devil'),
+    array(':angel:', 'face-angel', 'Angel'),
+    array(':beer:', 'drink-beer', 'Beer'),
+    array(':martini:', 'drink-martini', 'Martini')
+);
+foreach($oxygen_smileys as $oxygen_smiley) {
+    $smileys[$oxygen_smiley[0]] = array(
+        $oxygen_smiley[1] . '.png', // Filename
+        '22', // width
+        '22', // height
+        $oxygen_smiley[2] // ALT tag
+    );
+}

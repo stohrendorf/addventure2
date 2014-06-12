@@ -25,7 +25,7 @@
             <div class="panel-heading">
                 <div class="panel panel-info">
                     <div class="panel-heading">Author's Notes</div>
-                    <div class="panel-body">{$episode.preNotes}</div>
+                    <div class="panel-body">{$episode.preNotes|smileys}</div>
                     <div class="panel-footer"><small>This note has been <em>automatically</em> taken from the episode's legacy title, as it seemed pretty long.
                             But machines aren't perfect: do you think this is wrong? <a href="{$url.site}/maintenance/reportTitle/{$episode.id}">Report it!</a></small></div>
                 </div>
@@ -38,7 +38,7 @@
             <div class="panel-footer">
                 <div class="panel panel-info">
                     <div class="panel-heading">Author's Notes</div>
-                    <div class="panel-body">{$episode.notes}</div>
+                    <div class="panel-body">{$episode.notes|smileys}</div>
                     <div class="panel-footer"><small>This note has been <em>automatically</em> extracted from the legacy episode's author name.
                             But machines aren't perfect: do you think this was done wrong? <a href="{$url.site}/maintenance/reportNotes/{$episode.id}">Report it!</a></small></div>
                 </div>
@@ -61,7 +61,7 @@
                         {/if}
                         <span class="text-info">@ {$comment.created}</span>
                     </h5>
-                    <div class="list-group-item-text">{$comment.text}</div>
+                    <div class="list-group-item-text">{$comment.text|smileys}</div>
                 </div>
             {/foreach}
         </div>
