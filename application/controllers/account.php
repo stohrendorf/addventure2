@@ -48,7 +48,6 @@ class Account extends CI_Controller {
         }
         $this->load->helper('email');
         if(!valid_email($email)) {
-            echo 'A';
             $smarty->display('account_register_invalid.tpl');
             return;
         }
@@ -57,7 +56,6 @@ class Account extends CI_Controller {
             $username = simplifyWhitespace($this->input->post('username', TRUE), 1000, false);
         }
         catch(\InvalidArgumentException $ex) {
-            echo 'B';
             $smarty->display('account_register_invalid.tpl');
             return;
         }
@@ -70,10 +68,8 @@ class Account extends CI_Controller {
         try {
             $this->load->library('em');
             $this->em->persistAndFlush($user);
-        echo "ROLE=", $user->getRole();
         }
         catch(Exception $e) {
-            echo 'C: ', $e->getMessage();
             $smarty->display('account_register_invalid.tpl');
             return;
         }
@@ -123,14 +119,6 @@ MSG
         
         $this->load->helper('smarty');
         $smarty = createSmarty();
-        /**
-         * @todo Remove!
-         */
-        print_r($token);
-        echo '<br/>';
-        print_r($email);
-        echo '<br/>';
-        print_r(self::getVerificationCode($email));
         
         if(!$user || $user->getRole()->get() !== \addventure\UserRole::AwaitApproval || $token !== self::getVerificationCode($email)) {
             $smarty->display('account_verify_invalid.tpl');
