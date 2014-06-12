@@ -45,13 +45,13 @@ class Recent extends CI_Controller {
             }, $page
         );
         $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
-        $d = $this->em->getEpisodeRepository()->firstCreatedByUser($userId);
-        if($d) {
-            $smarty->assign('firstCreated', $d->format("l, d M Y H:i"));
+        $firstCreated = $this->em->getEpisodeRepository()->firstCreatedByUser($userId);
+        if($firstCreated) {
+            $smarty->assign('firstCreated', $firstCreated->format("l, d M Y H:i"));
         }
-        $d = $this->em->getEpisodeRepository()->lastCreatedByUser($userId);
-        if($d) {
-            $smarty->assign('lastCreated', $d->format("l, d M Y H:i"));
+        $lastCreated = $this->em->getEpisodeRepository()->lastCreatedByUser($userId);
+        if($lastCreated) {
+            $smarty->assign('lastCreated', $lastCreated->format("l, d M Y H:i"));
         }
         $smarty->assign('episodeCount', $numEpisodes);
         $smarty->assign('user', $user->toSmarty());

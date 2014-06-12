@@ -97,14 +97,12 @@ To verify your e-mail address, please open the following link in your browser:
 Happy writing!
 MSG
 );
-        if(!$mailer->send($message, $failures)) {
-            $this->load->library('log');
-            $this->log->crit('Could not send verification e-mail: ' . print_r($failures,true));
-            show_error('Sorry, something bad happened; it\'s not your fault. Our dozens of monkey are probably working on it.');
-        }
-        else {
+        if($mailer->send($message, $failures)) {
             $smarty->display('account_register_mail_sent.tpl');
         }
+        $this->load->library('log');
+        $this->log->crit('Could not send verification e-mail: ' . print_r($failures,true));
+        show_error('Sorry, something bad happened; it\'s not your fault. Our dozens of monkey are probably working on it.');
     }
 
     public function verify() {
@@ -122,12 +120,12 @@ MSG
         
         if(!$user || $user->getRole()->get() !== \addventure\UserRole::AwaitApproval || $token !== self::getVerificationCode($email)) {
             $smarty->display('account_verify_invalid.tpl');
+            return;
         }
-        else {
-            $user->setRole(\addventure\UserRole::Registered);
-            $this->em->persistAndFlush($user);
-            redirect(site_url());
-        }
+        
+        $user->setRole(\addventure\UserRole::Registered);
+        $this->em->persistAndFlush($user);
+        redirect(site_url());
     }
 
     public function login() {
@@ -141,18 +139,19 @@ MSG
 
         $this->load->helper('smarty');
         $smarty = createSmarty();
+        
         if(!$user || $user->getRole() < \addventure\UserRole::Registered || !password_verify($password, $user->getPassword())) {
             $smarty->display('account_login_invalid.tpl');
+            return;
         }
-        else {
-            $this->load->library('session');
-            if(!isset($remember) || $remember !== 'yes') {
-                $this->session->sess_expire_on_close = TRUE;
-            }
-            $this->session->set_userdata('userid', $user->getId());
-            $this->load->helper('url');
-            redirect(site_url());
+        
+        $this->load->library('session');
+        if(!isset($remember) || $remember !== 'yes') {
+            $this->session->sess_expire_on_close = TRUE;
         }
+        $this->session->set_userdata('userid', $user->getId());
+        $this->load->helper('url');
+        redirect(site_url());
     }
 
     public function logout() {

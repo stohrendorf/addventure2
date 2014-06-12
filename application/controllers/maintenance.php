@@ -14,15 +14,15 @@ class Maintenance extends CI_Controller {
             show_404();
         }
         $this->load->library('em');
-        $ep = $this->em->findEpisode($docId);
-        if(!$ep) {
+        $episode = $this->em->findEpisode($docId);
+        if(!$episode) {
             $this->log->warning('Maintenance/' . $description . ' - Document not found: ' . $docId);
             show_404();
             return;
         }
         $this->log->debug('Maintenance/' . $description . ': ' . $docId);
         $report = new addventure\Report();
-        $report->setEpisode($ep);
+        $report->setEpisode($episode);
         $report->setType($type);
         try {
             $this->em->persistAndFlush($report);

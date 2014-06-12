@@ -28,7 +28,7 @@ class CI_Log {
                 $this->logger->addDebug($msg);
                 break;
             default: // in CI, only error and debug are used.
-                $this->logger->addInfo("[LEVEL $level]: $msg");
+                $this->logger->addInfo("[LEVEL $level, PHP_ERROR $php_error]: $msg");
                 break;
         }
     }

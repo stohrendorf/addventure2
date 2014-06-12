@@ -1,6 +1,6 @@
 <?php
 
-function smarty_function_register_form($params, $smarty) {
+function smarty_function_register_form() {
     $CI = & get_instance();
     $CI->load->helper('form');
     $CI->load->helper('url');

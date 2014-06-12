@@ -275,9 +275,7 @@ class Episode implements IAddventure {
         if(!empty($this->title)) {
             return $this->title;
         }
-        else {
-            return '#' . $this->id;
-        }
+        return '#' . $this->id;
     }
 
     public function toJson() {
@@ -285,24 +283,24 @@ class Episode implements IAddventure {
             'id' => $this->getId(),
             'title' => $this->getTitle()
         );
-        if(($c = $this->getCreated())) {
-            $tmp['created'] = $c->format('c');
+        if(($created = $this->getCreated())) {
+            $tmp['created'] = $created->format('c');
         }
-        if(($a = $this->getAuthor())) {
-            $tmp['author'] = $a->toJson();
+        if(($author = $this->getAuthor())) {
+            $tmp['author'] = $author->toJson();
         }
         return $tmp;
     }
     
-    private static function createTree(array &$dest, \addventure\Episode &$ep, $depth = 0) {
+    private static function createTree(array &$dest, \addventure\Episode &$episode, $depth = 0) {
         if($depth>2) {
             return null;
         }
         $CI =& get_instance();
         $CI->load->library('em');
-        $q = $ep->getChildLinks();
-        $destArr = array('title'=>$ep->getAutoTitle(), 'id'=>$ep->getId(), 'children'=>array());
-        foreach($q as $child) {
+        $childLinks = $episode->getChildLinks();
+        $destArr = array('title'=>$episode->getAutoTitle(), 'id'=>$episode->getId(), 'children'=>array());
+        foreach($childLinks as $child) {
             $childEp = $CI->em->findEpisode($child->getToEp());
             if($childEp->getText() === null) {
                 continue;
@@ -341,11 +339,11 @@ class Episode implements IAddventure {
             'comments' => array(),
             'tags' => array()
         );
-        if(($c = $this->getCreated())) {
-            $result['created'] = $c->format("l, d M Y H:i");
+        if(($created = $this->getCreated())) {
+            $result['created'] = $created->format("l, d M Y H:i");
         }
-        if(($a = $this->getAuthor())) {
-            $result['author'] = $a->toSmarty();
+        if(($author = $this->getAuthor())) {
+            $result['author'] = $author->toSmarty();
         }
         $result['text'] = $this->getText();
         $result['hitcount'] = $this->getHitCount();
@@ -354,27 +352,27 @@ class Episode implements IAddventure {
         $result['notes'] = $this->getNotes();
         $result['preNotes'] = $this->getPreNotes();
         $result['linkable'] = $this->getLinkable();
-        if(($p = $this->getParent())) {
-            $result['parent'] = $p->getId();
+        if(($parent = $this->getParent())) {
+            $result['parent'] = $parent->getId();
         }
         
         $CI =& get_instance();
         $CI->load->library('em');
-        $q = $CI->em->getEntityManager()->createQuery('SELECT l FROM addventure\Link l WHERE l.fromEp=?1 ORDER BY l.toEp')
+        $query = $CI->em->getEntityManager()->createQuery('SELECT l FROM addventure\Link l WHERE l.fromEp=?1 ORDER BY l.toEp')
                 ->setParameter(1, $this->getId());
-        foreach($q->getResult() as $child) {
-            $ch = $child->toSmarty();
-            $ch['subtree'] = array();
+        foreach($query->getResult() as $child) {
+            $childSmarty = $child->toSmarty();
+            $childSmarty['subtree'] = array();
             if( !$child->getIsBacklink() ) {
-                self::createTree($ch['subtree'], $CI->em->findEpisode($child->getToEp()));
-                $ch['subtree'] = $ch['subtree'][0]['children'];
+                self::createTree($childSmarty['subtree'], $CI->em->findEpisode($child->getToEp()));
+                $childSmarty['subtree'] = $childSmarty['subtree'][0]['children'];
             }
-            $result['children'][] = $ch;
+            $result['children'][] = $childSmarty;
         }
         
-        $q = $CI->em->getEntityManager()->createQuery('SELECT l FROM addventure\Link l WHERE l.toEp=?1 AND l.isBacklink=TRUE ORDER BY l.fromEp')
+        $query = $CI->em->getEntityManager()->createQuery('SELECT l FROM addventure\Link l WHERE l.toEp=?1 AND l.isBacklink=TRUE ORDER BY l.fromEp')
                 ->setParameter(1, $this->getId());
-        foreach($q->getResult() as $child) {
+        foreach($query->getResult() as $child) {
             $result['backlinks'][] = $child->toSmarty();
         }
         foreach($this->getComments() as $cmt) {
@@ -396,8 +394,8 @@ class Episode implements IAddventure {
         $item = $channel->addChild('item');
         $item->addChild('title', htmlspecialchars($this->getAutoTitle()));
         $item->addChild('link', htmlspecialchars('http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER["REQUEST_URI"]) . '?doc=' . $this->getId()));
-        $a = $this->getAuthor();
-        $item->addChild('author', $a ? htmlspecialchars($a->getName()) : '');
+        $author = $this->getAuthor();
+        $item->addChild('author', $author ? htmlspecialchars($author->getName()) : '');
         $item->addChild('guid', 'addventure:episode:' . $this->getId());
         $item->addChild('pubDate', $this->getCreated() ? $this->getCreated()->format(\DateTime::RSS) : '');
     }
@@ -410,12 +408,12 @@ class Episode implements IAddventure {
         $entry->addChild('id', 'addventure:episode:' . $this->getId());
         $entry->addChild('title', htmlspecialchars($this->getAutoTitle()));
         $entry->addChild('updated', $this->getCreated() ? $this->getCreated()->format(\DateTime::ATOM) : '');
-        $l = $entry->addChild('link');
-        $l->addAttribute('rel', 'alternate');
-        $l->addAttribute('href', dirname($_SERVER["REQUEST_URI"]) . '?doc=' . $this->getId());
-        $a = $this->getAuthor();
-        if($a) {
-            $a->toAtom($entry);
+        $link = $entry->addChild('link');
+        $link->addAttribute('rel', 'alternate');
+        $link->addAttribute('href', dirname($_SERVER["REQUEST_URI"]) . '?doc=' . $this->getId());
+        $author = $this->getAuthor();
+        if($author) {
+            $author->toAtom($entry);
         }
     }
 
@@ -445,8 +443,8 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         }
 
         $dql = "SELECT e FROM addventure\Episode e WHERE e.text IS NOT NULL ORDER BY e.$column $order";
-        $qb = $this->getEntityManager()->createQuery($dql)->setFirstResult($page * $count)->setMaxResults($count);
-        return new \Doctrine\ORM\Tools\Pagination\Paginator($qb, false);
+        $queryBuilder = $this->getEntityManager()->createQuery($dql)->setFirstResult($page * $count)->setMaxResults($count);
+        return new \Doctrine\ORM\Tools\Pagination\Paginator($queryBuilder, false);
     }
 
     /**
@@ -517,14 +515,14 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         if(!$user) {
             return NULL;
         }
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('e')->from('addventure\Episode', 'e')->where('e.text IS NOT NULL')->orderBy('e.created', 'DESC');
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+        $queryBuilder->select('e')->from('addventure\Episode', 'e')->where('e.text IS NOT NULL')->orderBy('e.created', 'DESC');
         foreach($user->getAuthorNames() as $a) {
-            $qb->orWhere('e.author=' . $a->getId());
+            $queryBuilder->orWhere('e.author=' . $a->getId());
         }
-        $qb->setFirstResult($page * $count);
-        $qb->setMaxResults($count);
-        return new \Doctrine\ORM\Tools\Pagination\Paginator($qb->getQuery(), false);
+        $queryBuilder->setFirstResult($page * $count);
+        $queryBuilder->setMaxResults($count);
+        return new \Doctrine\ORM\Tools\Pagination\Paginator($queryBuilder->getQuery(), false);
     }
 
     /**
@@ -546,17 +544,17 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
             throw new \InvalidArgumentException('Page is not numeric.');
         }
         
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('u', 'COUNT(e.id) AS episodeCount')
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+        $queryBuilder->select('u', 'COUNT(e.id) AS episodeCount')
                 ->from('addventure\User', 'u')
                 ->join('addventure\AuthorName', 'n', 'WITH', 'n.user = u.id')
                 ->join('addventure\Episode', 'e', 'WITH', 'e.author = n.id')
                 ->where('e.text IS NOT NULL')
                 ->groupBy('u.id')
                 ->orderBy('episodeCount', 'DESC');
-        $qb->setFirstResult($page * $count);
-        $qb->setMaxResults($count);
-        $result = new \Doctrine\ORM\Tools\Pagination\Paginator($qb->getQuery(), false);
+        $queryBuilder->setFirstResult($page * $count);
+        $queryBuilder->setMaxResults($count);
+        $result = new \Doctrine\ORM\Tools\Pagination\Paginator($queryBuilder->getQuery(), false);
         
         return $result;
     }
@@ -575,14 +573,14 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         if(!$user) {
             return 0;
         }
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->setFirstResult($page * ADDVENTURE_RESULTS_PER_PAGE);
-        $qb->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
-        $qb->select('e')->from('addventure\Episode', 'e')->orderBy('e.created', 'DESC');
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+        $queryBuilder->setFirstResult($page * ADDVENTURE_RESULTS_PER_PAGE);
+        $queryBuilder->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+        $queryBuilder->select('e')->from('addventure\Episode', 'e')->orderBy('e.created', 'DESC');
         foreach($user->getAuthorNames() as $a) {
-            $qb->orWhere('e.author=' . $a->getId());
+            $queryBuilder->orWhere('e.author=' . $a->getId());
         }
-        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($qb->getQuery(), false);
+        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($queryBuilder->getQuery(), false);
         foreach($paginator as $ep) {
             $func($ep);
             $this->getEntityManager()->detach($ep);
@@ -599,12 +597,12 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         if(!$user) {
             return NULL;
         }
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('MIN(e.created) AS minDate')->from('addventure\Episode', 'e');
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+        $queryBuilder->select('MIN(e.created) AS minDate')->from('addventure\Episode', 'e');
         foreach($user->getAuthorNames() as $a) {
-            $qb->orWhere('e.author=' . $a->getId());
+            $queryBuilder->orWhere('e.author=' . $a->getId());
         }
-        $res = $qb->getQuery()->getOneOrNullResult();
+        $res = $queryBuilder->getQuery()->getOneOrNullResult();
         if($res != null) {
             return new \DateTime($res['minDate']);
         }
@@ -619,12 +617,12 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         if(!$user) {
             return NULL;
         }
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $qb->select('MAX(e.created) AS maxDate')->from('addventure\Episode', 'e');
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+        $queryBuilder->select('MAX(e.created) AS maxDate')->from('addventure\Episode', 'e');
         foreach($user->getAuthorNames() as $a) {
-            $qb->orWhere('e.author=' . $a->getId());
+            $queryBuilder->orWhere('e.author=' . $a->getId());
         }
-        $res = $qb->getQuery()->getOneOrNullResult();
+        $res = $queryBuilder->getQuery()->getOneOrNullResult();
         if($res != null) {
             return new \DateTime($res['maxDate']);
         }

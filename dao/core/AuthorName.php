@@ -108,8 +108,8 @@ class AuthorName implements IAddventure {
      * @codeCoverageIgnore
      */
     public function toAtom(\SimpleXMLElement &$entry) {
-        $a = $entry->addChild('author');
-        $a->addChild('name', htmlspecialchars($this->getName()));
+        $author = $entry->addChild('author');
+        $author->addChild('name', htmlspecialchars($this->getName()));
     }
 
 }

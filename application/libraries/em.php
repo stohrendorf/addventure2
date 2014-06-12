@@ -21,8 +21,8 @@ class EM {
      * @return \addventure\User|null
      */
     public function findUserByMail($mail) {
-        $em = $this->getEntityManager();
-        $user = $em->getRepository('addventure\User')
+        $user = $this->getEntityManager()
+                ->getRepository('addventure\User')
                 ->createQueryBuilder('u')
                 ->where('u.email = ?1')
                 ->setParameter(1, $mail)
@@ -37,8 +37,8 @@ class EM {
      * @return \addventure\User|null
      */
     public function findUserByName($name) {
-        $em = $this->getEntityManager();
-        $user = $em->getRepository('addventure\User')
+        $user = $this->getEntityManager()
+                ->getRepository('addventure\User')
                 ->createQueryBuilder('u')
                 ->where('u.username = ?1')
                 ->setParameter(1, $name)
@@ -48,9 +48,9 @@ class EM {
     }
     
     public function persistAndFlush($object) {
-        $em = $this->getEntityManager();
-        $em->persist($object);
-        $em->flush();
+        $entityManager = $this->getEntityManager();
+        $entityManager->persist($object);
+        $entityManager->flush();
     }
     
     /**
@@ -58,8 +58,7 @@ class EM {
      * @return null|\addventure\Episode
      */
     public function findEpisode($id) {
-        $em = $this->getEntityManager();
-        return $em->find('addventure\Episode', $id);
+        return $this->getEntityManager()->find('addventure\Episode', $id);
     }
     
     /**
@@ -67,8 +66,7 @@ class EM {
      * @return null|\addventure\User
      */
     public function findUser($id) {
-        $em = $this->getEntityManager();
-        return $em->find('addventure\User', $id);
+        return $this->getEntityManager()->find('addventure\User', $id);
     }
     
     /**
@@ -78,8 +76,7 @@ class EM {
      * @return null|\addventure\Link
      */
     public function findLink($from, $to) {
-        $em = $this->getEntityManager();
-        return $em->find('addventure\Link', array('fromEp' => $from, 'toEp' => $to));
+        return $this->getEntityManager()->find('addventure\Link', array('fromEp' => $from, 'toEp' => $to));
     }
     
     /**
@@ -87,8 +84,7 @@ class EM {
      * @return \addventure\Report[]
      */
     public function getAllReports() {
-        $em = $this->getEntityManager();
-        return $em->createQuery('SELECT r FROM addventure\Report r')->getResult();
+        return $this->getEntityManager()->createQuery('SELECT r FROM addventure\Report r')->getResult();
     }
     
     /**
@@ -96,7 +92,6 @@ class EM {
      * @return \addventure\EpisodeRepository
      */
     public function getEpisodeRepository() {
-        $em = $this->getEntityManager();
-        return $em->getRepository('addventure\Episode');
+        return $this->getEntityManager()->getRepository('addventure\Episode');
     }
 }

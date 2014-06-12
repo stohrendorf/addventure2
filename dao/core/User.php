@@ -59,16 +59,16 @@ class UserRole {
                 throw new \InvalidArgumentException("Unknown user role '$value'");
             }
             $this->value = constant("self::$value");
+            return;
         }
         elseif(is_numeric($value)) {
             if($value < self::Anonymous || $value > self::Administrator) {
                 throw new \InvalidArgumentException("Unknown user role '$value'");
             }
             $this->value = $value;
+            return;
         }
-        else {
-            throw new \InvalidArgumentException("Unknown user role '$value'");
-        }
+        throw new \InvalidArgumentException("Unknown user role '$value'");
     }
 
     public function get() {
@@ -144,11 +144,11 @@ class User {
             if(empty($this->password)) {
                 throw new \InvalidArgumentException("Non-anonymous users must have set a password.");
             }
+            return;
         }
-        else {
-            if(!empty($this->password)) {
-                throw new \InvalidArgumentException("Anonymous users must not have set a password.");
-            }
+        
+        if(!empty($this->password)) {
+            throw new \InvalidArgumentException("Anonymous users must not have set a password.");
         }
     }
 
@@ -206,8 +206,8 @@ class User {
         return $this;
     }
 
-    public function setPassword($pw) {
-        $this->password = $pw;
+    public function setPassword($password) {
+        $this->password = $password;
     }
 
     public function setBlocked($b) {
@@ -253,10 +253,9 @@ class User {
     public function setUsername($username) {
         if($username === null) {
             $this->username = null;
+            return $this;
         }
-        else {
-            $this->username = simplifyWhitespace($username, 100, false);
-        }
+        $this->username = simplifyWhitespace($username, 100, false);
         return $this;
     }
 
