@@ -1,7 +1,21 @@
 {
     "name": "application/addventure",
     "description": "A system for creating a forest of stories.",
-    "license": "AGPL-3.0",
+    "type": "project",
+    "license": "MIT",
+    "home": "https://github.com/stohrendorf/addventure2",
+    "authors": [
+        {
+            "name": "Steffen Ohrendorf",
+            "email": "steffen.ohrendorf@gmx.de",
+            "role": "developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/stohrendorf/addventure2/issues",
+        "wiki": "https://github.com/stohrendorf/addventure2/wiki",
+        "source": "https://github.com/stohrendorf/addventure2"
+    },
     "repositories": {
         "ckeditor": {
             "type": "package",
