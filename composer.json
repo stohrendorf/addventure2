@@ -3,7 +3,7 @@
     "description": "A system for creating a forest of stories.",
     "type": "project",
     "license": "MIT",
-    "home": "https://github.com/stohrendorf/addventure2",
+    "homepage": "https://github.com/stohrendorf/addventure2",
     "authors": [
         {
             "name": "Steffen Ohrendorf",
