@@ -1,9 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
-    "hash": "84558f52bcaccdf3df690bb7f488e972",
+    "hash": "d86f4ccd24e4a21d7ad011771dc120e1",
     "packages": [
         {
             "name": "ckeditor",
@@ -4300,13 +4301,11 @@
         "ext-ereg": "*",
         "ext-filter": "*",
         "ext-mbstring": "*",
-        "ext-mysql": "*",
-        "ext-mysqli": "*",
         "ext-pdo": "*",
-        "ext-pdo_mysql": "*",
         "ext-session": "*",
         "ext-simplexml": "*",
         "ext-tidy": "*",
+        "ext-mcrypt": "*",
         "php": ">=5.4"
     },
     "platform-dev": {

@@ -51,13 +51,11 @@
         "ext-ereg": "*",
         "ext-filter": "*",
         "ext-mbstring": "*",
-        "ext-mysql": "*",
-        "ext-mysqli": "*",
         "ext-PDO": "*",
-        "ext-pdo_mysql": "*",
         "ext-session": "*",
         "ext-SimpleXML": "*",
         "ext-tidy": "*",
+        "ext-mcrypt": "*",
         "php": ">=5.4"
     },
     "autoload": {
@@ -68,14 +66,17 @@
     "require-dev": {
         "phpunit/phpunit": "~4.1",
         "phpunit/phpunit-skeleton-generator": "~2.0",
+        "phpunit/dbunit": "~1.3",
         "squizlabs/php_codesniffer": "2.0.0a2",
         "phpmd/phpmd": "~2.0",
         "phpdocumentor/phpdocumentor": "2.*",
         "ext-xdebug": ">=2.2",
-        "phpunit/dbunit": "~1.3",
         "ext-pdo_sqlite": "*"
     },
     "suggest": {
+        "ext-mysql": "*",
+        "ext-mysqli": "*",
+        "ext-pdo_mysql": "*",
         "ext-apc": "*"
     }
 }
