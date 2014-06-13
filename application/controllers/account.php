@@ -29,12 +29,20 @@ if(!defined('BASEPATH')) {
  */
 class Account extends CI_Controller {
 
-    private static function getVerificationCode($email) {
+    private static function _getVerificationCode($email) {
         return sha1($email . sha1(ADDVENTURE_KEY));
     }
-    
-    private static function encodePassword($password) {
+
+    private static function _encodePassword($password) {
         return password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    private function _createMessage($mailer, $to, $subject) {
+        $message = Swift_Message::newInstance();
+        $message->setFrom(ADDVENTURE_EMAIL_ADDRESS, ADDVENTURE_EMAIL_NAME);
+        $message->setTo($to);
+        $message->setSubject($subject);
+        return $message;
     }
 
     public function register() {
@@ -64,7 +72,7 @@ class Account extends CI_Controller {
         $user->setEmail($email);
         $user->setRole(\addventure\UserRole::AwaitApproval);
         $this->load->library('encrypt');
-        $user->setPassword(self::encodePassword($password));
+        $user->setPassword(self::_encodePassword($password));
         try {
             $this->load->library('em');
             $this->em->persistAndFlush($user);
@@ -76,13 +84,10 @@ class Account extends CI_Controller {
 
         $transport = Swift_SendmailTransport::newInstance();
         $mailer = Swift_Mailer::newInstance($transport);
-        $message = Swift_Message::newInstance();
-        $message->setFrom(ADDVENTURE_EMAIL_ADDRESS, ADDVENTURE_EMAIL_NAME);
-        $message->setTo($email);
-        $message->setSubject('Addventure2 E-Mail Verification');
+        $message = $this->_createMessage($mailer, $email, 'Addventure2 E-Mail Verification');
 
         $verify = site_url(array('account', 'verify')) . '?';
-        $verify .= 'a=' . rawurlencode(self::getVerificationCode($email));
+        $verify .= 'a=' . rawurlencode(self::_getVerificationCode($email));
         $verify .= '&b=' . rawurlencode(base64_encode($this->encrypt->encode($email)));
         /**
          * @todo Make it a smarty template and support HTML mails.
@@ -96,33 +101,34 @@ To verify your e-mail address, please open the following link in your browser:
 
 Happy writing!
 MSG
-);
+        );
         if($mailer->send($message, $failures)) {
             $smarty->display('account_register_mail_sent.tpl');
+            return;
         }
         $this->load->library('log');
-        $this->log->crit('Could not send verification e-mail: ' . print_r($failures,true));
+        $this->log->crit('Could not send verification e-mail: ' . print_r($failures, true));
         show_error('Sorry, something bad happened; it\'s not your fault. Our dozens of monkey are probably working on it.');
     }
 
     public function verify() {
         $token = rawurldecode($this->input->get('a'));
         $email = rawurldecode($this->input->get('b'));
-        
+
         $this->load->library('encrypt');
         $email = $this->encrypt->decode(base64_decode($email));
-        
+
         $this->load->library('em');
         $user = $this->em->findUserByMail($email);
-        
+
         $this->load->helper('smarty');
         $smarty = createSmarty();
-        
-        if(!$user || $user->getRole()->get() !== \addventure\UserRole::AwaitApproval || $token !== self::getVerificationCode($email)) {
+
+        if(!$user || $user->getRole()->get() !== \addventure\UserRole::AwaitApproval || $token !== self::_getVerificationCode($email)) {
             $smarty->display('account_verify_invalid.tpl');
             return;
         }
-        
+
         $user->setRole(\addventure\UserRole::Registered);
         $this->em->persistAndFlush($user);
         redirect(site_url());
@@ -139,12 +145,12 @@ MSG
 
         $this->load->helper('smarty');
         $smarty = createSmarty();
-        
+
         if(!$user || $user->getRole() < \addventure\UserRole::Registered || !password_verify($password, $user->getPassword())) {
             $smarty->display('account_login_invalid.tpl');
             return;
         }
-        
+
         $this->load->library('session');
         if(!isset($remember) || $remember !== 'yes') {
             $this->session->sess_expire_on_close = TRUE;
@@ -160,4 +166,88 @@ MSG
         $this->load->helper('url');
         redirect(site_url());
     }
+
+    public function changepassword() {
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user) {
+            show_error('Access denied.');
+            return;
+        }
+        $oldPw = $this->input->post('oldpassword');
+        $newPw1 = $this->input->post('newpassword1');
+        $newPw2 = $this->input->post('newpassword2');
+        $this->load->helper('smarty');
+        $smarty = createSmarty();
+        if(empty($oldPw) && empty($newPw1) && empty($newPw2)) {
+            $smarty->display('account_changepassword.tpl');
+            return;
+        }
+        $dataIsOk = !empty($oldPw) && !empty($newPw1) && !empty($newPw2) && $newPw1 == $newPw2 && password_verify($oldPw, $this->userinfo->user->getPassword());
+        if(!$dataIsOk) {
+            $smarty->display('account_changepassword_again.tpl');
+            return;
+        }
+        $this->load->library('em');
+        $this->userinfo->user->setPassword(self::_encodePassword($newPw1));
+        $this->em->persistAndFlush($this->userinfo->user);
+        $this->load->helper('url');
+        redirect(site_url());
+    }
+
+    public function recover() {
+        $this->load->library('userinfo');
+        if($this->userinfo->user !== null) {
+            // already logged in
+            $this->load->helper('url');
+            redirect(site_url());
+            return;
+        }
+
+        $this->load->helper('smarty');
+        $this->load->helper('email');
+        $smarty = createSmarty();
+        $email = $this->input->post('email', TRUE);
+        if(!$email || empty($email) || !valid_email($email)) {
+            $smarty->display('account_recover.tpl');
+            return;
+        }
+
+        $this->load->library('em');
+        $user = $this->em->findUserByMail($email);
+        if(!$user) {
+            redirect(site_url());
+            return;
+        }
+
+        $this->load->helper('string');
+        $generatedPw = random_string();
+
+        $transport = Swift_SendmailTransport::newInstance();
+        $mailer = Swift_Mailer::newInstance($transport);
+        $message = $this->_createMessage($mailer, $user->getEmail(), 'Addventure2 Password Recovery');
+
+        /**
+         * @todo Make it a smarty template and support HTML mails.
+         */
+        $message->setBody(<<<"MSG"
+Dear writer!
+
+Here is your new password:
+
+{$generatedPw}
+
+Happy writing!
+MSG
+        );
+        if($mailer->send($message, $failures)) {
+            $user->setPassword(self::_encodePassword($generatedPw));
+            $this->em->persistAndFlush($user);
+            $smarty->display('account_recover_mail_sent.tpl');
+            return;
+        }
+        $this->load->library('log');
+        $this->log->crit('Could not send recover e-mail: ' . print_r($failures, true));
+        show_error('Sorry, something bad happened; it\'s not your fault. Our dozens of monkey are probably working on it.');
+    }
+
 }

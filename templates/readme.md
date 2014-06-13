@@ -9,15 +9,15 @@ overall layout defines three extension points or blocks:
     tag, e.g. scripts or css files.
   * The "body" block is the actual content of the page, wrapped within an
     "article" tag.
+
 Changes to the menus should be done here.
 
 The "main.tpl" template is the main page of the addventure.  Use it as
 a starting point if you want to create own templates.
 
-If you want to put forms in your templates, have a look into the "plugins"
-directory.  The addventure uses CSRF tokens, so you need to put these in hidden
-fields of your form if you want the addventure to accept the supplied data from
-your form.
+If you want to put forms in your templates, you need to put a hidden CSRF field
+into your forms.  Have a look at the "account_register.tpl" template on how to
+to that.
 
 The other templates have prefixes to show from which controllers they are
 displayed:
@@ -50,6 +50,7 @@ Every template has access to the following variables:
   * "client" contains information about the current "User" of the
     addventure.  If the user is anonymous, it contains some default values (see
     below).
+
 Changes to these URLs can be done in the "application/helpers/smarty_helper.php"
 script.
 

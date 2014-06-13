@@ -47,24 +47,38 @@
                         </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        {if $client.userid!=-1}
-                            <li class="dropdown">
+                        <li class="dropdown">
+                            {if $client.userid!=-1}
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">{$client.username} <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{$url.site}/account/logout"><span class="glyphicon glyphicon-off"></span> {"log_out"|i18n}</a></li>
                                     <li><a href="{$url.site}/account/changepassword"><span class="glyphicon glyphicon-cog"></span> {"change_password"|i18n}</a></li>
                                 </ul>
-                            </li>
-                        {else}
-                            <li class="dropdown">
+                            {else}
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">{"log_in"|i18n} <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        {login_form}
+                                        <form class="navbar-form form-signin" action="{$url.site}/account/login" method="POST">
+                                            {csrf_field}
+                                            <h5 class="form-signin-heading">
+                                                {"LOG_IN_OR_register"|i18n}
+                                                <a href="{$url.site}/account/register">{"log_in_or_REGISTER"|i18n}</a>.
+                                            </h5>
+                                            <input class="form-control" type="text" placeholder="Username" name="username" required autofocus/>
+                                            <input class="form-control" type="password" placeholder="Password" name="password" required/>
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input class="form-control" type="checkbox" name="remember" id="remember" value="yes"/>
+                                                    {"remember_me"|i18n}
+                                                </label>
+                                            </div>
+                                            <button class="btn btn-outline btn-block" type="submit">{"do_login"|i18n}</button>
+                                            <a href="{$url.site}/account/recover">{"forgot_password"|i18n}</a>
+                                        </form>
                                     </li>
                                 </ul>
-                            </li>
-                        {/if}
+                            {/if}
+                        </li>
                     </ul>
                 </div>
             </div>
