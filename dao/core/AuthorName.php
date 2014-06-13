@@ -71,6 +71,13 @@ class AuthorName implements IAddventure {
     }
 
     public function setEpisodes($episodes) {
+        if(is_array($episodes)) {
+            $this->episodes = new \Doctrine\Common\Collections\ArrayCollection( $episodes );
+            return $this;
+        }
+        if(!($episodes instanceof \Doctrine\Common\Collections\ArrayCollection)) {
+            throw new \InvalidArgumentException("Unexpected type");
+        }
         $this->episodes = $episodes;
         return $this;
     }

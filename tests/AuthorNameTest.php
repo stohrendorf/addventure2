@@ -10,10 +10,6 @@ class AuthorNameTest extends DoctrineTestCase
      */
     protected $object;
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
     protected function setUp()
     {
         $this->object = new AuthorName;
@@ -29,14 +25,39 @@ class AuthorNameTest extends DoctrineTestCase
 
     /**
      * @covers addventure\AuthorName::getEpisodes
-     * @todo   Implement testGetEpisodes().
+     * @covers addventure\AuthorName::setEpisodes
      */
-    public function testGetEpisodes()
+    public function testGetAndSetEpisodes()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        try {
+            $this->object->setEpisodes(null);
+            $this->fail();
+        }
+        catch(\InvalidArgumentException $ex) {
+        }
+        
+        try {
+            $this->object->setEpisodes(new \addventure\Episode());
+            $this->fail();
+        }
+        catch(\InvalidArgumentException $ex) {
+        }
+        
+        $this->object->setEpisodes(array());
+        $this->assertEquals(0, $this->object->getEpisodes()->count());
+        $this->object->setEpisodes(new \Doctrine\Common\Collections\ArrayCollection());
+        $this->assertEquals(0, $this->object->getEpisodes()->count());
+        
+        // must be an ArrayCollection
+        $this->object->getEpisodes()->add(new \addventure\Episode());
+        $this->object->getEpisodes()->add(new \addventure\Episode());
+        $this->object->getEpisodes()->add(new \addventure\Episode());
+        $this->assertEquals(3, $this->object->getEpisodes()->count());
+
+        $this->object->setEpisodes(array(new \addventure\Episode()));
+        $this->assertEquals(1, $this->object->getEpisodes()->count());
+        $this->object->setEpisodes(new \Doctrine\Common\Collections\ArrayCollection(array(new \addventure\Episode())));
+        $this->assertEquals(1, $this->object->getEpisodes()->count());
     }
 
     /**

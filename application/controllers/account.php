@@ -9,20 +9,20 @@ if(!defined('BASEPATH')) {
  * 
  * The workflow for a new user is as follows:
  *
- *   1) Enter the 'register' method.  This will first display the 'account_register'
+ *   1. Enter the 'register' method.  This will first display the 'account_register'
  *      template for entering the needed information.  If the information is
  *      incomplete or faulty, the 'account_register_invalid' will be shown.  Else,
  *      a preliminary account with the role {@see \addventure\User::AwaitApproval} will be
  *      created an E-mail will be sent to the user which contains encrypted data
  *      for validation.
  * 
- *   2) The user receives his E-mail with the activation link, which points to
+ *   2. The user receives his E-mail with the activation link, which points to
  *      the 'verify' method.  Here, the security token passed in the URL will
  *      be verified against the stored information, and if everything is OK,
  *      the account role will be set to {@see \addventure\User::Registered}.  But if
  *      something goes wrong, the 'account_register_invalid' will be shown.
  * 
- *   3) Now, the user has to login to create his session cookie and to store
+ *   3. Now, the user has to login to create his session cookie and to store
  *      the session data in the database.  This could be done in the 'verify'
  *      step, but it ensures that the E-mail account isn't hijacked, because
  *      the user has to enter his password again.

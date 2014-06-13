@@ -130,17 +130,25 @@ class User {
 
     public function __construct() {
         $this->role = UserRole::Anonymous;
+        $this->authorNames = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
      * @PrePersist
      * @PreUpdate
+     * 
+     * Checks the invariants.
+     * 
+     * These are:
+     *    1. An {@see UserRole::Anonymous} user must not have a password set.
+     *    2. The other ones are required to have a password.
+     *    3. The username may not be empty.
      */
     public function checkInvariants() {
+        if(empty($this->username)) {
+            throw new \InvalidArgumentException("Non-anonymous users must have a non-empty username.");
+        }
         if($this->role !== UserRole::Anonymous) {
-            if(empty($this->username)) {
-                throw new \InvalidArgumentException("Non-anonymous users must have a non-empty username.");
-            }
             if(empty($this->password)) {
                 throw new \InvalidArgumentException("Non-anonymous users must have set a password.");
             }
@@ -202,7 +210,14 @@ class User {
     }
 
     public function setAuthorNames($authorNames) {
-        $this->authorName = $authorNames;
+        if(is_array($authorNames)) {
+            $this->authorNames = new \Doctrine\Common\Collections\ArrayCollection( $authorNames );
+            return $this;
+        }
+        if(!($authorNames instanceof \Doctrine\Common\Collections\ArrayCollection)) {
+            throw new \InvalidArgumentException("Unexpected type");
+        }
+        $this->authorNames = $authorNames;
         return $this;
     }
 
@@ -211,6 +226,9 @@ class User {
     }
 
     public function setBlocked($b) {
+        if(!is_bool($b)) {
+            throw new \InvalidArgumentException("Expected a boolean");
+        }
         $this->blocked = $b;
     }
 
