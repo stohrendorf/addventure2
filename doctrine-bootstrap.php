@@ -4,7 +4,12 @@
 require_once 'vendor/autoload.php';
 
 ini_set('mbstring.internal_encoding', 'UTF-8');
-define('LOG_FILENAME', implode(DIRECTORY_SEPARATOR, array(__DIR__, 'logs', 'addventure.log')));
+if(ENVIRONMENT !== 'testing') {
+    define('LOG_FILENAME', implode(DIRECTORY_SEPARATOR, array(__DIR__, 'logs', 'addventure.log')));
+}
+else {
+    define('LOG_FILENAME', implode(DIRECTORY_SEPARATOR, array(__DIR__, 'logs', 'addventure-test.log')));
+}
 
 /**
  * @global \Monolog\Logger
@@ -33,6 +38,7 @@ else {
 
 /**
  * @return \Doctrine\ORM\EntityManager
+ * @codeCoverageIgnore
  */
 function initDoctrineConnection() {
     static $entityManager = null;
