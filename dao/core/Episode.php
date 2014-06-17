@@ -102,7 +102,7 @@ class Episode implements IAddventure {
 
     /**
      * @ManyToMany(targetEntity="addventure\SimpleTag", mappedBy="episodes")
-     * @var SimpleTag[]
+     * @var SimpleTag[]|\Doctrine\Common\Collections\ArrayCollection
      */
     private $simpleTags;
 
@@ -115,19 +115,20 @@ class Episode implements IAddventure {
     /**
      * @OneToMany(targetEntity="addventure\Comment", mappedBy="episode", cascade={"PERSIST","REMOVE"}, orphanRemoval=true, fetch="LAZY")
      * @OrderBy({"created" = "ASC"})
-     * @var Comment[]
+     * @var Comment[]|\Doctrine\Common\Collections\ArrayCollection
      */
     private $comments = null;
     
     public function __construct() {
         $this->simpleTags = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     public function getComments() {
         return $this->comments;
     }
 
-    public function setComments(Comment $comments) {
+    public function setComments($comments) {
         $this->comments = $comments;
         return $this;
     }

@@ -42,6 +42,9 @@ $oxygen_smileys = array(
     array(':-#', 'face-quiet', 'Quiet'),
     array(':#', 'face-quiet', 'Quiet'),
 
+    array('xD', 'face-laughing', 'Laughing'),
+    array('XD', 'face-laughing', 'Laughing'),
+    
     array('*_*', 'face-in-love', 'In Love'),
     array('*-*', 'face-in-love', 'In Love'),
     array('<3', 'heart', 'Heart'),
@@ -54,7 +57,7 @@ $oxygen_smileys = array(
     array(':sick:', 'face-sick', 'Sick'),
     array(':ninja:', 'face-ninja', 'Ninja'),
     array(':pirate:', 'face-pirate', 'Pirate'),
-    array(':devil:', 'face-angry', 'Devil'),
+    array(':devil:', 'face-devilish', 'Devil'),
     array(':angel:', 'face-angel', 'Angel'),
     array(':beer:', 'drink-beer', 'Beer'),
     array(':martini:', 'drink-martini', 'Martini')

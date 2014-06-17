@@ -23,7 +23,7 @@ class StorylineTag {
 
     /**
      * @OneToMany(targetEntity="addventure\Episode", mappedBy="storylineTag", fetch="EXTRA_LAZY")
-     * @var Episode[]
+     * @var Episode[]|\Doctrine\Common\Collections\ArrayCollection
      */
     private $episodes;
     

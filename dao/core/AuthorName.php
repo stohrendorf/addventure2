@@ -31,7 +31,7 @@ class AuthorName implements IAddventure {
 
     /**
      * @OneToMany(targetEntity="addventure\Episode", mappedBy="author", fetch="EXTRA_LAZY")
-     * @var Episode[]
+     * @var Episode[]|\Doctrine\Common\Collections\ArrayCollection
      */
     private $episodes;
 

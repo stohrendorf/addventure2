@@ -72,7 +72,7 @@
                                     if(i==0) {
                                         $(e).on('shown.bs.collapse', function() {
                                             $('html, body').animate({
-                                                scrollTop: $('#links-bottom').offset().top
+                                                scrollTop: $('#links-top').offset().top
                                             }, 'slow');
                                         });
                                     }
@@ -88,6 +88,7 @@
                             });
                         });
                     </script>
+                    <span id="links-top"></span>
                     {break}
                 {/if}
             {/foreach}
@@ -146,7 +147,6 @@
         {if isset($episode.parent)}
             <div class="panel-footer"><a href="{$url.site}/doc/{$episode.parent}"><span class="glyphicon glyphicon-circle-arrow-left"></span> Go to the parent episode.</a></div>
         {/if}
-        <span id="links-bottom"></span>
     </div>
 
 {/block}

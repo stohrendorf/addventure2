@@ -28,7 +28,7 @@ class SimpleTag {
      *     joinColumns={@JoinColumn(name="simple_tag_id", referencedColumnName="id", nullable=false)}, 
      *     inverseJoinColumns={@JoinColumn(name="episode_id", referencedColumnName="id", nullable=false)}
      * )
-     * @var Episode[]
+     * @var Episode[]|\Doctrine\Common\Collections\ArrayCollection
      */
     private $episodes;
     

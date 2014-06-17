@@ -118,7 +118,7 @@ class User {
 
     /**
      * @OneToMany(targetEntity="addventure\AuthorName", mappedBy="user", fetch="LAZY")
-     * @var AuthorName[]
+     * @var AuthorName[]|\Doctrine\Common\Collections\ArrayCollection
      */
     private $authorNames;
 
@@ -146,7 +146,7 @@ class User {
      */
     public function checkInvariants() {
         if(empty($this->username)) {
-            throw new \InvalidArgumentException("Non-anonymous users must have a non-empty username.");
+            throw new \InvalidArgumentException("All users must have a non-empty username.");
         }
         if($this->role !== UserRole::Anonymous) {
             if(empty($this->password)) {
