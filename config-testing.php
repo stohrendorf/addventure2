@@ -10,3 +10,5 @@ define('ADDVENTURE_RESULTS_PER_PAGE', 50);
 define('ADDVENTURE_KEY', 'addventure-2-encryption-key');
 define('ADDVENTURE_EMAIL_ADDRESS', 'addventure@localhost');
 define('ADDVENTURE_EMAIL_NAME', 'Addventure2');
+define('ADDVENTURE_MAX_FAILED_LOGINS', 5);
+define('ADDVENTURE_MAX_AWAITING_APPROVAL_HOURS', 8);
