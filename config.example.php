@@ -46,3 +46,11 @@ define('ADDVENTURE_EMAIL_NAME', 'Addventure2');
  * Number of episodes in a feed.
  */
 define('ADDVENTURE_FEED_SIZE', 100);
+/**
+ * The maximum number of failed login attempts before a user gets locked out.
+ */
+define('ADDVENTURE_MAX_FAILED_LOGINS', 5);
+/**
+ * After this many hours, an "AwaitingApproval" account will become invalid.
+ */
+define('ADDVENTURE_MAX_AWAITING_APPROVAL_HOURS', 8);

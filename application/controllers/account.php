@@ -37,7 +37,7 @@ class Account extends CI_Controller {
         return password_hash($password, PASSWORD_DEFAULT);
     }
 
-    private function _createMessage($mailer, $to, $subject) {
+    private function _createMessage($to, $subject) {
         $message = Swift_Message::newInstance();
         $message->setFrom(ADDVENTURE_EMAIL_ADDRESS, ADDVENTURE_EMAIL_NAME);
         $message->setTo($to);
@@ -73,6 +73,7 @@ class Account extends CI_Controller {
         $user->setRole(\addventure\UserRole::AwaitApproval);
         $this->load->library('encrypt');
         $user->setPassword(self::_encodePassword($password));
+        $user->setRegisteredSince(new \DateTime());
         try {
             $this->load->library('em');
             $this->em->persistAndFlush($user);
@@ -82,16 +83,13 @@ class Account extends CI_Controller {
             return;
         }
 
-        $transport = Swift_SendmailTransport::newInstance();
-        $mailer = Swift_Mailer::newInstance($transport);
-        $message = $this->_createMessage($mailer, $email, 'Addventure2 E-Mail Verification');
-
         $verify = site_url(array('account', 'verify')) . '?';
         $verify .= 'a=' . rawurlencode(self::_getVerificationCode($email));
         $verify .= '&b=' . rawurlencode(base64_encode($this->encrypt->encode($email)));
         /**
          * @todo Make it a smarty template and support HTML mails.
          */
+        $message = $this->_createMessage($email, 'Addventure2 E-Mail Verification');
         $message->setBody(<<<"MSG"
 Dear writer!
 
@@ -102,6 +100,8 @@ To verify your e-mail address, please open the following link in your browser:
 Happy writing!
 MSG
         );
+        $transport = Swift_SendmailTransport::newInstance();
+        $mailer = Swift_Mailer::newInstance($transport);
         if($mailer->send($message, $failures)) {
             $smarty->display('account_register_mail_sent.tpl');
             return;
@@ -120,9 +120,19 @@ MSG
 
         $this->load->library('em');
         $user = $this->em->findUserByMail($email);
-
+        
         $this->load->helper('smarty');
         $smarty = createSmarty();
+        
+        if($user && $user->getRole()->get() === \addventure\UserRole::AwaitApproval) {
+            $diff = abs( (new \DateTime())->getTimestamp() - $user->getRegisteredSince()->getTimestamp() );
+            if( $diff > ADDVENTURE_MAX_AWAITING_APPROVAL_HOURS * 60 * 60 ) {
+                $this->em->getEntityManager()->remove($user);
+                $this->em->getEntityManager()->flush();
+                $smarty->display('account_verify_expired.tpl');
+                return;
+            }
+        }
 
         if(!$user || $user->getRole()->get() !== \addventure\UserRole::AwaitApproval || $token !== self::_getVerificationCode($email)) {
             $smarty->display('account_verify_invalid.tpl');
@@ -130,6 +140,7 @@ MSG
         }
 
         $user->setRole(\addventure\UserRole::Registered);
+        $user->setRegisteredSince(new \DateTime());
         $this->em->persistAndFlush($user);
         redirect(site_url());
     }
@@ -147,10 +158,28 @@ MSG
         $smarty = createSmarty();
 
         if(!$user || $user->getRole() < \addventure\UserRole::Registered || !password_verify($password, $user->getPassword())) {
-            $smarty->display('account_login_invalid.tpl');
+            if($user) {
+                $user->setFailedLogins($user->getFailedLogins() + 1);
+                $this->em->persistAndFlush($user);
+            }
+            if($user->isLockedOut()) {
+                $smarty->display('account_locked.tpl');
+            }
+            else {
+                $smarty->display('account_login_invalid.tpl');
+            }
             return;
         }
 
+        // even a successful login cannot unlock a locked account
+        if($user->isLockedOut()) {
+            $smarty->display('account_locked.tpl');
+            return;
+        }
+        
+        $user->setFailedLogins(0);
+        $this->em->persistAndFlush($user);
+        
         $this->load->library('session');
         if(!isset($remember) || $remember !== 'yes') {
             $this->session->sess_expire_on_close = TRUE;
@@ -222,9 +251,7 @@ MSG
         $this->load->helper('string');
         $generatedPw = random_string();
 
-        $transport = Swift_SendmailTransport::newInstance();
-        $mailer = Swift_Mailer::newInstance($transport);
-        $message = $this->_createMessage($mailer, $user->getEmail(), 'Addventure2 Password Recovery');
+        $message = $this->_createMessage($user->getEmail(), 'Addventure2 Password Recovery');
 
         /**
          * @todo Make it a smarty template and support HTML mails.
@@ -239,6 +266,8 @@ Here is your new password:
 Happy writing!
 MSG
         );
+        $transport = Swift_SendmailTransport::newInstance();
+        $mailer = Swift_Mailer::newInstance($transport);
         if($mailer->send($message, $failures)) {
             $user->setPassword(self::_encodePassword($generatedPw));
             $this->em->persistAndFlush($user);

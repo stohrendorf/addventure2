@@ -118,6 +118,7 @@ Elements marked with "*" depend on the role of the user.
   <tr><td>canCreateEpisode*</td><td>false</td><td>Whether this user can fill an unwritten episode.</td></tr>
   <tr><td>canCreateComment*</td><td>false</td><td>Can the user comment on existing episodes?</td></tr>
   <tr><td>canSubscribe*</td><td>false</td><td>Can the user subscribe to authors or episodes?</td></tr>
+  <tr><td>registeredSince</td><td>empty</td><td>The readable date and time the user has registered his account, or empty if unknown.</td></tr>
 </table>
 
 Roles:

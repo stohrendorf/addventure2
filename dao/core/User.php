@@ -128,6 +128,17 @@ class User {
      */
     private $blocked = false;
 
+    /**
+     * @Column(type="DateTime", nullable=true)
+     * @var \DateTime
+     */
+    private $registeredSince = null;
+
+    /**
+     * @Column(type="smallint", nullable=false)
+     */
+    private $failedLogins = 0;
+
     public function __construct() {
         $this->role = UserRole::Anonymous;
         $this->authorNames = new \Doctrine\Common\Collections\ArrayCollection();
@@ -154,7 +165,7 @@ class User {
             }
             return;
         }
-        
+
         if(!empty($this->password)) {
             throw new \InvalidArgumentException("Anonymous users must not have set a password.");
         }
@@ -211,7 +222,7 @@ class User {
 
     public function setAuthorNames($authorNames) {
         if(is_array($authorNames)) {
-            $this->authorNames = new \Doctrine\Common\Collections\ArrayCollection( $authorNames );
+            $this->authorNames = new \Doctrine\Common\Collections\ArrayCollection($authorNames);
             return $this;
         }
         if(!($authorNames instanceof \Doctrine\Common\Collections\ArrayCollection)) {
@@ -232,6 +243,10 @@ class User {
         $this->blocked = $b;
     }
 
+    public function isLockedOut() {
+        return $this->failedLogins >= ADDVENTURE_MAX_FAILED_LOGINS;    
+    }
+    
     public function isAnonymous() {
         return $this->role === UserRole::Anonymous;
     }
@@ -253,15 +268,15 @@ class User {
     }
 
     public function canCreateEpisode() {
-        return !$this->blocked && $this->role >= UserRole::Registered;
+        return !$this->isLockedOut() && !$this->blocked && $this->role >= UserRole::Registered;
     }
 
     public function canCreateComment() {
-        return !$this->blocked && $this->role >= UserRole::Registered;
+        return !$this->isLockedOut() && !$this->blocked && $this->role >= UserRole::Registered;
     }
 
     public function canSubscribe() {
-        return !$this->blocked && $this->role >= UserRole::Registered;
+        return !$this->isLockedOut() && !$this->blocked && $this->role >= UserRole::Registered;
     }
 
     public function getUsername() {
@@ -277,6 +292,24 @@ class User {
         return $this;
     }
 
+    public function getRegisteredSince() {
+        return $this->registeredSince;
+    }
+
+    public function setRegisteredSince(\DateTime $registeredSince) {
+        $this->registeredSince = $registeredSince;
+        return $this;
+    }
+
+    public function getFailedLogins() {
+        return $this->failedLogins;
+    }
+
+    public function setFailedLogins($failedLogins) {
+        $this->failedLogins = ($failedLogins > ADDVENTURE_MAX_FAILED_LOGINS ? ADDVENTURE_MAX_FAILED_LOGINS : $failedLogins);
+        return $this;
+    }
+
     /**
      * @codeCoverageIgnore
      */
@@ -289,7 +322,8 @@ class User {
             'email' => $this->getEmail(),
             'canCreateEpisode' => $this->canCreateEpisode(),
             'canCreateComment' => $this->canCreateComment(),
-            'canSubscribe' => $this->canSubscribe()
+            'canSubscribe' => $this->canSubscribe(),
+            'registeredSince' => ($this->registeredSince === null ? '' : $this->registeredSince->format("l, d M Y H:i"))
         );
     }
 
@@ -305,7 +339,8 @@ class User {
             'email' => '',
             'canCreateEpisode' => false,
             'canCreateComment' => false,
-            'canSubscribe' => false
+            'canSubscribe' => false,
+            'registeredSince' => ''
         );
     }
 
