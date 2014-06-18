@@ -129,7 +129,7 @@ class User {
     private $blocked = false;
 
     /**
-     * @Column(type="DateTime", nullable=true)
+     * @Column(type="datetime", nullable=true)
      * @var \DateTime
      */
     private $registeredSince = null;
