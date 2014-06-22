@@ -27,12 +27,6 @@ class Episode implements IAddventure {
     private $id;
 
     /**
-     * @Column(type="integer", nullable=false)
-     * @var int
-     */
-    private $oldId = null;
-
-    /**
      * @Column(type="string", nullable=true)
      * @var string
      */
@@ -247,15 +241,6 @@ class Episode implements IAddventure {
 
     public function setSimpleTags($simpleTag) {
         $this->simpleTags = $simpleTag;
-        return $this;
-    }
-
-    public function getOldId() {
-        return $this->oldId;
-    }
-
-    public function setOldId($oldId) {
-        $this->oldId = $oldId;
         return $this;
     }
 

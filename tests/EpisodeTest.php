@@ -365,30 +365,6 @@ class EpisodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers addventure\Episode::getOldId
-     * @todo   Implement testGetOldId().
-     */
-    public function testGetOldId()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @covers addventure\Episode::setOldId
-     * @todo   Implement testSetOldId().
-     */
-    public function testSetOldId()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    /**
      * @covers addventure\Episode::getLinkable
      * @todo   Implement testGetLinkable().
      */
