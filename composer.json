@@ -21,15 +21,6 @@
             "type": "package",
             "package": {
                 "name": "ckeditor",
-                "version": "4.2",
-                "source": {
-                    "url": "https://github.com/ckeditor/ckeditor-releases.git",
-                    "type": "git",
-                    "reference": "full/4.2.x"
-                }
-            },
-            "package": {
-                "name": "ckeditor",
                 "version": "4.3",
                 "source": {
                     "url": "https://github.com/ckeditor/ckeditor-releases.git",
