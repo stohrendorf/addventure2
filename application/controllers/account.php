@@ -157,17 +157,16 @@ MSG
         $this->load->helper('smarty');
         $smarty = createSmarty();
 
-        if(!$user || $user->getRole() < \addventure\UserRole::Registered || !password_verify($password, $user->getPassword())) {
+        if(!$user || $user->getRole()->get() < \addventure\UserRole::Registered || !password_verify($password, $user->getPassword())) {
             if($user) {
                 $user->setFailedLogins($user->getFailedLogins() + 1);
                 $this->em->persistAndFlush($user);
+                if($user->isLockedOut()) {
+                    $smarty->display('account_locked.tpl');
+                    return;
+                }
             }
-            if($user->isLockedOut()) {
-                $smarty->display('account_locked.tpl');
-            }
-            else {
-                $smarty->display('account_login_invalid.tpl');
-            }
+            $smarty->display('account_login_invalid.tpl');
             return;
         }
 
