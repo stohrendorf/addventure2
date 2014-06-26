@@ -10,9 +10,6 @@ namespace addventure;
  *         @Index(name="authorIndex", columns={"author_id"}),
  *         @Index(name="storylineIndex", columns={"storyline_tag_id"}),
  *         @Index(name="createdIndex", columns={"created"})
- *     },
- *     uniqueConstraints={
- *         @UniqueConstraint(name="oldIdIndex", columns={"oldId"})
  *     }
  * )
  */

@@ -9,13 +9,16 @@ class LegacyEpisode {
 
     /**
      * @Id
-     * @Column(type="integer", nullable="false")
+     * @Column(type="integer", nullable=false)
+     * @GeneratedValue(strategy="NONE")
      * @var int
      */
     private $id;
 
     /**
-     * @Column(type="addventure\Episode", unique=true, nullable=true)
+     * @Column(type="integer", unique=true, nullable=true)
+     * @OneToOne(targetEntity="addventure\Episode")
+     * @JoinColumn(name="episode_id", referencedColumnName="id")
      * @var \addventure\Episode
      */
     private $episode = null;

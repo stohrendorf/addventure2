@@ -129,4 +129,35 @@ class Doc extends CI_Controller {
         $this->index($query->getSingleScalarResult());
     }
 
+    public function subscribe($episodeId) {
+        $episodeId = filter_var($episodeId, FILTER_SANITIZE_NUMBER_INT);
+        if($episodeId === false || $episodeId === null) {
+            show_error('Invalid doc id');
+            return;
+        }
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user || !$this->userinfo->user->canSubscribe()) {
+            show_error('Not allowed');
+            return;
+        }
+
+        $this->load->library('em');
+        $episode = $this->em->findEpisode($episodeId);
+        if(!$episode) {
+            show_404('Document not found');
+        }
+
+        $subscription = new addventure\Notification();
+        $subscription->setUser($this->userinfo->user);
+        $subscription->setEpisode($episode);
+        try {
+            $this->em->persistAndFlush($subscription);
+        }
+        catch(PDOException $ex) {
+            // already subscribed
+        }
+
+        redirect('doc/' . $episodeId);
+    }
+
 }

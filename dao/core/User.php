@@ -318,7 +318,7 @@ class User {
             'blocked' => $this->getBlocked(),
             'userid' => $this->getId(),
             'username' => $this->getUsername(),
-            'role' => $this->getRole(),
+            'role' => $this->getRole()->get(),
             'email' => $this->getEmail(),
             'canCreateEpisode' => $this->canCreateEpisode(),
             'canCreateComment' => $this->canCreateComment(),
