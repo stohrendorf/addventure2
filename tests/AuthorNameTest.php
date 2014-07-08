@@ -149,7 +149,6 @@ class AuthorNameTest extends DoctrineTestCase
 
         $ep = new Episode();
         $ep->setAuthor($this->object);
-        $ep->setOldId(123);
         $this->getEm()->persist($ep);
         $this->getEm()->flush();
         
