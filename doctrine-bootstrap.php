@@ -12,20 +12,32 @@ else {
 }
 
 /**
- * @global \Monolog\Logger
+ * @staticvar \Monolog\Logger $logger
+ * @return \Monolog\Logger
+ * @codeCoverageIgnore
  */
-$logger = new \Monolog\Logger('');
-$logger->pushHandler(new Monolog\Handler\RotatingFileHandler(LOG_FILENAME, 7, (ENVIRONMENT !== 'production') ? \Monolog\Logger::DEBUG : \Monolog\Logger::WARNING));
-if(ENVIRONMENT !== 'testing') {
-    Monolog\ErrorHandler::register($logger);
-}
+function initLogger() {
+    static $logger = null;
+    if($logger !== null) {
+        return $logger;
+    }
+    $logger = new \Monolog\Logger('');
+    $logger->pushHandler(new Monolog\Handler\RotatingFileHandler(LOG_FILENAME, 7, (ENVIRONMENT !== 'production') ? \Monolog\Logger::DEBUG : \Monolog\Logger::WARNING));
+    if(ENVIRONMENT !== 'testing') {
+        Monolog\ErrorHandler::register($logger);
+    }
 
-if(php_sapi_name() !== 'cli' && !extension_loaded('apc')) {
-    $logger->warning('You are seeing this message because you haven\' enabled APC in your server. Please do so to get better performance');
+    if(php_sapi_name() !== 'cli' && !extension_loaded('apc')) {
+        $logger->warning('You are seeing this message because you haven\' enabled APC in your server. Please do so to get better performance');
+    }
+    if(ENVIRONMENT !== 'production') {
+        $logger->warning('You are running the Addventure in development mode');
+    }
+    return $logger;
 }
 
 if(ENVIRONMENT !== 'production') {
-    $logger->warning('You are running the Addventure in development mode');
+    initLogger()->warning('You are running the Addventure in development mode');
     define('JSON_FLAGS', JSON_PRETTY_PRINT);
     if(ENVIRONMENT !== 'testing') {
         error_reporting(E_ALL);

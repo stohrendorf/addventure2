@@ -12,8 +12,7 @@ class CI_Log {
     private $logger;
 
     public function __construct() {
-        global $logger;
-        $this->logger = $logger;
+        $this->logger = initLogger();
     }
 
     /**
