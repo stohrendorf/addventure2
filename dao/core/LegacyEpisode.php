@@ -16,7 +16,6 @@ class LegacyEpisode {
     private $id;
 
     /**
-     * @Column(type="integer", unique=true, nullable=true)
      * @OneToOne(targetEntity="addventure\Episode")
      * @JoinColumn(name="episode_id", referencedColumnName="id")
      * @var \addventure\Episode

@@ -1,14 +1,45 @@
 <?php
 
+/******************************************************************************
+ * Dear user, please be kind.  Do NOT scrape an existing Addventure without
+ * permission from the admin.  If you ARE the admin however, use the
+ * URLRetriever at the end of this file and supply a LOCAL FILE PATH (i.e.,
+ * not an actual URL) to it and DO NOT run this script on the web server,
+ * because it does some heavy file operations which may slow its operation or
+ * even may take it down.  If you already have migrated to a database, use
+ * either the MySQLRetriever or write your own retriever.
+ ******************************************************************************/
+
+/**
+ * Name of rooms. Make sure to escape PCRE chars and '#'.
+ */
+define('ROOMWORD', 'episode');
+
+/**
+ * Migration script for legacy Addventures.
+ * 
+ * This works roughly as follows:
+ *   1. Retrieve all legacy episodes.
+ *   2. Run through the imported episodes and transform them to the new layout.
+ */
+
 require_once '../doctrine-bootstrap.php';
 
 define('BASEPATH', ''); // HACK to make the following require_once work
 require_once '../application/helpers/xss_clean_helper.php';
 
+/**
+ * Basic utility functions for the import.
+ */
 class Util {
 
+    /**
+     * Tries to extract the parent episode ID from legacy HTML.
+     * @param string $html Raw, legacy HTML.
+     * @return null|int
+     */
     public static function extractParent($html) {
-        if(preg_match('|<a href="\.\./[0-9]{3,4}/([0-9]+)\.html">Go back</a> - Go to the parent episode\.<p>|iS', $html, $matches)) {
+        if(preg_match('|\<a href\="\.\.\/[0-9]+\/([0-9]+)\.html"\>Go back\<\/a\> - Go to the parent ' . ROOMWORD . '\.\<p\>|isuS', $html, $matches)) {
             return (int) $matches[1];
         }
         else {
@@ -17,6 +48,107 @@ class Util {
     }
 
 }
+
+/**
+ * Interface for retrieving an episode.
+ */
+interface IRetriever {
+
+    /**
+     * Retrieves an episode.
+     * @param int $episodeId The episode id
+     * @return string|null Either the episode's contents, or NULL on an error.
+     */
+    function retrieve($episodeId);
+}
+
+/**
+ * File retriever.
+ */
+class URLRetriever implements IRetriever {
+
+    /**
+     * @var string Base URL or File Path
+     */
+    private $base;
+
+    /**
+     * Constructor
+     * @param string $base Base URL or File Path
+     */
+    public function __construct($base) {
+        $this->base = $base;
+    }
+
+    public function retrieve($episodeId) {
+        $raw = @file_get_contents(sprintf('%s/%03d/%d.html', $this->base, (int) ($episodeId / 1000), $episodeId));
+        if($raw === null || $raw === false) {
+            return null;
+        }
+        else {
+            return $raw;
+        }
+    }
+
+}
+
+/**
+ * MySQL database retriever.
+ */
+class MySQLRetriever implements IRetriever
+{
+    /**
+     * @var mysql Database connection
+     */
+    private $sql;
+    
+    /**
+     * @var string Table name
+     */
+    private $table;
+    /**
+     * @var string Legacy Episode ID column in the table
+     */
+    private $idColumn;
+    
+    /**
+     * @var string Legacy HTML column in the table
+     */
+    private $textColumn;
+    
+    /**
+     * Constructor
+     * @param string $host DB host
+     * @param string $user DB user name
+     * @param string $password DB password
+     * @param string $database DB Database with the episodes
+     * @param string $table Table within the database with the episodes
+     * @param string $idColumn Legacy Episode ID column in the table
+     * @param string $textColumn Legacy HTML column in the table
+     */
+    public function __construct($host, $user, $password, $database, $table, $idColumn, $textColumn) {
+        $this->sql = new mysqli($host, $user, $password, $database);
+        $this->sql->set_charset('utf8');
+        $this->sql->autocommit(FALSE);
+        $this->table = $table;
+        $this->idColumn = $idColumn;
+        $this->textColumn = $textColumn;
+    }
+    
+    public function retrieve($episodeId) {
+        $q = $this->sql->query("SELECT $this->textColumn FROM $this->table WHERE $this->idColumn=$episodeId");
+        if(!$q) {
+            return null;
+        }
+        $txt = $q->fetch_assoc();
+        if(!$txt) {
+            return null;
+        }
+        return $txt[$this->textColumn];
+    }
+
+}
+
 
 /**
  * Imports legacy episodes.
@@ -32,27 +164,53 @@ class Importer {
      * @var int[] List of queued episodes to be imported
      */
     private $queued = array();
-    private $importBase;
 
-    public function __construct($importBase, $firstEpisode = 0) {
-        $this->importBase = $importBase;
+    /**
+     * @var IRetriever
+     */
+    private $retriever;
+    
+    /**
+     * @var boolean Whether to extract unwritten children IDs on initial import
+     */
+    private $followUnwritten;
+
+    /**
+     * Constructor
+     * @param IRetriever $retriever Episode retriever
+     * @param int $firstEpisode First episode to import, i.e. the root
+     * @param boolean $followUnwritten Whether to initially try to import unwritten episodes
+     */
+    public function __construct(IRetriever $retriever, $firstEpisode = 0, $followUnwritten = false) {
+        $this->retriever = $retriever;
         $this->queued[] = $firstEpisode;
+        $this->followUnwritten = $followUnwritten;
     }
 
     /**
      * Clean up HTML by using Tidy.
-     * @param string $html CP1252-encoded dirty HTML
+     * @param string $html Dirty HTML
+     * @param boolean $reencode Whether to convert from CP1252 to UTF8
      * @return null|string
      */
-    private function cleanupHtml($html) {
+    private function cleanupHtml($html, $reencode = false) {
         $tidy = new tidy;
-        $tidy->parseString(xss_clean(mb_convert_encoding($html, 'UTF-8', 'CP1252')), array('output-html' => true, 'wrap' => 200), 'utf8');
+        if($reencode) {
+            $html = mb_convert_encoding($html, 'UTF-8', 'CP1252');
+        }
+        $tidy->parseString(xss_clean2($html), array('show-body-only' => true, 'output-html' => true, 'wrap' => 200), 'utf8');
         if(!$tidy->cleanRepair()) {
             return null;
         }
         return (string) $tidy;
     }
 
+    /**
+     * Helper for creating legacy episode instances
+     * @param int $id Legacy Episode ID
+     * @param string $cleanedHtml Cleaned up HTML
+     * @return \addventure\LegacyEpisode
+     */
     private function createLegacyEpisode($id, $cleanedHtml) {
         $legacy = new addventure\LegacyEpisode();
         $legacy->setId($id);
@@ -60,20 +218,27 @@ class Importer {
         return $legacy;
     }
 
+    /**
+     * Extract a legacy episode's children
+     * @param string $html Legacy HTML
+     * @param bool $skipUnwritten Whether to extract yet unwritten children IDs
+     * @return int[] Array of children IDs
+     */
     private function extractChildren($html, $skipUnwritten) {
         $result = array();
-        foreach(explode('<li>', $html) as $liChunk) {
-            if(!preg_match('|(.)<a href="\.\./[0-9]+/([0-9]+)\.html">.*?</a>|iS', $liChunk, $liLink)) {
-                continue;
+        if(preg_match_all('#(&gt;|\<li\>|\*)\<a href\="\.\.\/[0-9]+\/([0-9]+)\.html"\>.*?\<\/a\>\<\/li\>#isuS', '<li>' . $html, $liLinks, PREG_SET_ORDER)) {
+            foreach($liLinks as $link) {
+                $result[] = (int) $link[2];
             }
-            if($skipUnwritten && $liLink[1] == ' ') {
-                continue;
-            }
-            $result[] = (int) $liLink[2];
         }
         return $result;
     }
 
+    /**
+     * Determine if a legacy episode's HTML is only a placeholder
+     * @param string $text
+     * @return boolean
+     */
     private function isPlaceholder($text) {
         if(!$text) {
             return true;
@@ -81,12 +246,16 @@ class Importer {
         elseif(strpos($text, '<meta name="Description" content="Place-holder page for extension">')) {
             return true;
         }
-        elseif(preg_match('|<a href="\.\./[0-9]+/[0-9]+\.html">Cancel</a> - Do <b>not</b> create the episode.|iS', $text)) {
+        elseif(preg_match('|\<a href\="\.\.\/[0-9]+\/[0-9]+\.html"\>Cancel\<\/a\> - Do \<b\>not\<\/b\> create the ' . ROOMWORD . '\.|isuS', $text)) {
             return true;
         }
         return false;
     }
 
+    /**
+     * Import the next episode
+     * @return boolean Are there more episodes to be imported?
+     */
     public function importNext() {
         while(!empty($this->queued)) {
             $current = array_pop($this->queued);
@@ -101,16 +270,17 @@ class Importer {
         $entityManager = initDoctrineConnection();
         if(($legacy = $entityManager->find('addventure\LegacyEpisode', $current))) {
             // already imported, so just use it passively...
-            echo "#$current already downloaded --";
+            echo '[', count($this->imported), '+', count($this->queued), '] ';
+            echo "#$current already retrieved --";
             $this->imported[] = $current;
             $raw = $legacy->getRawContent();
             $parent = Util::extractParent($raw);
             if($parent !== null) {
                 echo " parent=$parent";
-                $this->queued[] = (int) $parent;
+                $this->queued[] = $parent;
             }
 
-            $children = $this->extractChildren($raw, false);
+            $children = $this->extractChildren($raw, !$this->followUnwritten);
             if(!empty($children)) {
                 echo " children=", implode(' ', $children);
                 foreach($children as $child) {
@@ -122,29 +292,35 @@ class Importer {
             return true;
         }
 
-        $raw = @file_get_contents(sprintf('%s/%03d/%d.html', $this->importBase, (int) ($current / 1000), $current));
-        if(!$raw) {
-            echo "#$current -- Import failed!\n";
+        $raw = $this->retriever->retrieve($current);
+        if($raw === null) {
+            echo '[', count($this->imported), '+', count($this->queued), '] ';
+            echo "#$current -- Retrieval failed!\n";
+            initLogger()->error("#$current -- Retrieval failed!");
             return true;
         }
         elseif($this->isPlaceholder($raw)) {
+            echo '[', count($this->imported), '+', count($this->queued), '] ';
+            echo "#$current -- Placeholder.\n";
             return true;
         }
 
         $clean = $this->cleanupHtml($raw);
         if($clean === null) {
+            echo '[', count($this->imported), '+', count($this->queued), '] ';
             echo "#$current -- Failed to clean up the HTML!\n";
             return true;
         }
 
+        echo '[', count($this->imported), '+', count($this->queued), '] ';
         echo "#$current --";
-        $parent = Util::extractParent($raw);
+        $parent = Util::extractParent($clean);
         if($parent !== null) {
             echo " parent=$parent";
-            $this->queued[] = (int) $parent;
+            $this->queued[] = $parent;
         }
 
-        $children = $this->extractChildren($raw, true);
+        $children = $this->extractChildren($clean, !$this->followUnwritten);
         if(!empty($children)) {
             echo " children=", implode(' ', $children);
             foreach($children as $child) {
@@ -160,40 +336,66 @@ class Importer {
 
         $this->imported[] = $current;
 
+        echo '[', count($this->imported), '+', count($this->queued), '] ';
         echo "#$current -- Success.\n";
-        echo '[', count($this->imported), ' imported, ', count($this->queued), ' queued]', "\n";
 
         return true;
     }
 
+    /**
+     * Import ALL episodes.
+     */
     public function importAll() {
-        echo "Downloading raw episodes... go get some coffee!\n";
+        echo "Retrieving raw episodes... go get some coffee!\n";
         while($this->importNext()) {
             // run run run...
         }
-        echo "Downloaded all episodes.\n";
+        echo "Retrieved all episodes.\n";
     }
 
+    /**
+     * Get all successfully imported episode IDs.
+     * @return int[]
+     */
     public function getImported() {
         return $this->imported;
     }
 
 }
 
+
+/**
+ * Transform all legacy episodes to the new infrastructure.
+ */
 class Transformer {
 
     /**
-     * @var int[]
+     * @var int[] Queue of episode IDs to be transformed.
      */
     private $queue;
+    
+    /**
+     * @var int Initial count of queued episode IDs.
+     */
+    private $totalEpisodes;
 
+    /**
+     * Constructor
+     * @param int[] $queue Episode IDs to be imported
+     */
     public function __construct(array $queue) {
         $this->queue = $queue;
+        $this->totalEpisodes = count($queue);
         sort($queue);
     }
 
+    /**
+     * Extract the tag-stripped title from the legacy HTML
+     * @param string $html
+     * @return string
+     */
     private function extractTitle($html) {
-        if(preg_match('|<h1>\s*(.*?)\s*</h1>|iS', $html, $matches)) {
+        if(preg_match('|\<h1\>\s*(.*?)\s*\<\/h1\>|isuS', $html, $matches)) {
             return strip_tags($matches[1]);
         }
         else {
@@ -201,6 +403,11 @@ class Transformer {
         }
     }
 
+    /**
+     * Tidy up and XSS clean legacy HTML
+     * @param string $text Legacy HTML
+     * @return string|null
+     */
     private function cleanupHtml($text) {
         $tidy = new tidy;
         $tidy->parseString($text, array('show-body-only' => true, 'output-html' => true, 'wrap' => 200), 'utf8');
@@ -216,6 +423,11 @@ class Transformer {
         }
     }
 
+    /**
+     * Extract the episode's content
+     * @param string $html
+     * @return string
+     */
     private function extractText($html) {
         $titleLess = explode('</h2>', $html, 2);
         if(!isset($titleLess[1])) {
@@ -237,8 +449,13 @@ class Transformer {
         }
     }
 
+    /**
+     * Try to extract the creation date from a legacy episode
+     * @param string $html
+     * @return null|DateTime
+     */
     private function extractCreationDate($html) {
-        if(preg_match('|</address><p>[ \r\n\t]*([^<]+)|iS', $html, $matches)) {
+        if(preg_match('|\<\/address\>\<p\>[ \r\n\t]*([^<]+)|isuS', $html, $matches)) {
             $d = DateTime::createFromFormat('D M j G:i:s Y', $matches[1]);
             if(!$d) {
                 $d = DateTime::createFromFormat('D M  j G:i:s Y', $matches[1]);
@@ -258,21 +475,30 @@ class Transformer {
         }
     }
 
+    /**
+     * Extract the children with some meta-information from the legacy episode
+     * @param string $text
+     * @return array[]
+     */
     private function extractChildren($text) {
         $result = array();
-        $links = explode('<li>', $text);
-        foreach($links as $link) {
-            if(!preg_match('|(.)<a href="../[0-9]+/([0-9]+)\.html">\s*(.*?)\s*</a>|iS', $link, $matches)) {
-                continue;
+        if(preg_match_all('#(&gt;|\<li\>|\*)\<a href\="\.\.\/[0-9]+\/([0-9]+)\.html"\>(.*?)\<\/a\>\<\/li\>#isuS', '<li>' . $text, $matches, PREG_SET_ORDER)) {
+            foreach($matches as $match) {
+                $result[] = array(
+                    'id' => (int) $match[2],
+                    'title' => simplifyWhitespace(strip_tags($match[3]), 9999, true),
+                    'isBacklink' => ($match[1] === '&gt;')
+                );
             }
-            $result[] = array((int) $matches[2] => array(
-                    'title' => simplifyWhitespace(strip_tags($matches[3]), 9999, true),
-                    'isBacklink' => ($matches[1] === '>')
-            ));
         }
         return $result;
     }
 
+    /**
+     * Associates an episode with an author name
+     * @param string $author Legacy author name
+     * @param addventure\Episode $ep The new episode
+     */
     private function findOrCreateAuthor($author, addventure\Episode &$ep) {
         $author = simplifyWhitespace($author, 9999);
         if(empty($author)) {
@@ -289,7 +515,7 @@ class Transformer {
         }
 
         $nAuthor = new addventure\AuthorName();
-        $nAuthor->setUser(new User());
+        $nAuthor->setUser(new addventure\User());
         try {
             $nAuthor->setName($author);
             $nAuthor->getUser()->setUsername($author);
@@ -306,6 +532,11 @@ class Transformer {
         echo "author=``$author'' ";
     }
 
+    /**
+     * Transforms a single episode
+     * @return boolean Whether there are more episodes to be transformed
+     * @throws \RuntimeException
+     */
     public function transformNext() {
         if(empty($this->queue)) {
             return false;
@@ -315,14 +546,14 @@ class Transformer {
         $entityManager = initDoctrineConnection();
         $legacy = $entityManager->find('addventure\LegacyEpisode', $current);
         if($legacy->getEpisode() !== null && $legacy->getEpisode()->getText() !== null) {
-            // already parsed
+            echo '[', $this->totalEpisodes-count($this->queue), '/', $this->totalEpisodes, "] #$current already parsed\n";
             $entityManager->clear();
             return true;
         }
 
         $text = $legacy->getRawContent();
 
-        echo "Parsing $current ... ";
+        echo '[', $this->totalEpisodes-count($this->queue), '/', $this->totalEpisodes, "] Parsing #$current ... ";
         if($legacy->getEpisode() !== null) {
             $transformed = $legacy->getEpisode();
         }
@@ -342,7 +573,7 @@ class Transformer {
         }
 
         // >>> Author
-        if(preg_match('|<address>\s*(.+?)\s*</address>|iS', $text, $matches)) {
+        if(preg_match('|\<address\>\s*(.+?)\s*\<\/address\>|isuS', $text, $matches)) {
             // echo "author=``" . trim($matches[1]) . "'' ";
             $this->findOrCreateAuthor($matches[1], $transformed);
         }
@@ -382,7 +613,8 @@ class Transformer {
 
         // >>> Children/Backlinks
         echo " children=";
-        foreach($this->extractChildren($text) as $targetEpisodeId => $linkInfo) {
+        foreach($this->extractChildren($text) as $linkInfo) {
+            $targetEpisodeId = $linkInfo['id'];
             if($targetEpisodeId == $parent) {
                 continue;
             }
@@ -390,14 +622,25 @@ class Transformer {
 
             echo $targetEpisodeId;
             $legacyTarget = $entityManager->find('addventure\LegacyEpisode', $targetEpisodeId);
-            if($legacyTarget === null) {
-                throw new \RuntimeException("Data consistency error; legacy target episode $targetEpisodeId missing");
+            if($legacyTarget !== null && $legacyTarget->getEpisode()===null) {
+                // the target episode doesn't have a "real" episode yet
+                $legacyTarget->setEpisode(new addventure\Episode());
+                $entityManager->persist($legacyTarget->getEpisode());
+                $entityManager->persist($legacyTarget);
             }
+            /*
+            if($legacyTarget === null) {
+                initLogger()->error("Data consistency error; legacy target episode $targetEpisodeId missing (in $current)");
+                echo "Data consistency error; legacy target episode $targetEpisodeId missing (in $current)\n";
+            }
+            */
 
             $link = new addventure\Link();
             $link->setFromEp($transformed);
-            $link->setToEp($legacyTarget->getEpisode() ? $legacyTarget->getEpisode() : new addventure\Episode());
+            // maybe the target episode isn't written yet
+            $link->setToEp($legacyTarget!==null ? $legacyTarget->getEpisode() : new addventure\Episode());
             $entityManager->persist($link->getToEp());
+            $entityManager->persist($transformed);
 
             if($entityManager->getRepository('addventure\Link')->findOneBy(array('fromEp' => $link->getFromEp(), 'toEp' => $link->getToEp()))) {
                 // Link already in database
@@ -434,6 +677,8 @@ class Transformer {
             $entityManager->flush();
         }
 
+        $legacy->setEpisode($transformed);
+        $entityManager->persist($legacy);
         $entityManager->persist($transformed);
         $entityManager->flush();
         $entityManager->clear();
@@ -442,6 +687,9 @@ class Transformer {
         return TRUE;
     }
 
+    /**
+     * Transform all queued episodes
+     */
     public function transformAll() {
         echo "Transforming raw episodes... go get some coffee!\n";
         while($this->transformNext()) {

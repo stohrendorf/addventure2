@@ -4,10 +4,10 @@ if(!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-if(!function_exists('xss_clean')) {
+if(!function_exists('xss_clean2')) {
 
     // See: https://gist.github.com/mbijon/1098477
-    function xss_clean($data) {
+    function xss_clean2($data) {
         // Fix &entity\n;
         $data = str_replace(array('&amp;', '&lt;', '&gt;'), array('&amp;amp;', '&amp;lt;', '&amp;gt;'), $data);
         $data = preg_replace('/(&#*\w+)[\x00-\x20]+;/u', '$1;', $data);

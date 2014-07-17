@@ -20,6 +20,7 @@ class Recent extends CI_Controller {
         $smarty = createSmarty();
         $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url('recent') . '/'));
+        $smarty->assign('episodes', array());
         foreach($eps as $ep) {
             $smarty->append('episodes', $ep->toSmarty());
         }

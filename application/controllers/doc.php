@@ -78,7 +78,7 @@ class Doc extends CI_Controller {
         redirect(site_url(array('doc', $docId)));
     }
 
-    private function createChain(\addventure\Episode &$episode, $numEps) {
+    private function _createChain(\addventure\Episode &$episode, $numEps) {
         $eps = array();
         while($episode && --$numEps >= 0) {
             $smarty = $episode->toSmarty();
@@ -109,7 +109,7 @@ class Doc extends CI_Controller {
         $this->load->library('em');
         $episode = $this->em->findEpisode($docId);
         $smarty->assign('targetEpisode', $episode->getId());
-        $eps = $this->createChain($episode, $numEps);
+        $eps = $this->_createChain($episode, $numEps);
         $smarty->assign('episodes', $eps);
         $smarty->display('doc_chain.tpl');
     }
@@ -129,9 +129,9 @@ class Doc extends CI_Controller {
         $this->index($query->getSingleScalarResult());
     }
 
-    public function subscribe($episodeId) {
-        $episodeId = filter_var($episodeId, FILTER_SANITIZE_NUMBER_INT);
-        if($episodeId === false || $episodeId === null) {
+    public function subscribe($docId) {
+        $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
+        if($docId === false || $docId === null) {
             show_error('Invalid doc id');
             return;
         }
@@ -142,7 +142,7 @@ class Doc extends CI_Controller {
         }
 
         $this->load->library('em');
-        $episode = $this->em->findEpisode($episodeId);
+        $episode = $this->em->findEpisode($docId);
         if(!$episode) {
             show_404('Document not found');
         }
@@ -157,7 +157,57 @@ class Doc extends CI_Controller {
             // already subscribed
         }
 
-        redirect('doc/' . $episodeId);
+        redirect('doc/' . $docId);
+    }
+
+    public function create($docId) {
+        $this->load->helper('url');
+        $this->load->helper('smarty');
+        $this->load->library('em');
+        $smarty = createSmarty();
+        $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
+        if($docId === false || $docId === null) {
+            show_error('Invalid doc id');
+            return;
+        }
+        $episode = $this->em->findEpisode($docId);
+        if(!$episode) {
+            show_error('Document not found');
+            return;
+        }
+        if($episode->getText() !== NULL) {
+            show_error('Document already created');
+            return;
+        }
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user || !$this->userinfo->user->canCreateEpisode()) {
+            $smarty->display('account_benefits.tpl');
+            return;
+        }
+
+        $this->load->helper('xss_clean');
+
+        $preNotes = $this->input->post('preNotes');
+        $title = $this->input->post('title');
+        $text = $this->input->post('content');
+        $postNotes = $this->input->post('postNotes');
+        $options = $this->input->post('options');
+        if(!$text || empty($options) || !$title) {
+            // TODO retry
+            return;
+        }
+
+        if($preNotes) {
+            $preNotes = xss_clean2($preNotes);
+        }
+        $title = xss_clean2($title);
+        $text = xss_clean2($text);
+        if($postNotes) {
+            $postNotes = xss_clean2($postNotes);
+        }
+        array_walk($options, function(&$value) {
+            $value = xss_clean2($value);
+        });
     }
 
 }
