@@ -39,7 +39,7 @@ class Util {
      * @return null|int
      */
     public static function extractParent($html) {
-        if(preg_match('|\<a href\="\.\.\/[0-9]+\/([0-9]+)\.html"\>Go back\<\/a\> - Go to the parent ' . ROOMWORD . '\.\<p\>|isuS', $html, $matches)) {
+        if(preg_match('|\<a href\="\.\.\/[0-9]+\/([0-9]+)\.html"\>Go back\<\/a\> - Go to the parent ' . ROOMWORD . '\.|isuS', $html, $matches)) {
             return (int) $matches[1];
         }
         else {
@@ -700,7 +700,7 @@ class Transformer {
 
 }
 
-$importer = new Importer('/path/to/the/addventure');
+$importer = new Importer(new URLRetriever('/path/to/the/addventure'));
 $importer->importAll();
 
 $transformer = new Transformer($importer->getImported());
