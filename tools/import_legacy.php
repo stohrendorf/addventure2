@@ -589,11 +589,13 @@ class Transformer {
         $parent = Util::extractParent($text);
         if($parent !== null) {
             $parentEpisode = $entityManager->find('addventure\LegacyEpisode', $parent);
-            if(!$parentEpisode->getEpisode()) {
-                $parentEpisode->setEpisode(new addventure\Episode());
-                $entityManager->persist($parentEpisode->getEpisode());
+            if($parentEpisode !== null) {
+                if(!$parentEpisode->getEpisode()) {
+                    $parentEpisode->setEpisode(new addventure\Episode());
+                    $entityManager->persist($parentEpisode->getEpisode());
+                }
+                $transformed->setParent($parentEpisode->getEpisode());
             }
-            $transformed->setParent($parentEpisode->getEpisode());
         }
 
         // >>> Back-linkable
