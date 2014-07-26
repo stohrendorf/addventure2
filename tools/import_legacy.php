@@ -1,6 +1,6 @@
 <?php
 
-/* * ****************************************************************************
+/******************************************************************************
  * Dear user, please be kind.  Do NOT scrape an existing Addventure without
  * permission from the admin.  If you ARE the admin however, use the
  * URLRetriever at the end of this file and supply a LOCAL FILE PATH (i.e.,
@@ -8,7 +8,13 @@
  * because it does some heavy file operations which may slow its operation or
  * even may take it down.  If you already have migrated to a database, use
  * either the MySQLRetriever or write your own retriever.
- * **************************************************************************** */
+ * 
+ * This script requires about 120 MB RAM per 100.000 written episodes, so be
+ * sure to adjust your cli/php5.ini accordingly, which has a default maximum
+ * of 128 MB.  To be safe, consider using 200--250 MB per 100.000 episodes for
+ * memory calculation.  Experience is that you can estimate the number of
+ * written episodes by dividing the total number of episodes by 4.
+ ******************************************************************************/
 
 /**
  * Name of rooms. Make sure to escape PCRE chars and '#'.
@@ -387,7 +393,7 @@ class Transformer {
         $index = 0;
         foreach($stat as $statLine) {
             $line = explode("\t", mb_convert_encoding($statLine, 'UTF-8', 'CP1252'));
-            if(!in_array($line[self::COL_ID], $queue)) {
+            if(!in_array((int) $line[self::COL_ID], $queue)) {
                 continue;
             }
             ++$index;

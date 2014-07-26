@@ -109,7 +109,7 @@ class Episode implements IAddventure {
      * @var Comment[]|\Doctrine\Common\Collections\ArrayCollection
      */
     private $comments = null;
-    
+
     public function __construct() {
         $this->simpleTags = new \Doctrine\Common\Collections\ArrayCollection();
         $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
@@ -249,7 +249,7 @@ class Episode implements IAddventure {
         $this->linkable = $linkable;
         return $this;
     }
-    
+
     /**
      * An automatically generated title if the original title is empty, or the original title.
      * @return string
@@ -274,21 +274,21 @@ class Episode implements IAddventure {
         }
         return $tmp;
     }
-    
+
     private static function createTree(array &$dest, \addventure\Episode &$episode, $depth = 0) {
-        if($depth>2) {
+        if($depth > 2) {
             return null;
         }
-        $CI =& get_instance();
+        $CI = & get_instance();
         $CI->load->library('em');
         $childLinks = $episode->getChildLinks();
-        $destArr = array('title'=>$episode->getAutoTitle(), 'id'=>$episode->getId(), 'children'=>array());
+        $destArr = array('title' => $episode->getAutoTitle(), 'id' => $episode->getId(), 'children' => array());
         foreach($childLinks as $child) {
             $childEp = $CI->em->findEpisode($child->getToEp());
             if($childEp->getText() === null) {
                 continue;
             }
-            self::createTree($destArr['children'], $childEp, $depth+1);
+            self::createTree($destArr['children'], $childEp, $depth + 1);
             // do some GC...
             $CI->em->getEntityManager()->detach($childEp);
             unset($childEp);
@@ -302,13 +302,13 @@ class Episode implements IAddventure {
      * @return Episode[]
      */
     public function getChildLinks() {
-        $CI =& get_instance();
+        $CI = & get_instance();
         $CI->load->library('em');
         return $CI->em->getEntityManager()->createQuery('SELECT l FROM addventure\Link l WHERE l.fromEp=?1 AND l.isBacklink=FALSE ORDER BY l.toEp')
-                ->setParameter(1, $this->getId())
-                ->getResult();
+                        ->setParameter(1, $this->getId())
+                        ->getResult();
     }
-    
+
     /**
      * @codeCoverageIgnore
      */
@@ -338,21 +338,21 @@ class Episode implements IAddventure {
         if(($parent = $this->getParent())) {
             $result['parent'] = $parent->getId();
         }
-        
-        $CI =& get_instance();
+
+        $CI = & get_instance();
         $CI->load->library('em');
         $query = $CI->em->getEntityManager()->createQuery('SELECT l FROM addventure\Link l WHERE l.fromEp=?1 ORDER BY l.toEp')
                 ->setParameter(1, $this->getId());
         foreach($query->getResult() as $child) {
             $childSmarty = $child->toSmarty();
             $childSmarty['subtree'] = array();
-            if( !$child->getIsBacklink() ) {
+            if(!$child->getIsBacklink()) {
                 self::createTree($childSmarty['subtree'], $CI->em->findEpisode($child->getToEp()));
                 $childSmarty['subtree'] = $childSmarty['subtree'][0]['children'];
             }
             $result['children'][] = $childSmarty;
         }
-        
+
         $query = $CI->em->getEntityManager()->createQuery('SELECT l FROM addventure\Link l WHERE l.toEp=?1 AND l.isBacklink=TRUE ORDER BY l.fromEp')
                 ->setParameter(1, $this->getId());
         foreach($query->getResult() as $child) {
@@ -376,7 +376,7 @@ class Episode implements IAddventure {
     public function toRss(\SimpleXMLElement &$channel) {
         $item = $channel->addChild('item');
         $item->addChild('title', htmlspecialchars($this->getAutoTitle()));
-        $item->addChild('link', htmlspecialchars('http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER["REQUEST_URI"]) . '?doc=' . $this->getId()));
+        $item->addChild('link', site_url('doc/' . $this->getId()));
         $author = $this->getAuthor();
         $item->addChild('author', $author ? htmlspecialchars($author->getName()) : '');
         $item->addChild('guid', 'addventure:episode:' . $this->getId());
@@ -393,7 +393,7 @@ class Episode implements IAddventure {
         $entry->addChild('updated', $this->getCreated() ? $this->getCreated()->format(\DateTime::ATOM) : '');
         $link = $entry->addChild('link');
         $link->addAttribute('rel', 'alternate');
-        $link->addAttribute('href', dirname($_SERVER["REQUEST_URI"]) . '?doc=' . $this->getId());
+        $link->addAttribute('href', site_url('doc/' . $this->getId()));
         $author = $this->getAuthor();
         if($author) {
             $author->toAtom($entry);
@@ -403,7 +403,7 @@ class Episode implements IAddventure {
 }
 
 class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
-    
+
     /**
      * Get a descending ordered episode list
      * @param string $column The column name to order by
@@ -526,7 +526,7 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         elseif(!is_numeric($page)) {
             throw new \InvalidArgumentException('Page is not numeric.');
         }
-        
+
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
         $queryBuilder->select('u', 'COUNT(e.id) AS episodeCount')
                 ->from('addventure\User', 'u')
@@ -538,7 +538,7 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         $queryBuilder->setFirstResult($page * $count);
         $queryBuilder->setMaxResults($count);
         $result = new \Doctrine\ORM\Tools\Pagination\Paginator($queryBuilder->getQuery(), false);
-        
+
         return $result;
     }
 

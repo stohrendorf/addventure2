@@ -38,7 +38,7 @@ class AuthorName implements IAddventure {
     public function __construct() {
         $this->episodes = new \Doctrine\Common\Collections\ArrayCollection();
     }
-    
+
     public function getEpisodes() {
         return $this->episodes;
     }
@@ -72,7 +72,7 @@ class AuthorName implements IAddventure {
 
     public function setEpisodes($episodes) {
         if(is_array($episodes)) {
-            $this->episodes = new \Doctrine\Common\Collections\ArrayCollection( $episodes );
+            $this->episodes = new \Doctrine\Common\Collections\ArrayCollection($episodes);
             return $this;
         }
         if(!($episodes instanceof \Doctrine\Common\Collections\ArrayCollection)) {
@@ -117,6 +117,7 @@ class AuthorName implements IAddventure {
     public function toAtom(\SimpleXMLElement &$entry) {
         $author = $entry->addChild('author');
         $author->addChild('name', htmlspecialchars($this->getName()));
+        $author->addChild('uri', htmlspecialchars(site_url('user/' . $this->getUser()->getId())));
     }
 
 }
