@@ -94,4 +94,19 @@ class EM {
     public function getEpisodeRepository() {
         return $this->getEntityManager()->getRepository('addventure\Episode');
     }
+    
+    /**
+     * Get all registered notifications for an episode.
+     * @param int $doc Document ID
+     * @return \addventure\Notification[]
+     */
+    public function getNotificationsForDoc($doc) {
+        return $this->getEntityManager()
+                ->getRepository('addventure\Notification')
+                ->createQueryBuilder('n')
+                ->where('n.episode = ?1')
+                ->setParameter(1, $doc)
+                ->getQuery()
+                ->getResult();
+    }
 }

@@ -208,6 +208,24 @@ class Doc extends CI_Controller {
         array_walk($options, function(&$value) {
             $value = xss_clean2($value);
         });
+        
+        if(false) {
+            // TODO activate this code when the above is ready
+            $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());
+            foreach($notifications as $notification) {
+                $message = Swift_Message::newInstance();
+                $message->setFrom(ADDVENTURE_EMAIL_ADDRESS, ADDVENTURE_EMAIL_NAME);
+                $message->setTo($notification->getUser()->getEmail());
+                $message->setSubject('Option filled');
+                $message->setBody('...'); // TODO
+                $transport = Swift_SendmailTransport::newInstance();
+                $mailer = Swift_Mailer::newInstance($transport);
+                if(!$mailer->send($message, $failures)) {
+                    $this->load->library('log');
+                    $this->log->crit('Could not send notification e-mail: ' . print_r($failures, true));
+                }
+            }
+        }
     }
 
 }
