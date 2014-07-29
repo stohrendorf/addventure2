@@ -269,6 +269,16 @@ class Importer {
 
         $entityManager = initDoctrineConnection();
         if(($legacy = $entityManager->find('addventure\LegacyEpisode', $this->current))) {
+            if($this->isPlaceholder($legacy->getRawContent())) {
+                echo '[', $this->current, '/', $this->maxEpisode, "] already retrieved -- deleting because it's a placeholder\n";
+                if($legacy->getEpisode()) {
+                    $entityManager->remove($legacy->getEpisode());
+                }
+                $entityManager->remove($legacy);
+                $entityManager->flush();
+                $entityManager->clear();
+                return true;
+            }
             // already imported, so just use it passively...
             echo '[', $this->current, '/', $this->maxEpisode, "] already retrieved\n";
             $this->imported[] = $this->current;
@@ -289,8 +299,8 @@ class Importer {
 
         $raw = $this->retriever->retrieve($this->current);
         if($raw === null) {
-            echo '[', $this->current, '/', $this->maxEpisode, "] -- Retrieval failed!\n";
-            initLogger()->error("#$this->current -- Retrieval failed!");
+            //echo '[', $this->current, '/', $this->maxEpisode, "] -- Retrieval failed!\n";
+            //initLogger()->error("#$this->current -- Retrieval failed!");
             ++$this->current;
             return true;
         }
@@ -402,10 +412,10 @@ class Transformer {
             $line[self::COL_DATE] = DateTime::createFromFormat('Ymd-His', $line[self::COL_DATE]); // created
             if(preg_match('/^(.*)\s*\[' . ROOMWORD . ' [0-9]+\]$/i', $line[self::COL_TITLE], $matches)) {
                 // title
-                $line[self::COL_TITLE] = strip_tags($matches[1]);
+                $line[self::COL_TITLE] = trim(strip_tags($matches[1]));
             }
             else {
-                $line[self::COL_TITLE] = strip_tags($line[self::COL_TITLE]);
+                $line[self::COL_TITLE] = trim(strip_tags($line[self::COL_TITLE]));
             }
             $this->stat[$line[self::COL_ID]] = $line;
         }
@@ -525,6 +535,9 @@ class Transformer {
             return false;
         }
         $current = array_pop($this->queue);
+        if(!isset($this->stat[$current])) {
+            return true;
+        }
 
         $entityManager = initDoctrineConnection();
         $legacy = $entityManager->find('addventure\LegacyEpisode', $current);
@@ -547,7 +560,7 @@ class Transformer {
         // >>> Title
         $title = $this->stat[(string) $current][self::COL_TITLE];
         try {
-            echo " ``$title''";
+            echo "``$title'' ";
             $transformed->setTitle($title);
         }
         catch(\InvalidArgumentException $ex) {
@@ -561,7 +574,7 @@ class Transformer {
         // >>> Created
         $created = $this->stat[(string) $current][self::COL_DATE];
         if($created) {
-            echo " created=", $created->format('c');
+            echo "created=", $created->format('c'), ' ';
             $transformed->setCreated($created);
         }
 
@@ -594,7 +607,7 @@ class Transformer {
         $transformed->setText($plain);
 
         // >>> Children/Backlinks
-        echo " children=";
+        echo "children=";
         foreach($this->extractChildren($text) as $linkInfo) {
             $targetEpisodeId = $linkInfo['id'];
             if($targetEpisodeId == $parent) {
