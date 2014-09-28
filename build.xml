@@ -21,7 +21,7 @@
     
     <target name="download-vendor-dev">
         <echo msg="Downloading composer dependencies..."/>
-        <exec executable="./composer.phar">
+        <exec executable="composer.phar">
             <arg value="--ansi"/>
             <arg value="--no-interaction"/>
             <arg value="install"/>
