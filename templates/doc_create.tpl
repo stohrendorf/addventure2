@@ -26,11 +26,11 @@
                         <div class="form-group"><input class="form-control" type="text" placeholder="The Awesome Episode Title" name="title"/></div>
                         <textarea class="ckeditor" name="content"></textarea>
                         <div class="form-group">
-                            <input class="form-control" type="text" placeholder="Option 1" name="options"/>
-                            <input class="form-control" type="text" placeholder="Option 2" name="options"/>
-                            <input class="form-control" type="text" placeholder="Option 3" name="options"/>
-                            <input class="form-control" type="text" placeholder="Option 4" name="options"/>
-                            <input class="form-control" type="text" placeholder="Option 5" name="options"/>
+                            <input class="form-control" type="text" placeholder="Option 1" name="options[]"/>
+                            <input class="form-control" type="text" placeholder="Option 2" name="options[]"/>
+                            <input class="form-control" type="text" placeholder="Option 3" name="options[]"/>
+                            <input class="form-control" type="text" placeholder="Option 4" name="options[]"/>
+                            <input class="form-control" type="text" placeholder="Option 5" name="options[]"/>
                         </div>
                     </div>
                 </div>

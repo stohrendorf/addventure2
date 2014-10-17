@@ -164,7 +164,11 @@ class Doc extends CI_Controller {
         $this->load->helper('url');
         $this->load->helper('smarty');
         $this->load->library('em');
+        
         $smarty = createSmarty();
+        
+        // Check if the document is ready to be created and that the user
+        // is allowed to create it.
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === false || $docId === null) {
             show_error('Invalid doc id');
@@ -185,18 +189,27 @@ class Doc extends CI_Controller {
             return;
         }
 
-        $this->load->helper('xss_clean');
-
+        
+        // Check that the necessary information has been entered.
         $preNotes = $this->input->post('preNotes');
         $title = $this->input->post('title');
         $text = $this->input->post('content');
         $postNotes = $this->input->post('postNotes');
         $options = $this->input->post('options');
+        // remove empty options
+        $this->load->helper('xss_clean');
+        array_walk($options, function(&$value) {
+            $value = trim(xss_clean2($value));
+        });
+        array_filter($options, function(&$value){
+            return strlen($value)>0;
+        });
         if(!$text || empty($options) || !$title) {
             // TODO retry
             return;
         }
 
+        // Do some XSS cleanup.
         if($preNotes) {
             $preNotes = xss_clean2($preNotes);
         }
@@ -205,27 +218,27 @@ class Doc extends CI_Controller {
         if($postNotes) {
             $postNotes = xss_clean2($postNotes);
         }
-        array_walk($options, function(&$value) {
-            $value = xss_clean2($value);
-        });
         
-        if(false) {
-            // TODO activate this code when the above is ready
-            $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());
-            foreach($notifications as $notification) {
-                $message = Swift_Message::newInstance();
-                $message->setFrom(ADDVENTURE_EMAIL_ADDRESS, ADDVENTURE_EMAIL_NAME);
-                $message->setTo($notification->getUser()->getEmail());
-                $message->setSubject('Option filled');
-                $message->setBody('...'); // TODO
-                $transport = Swift_SendmailTransport::newInstance();
-                $mailer = Swift_Mailer::newInstance($transport);
-                if(!$mailer->send($message, $failures)) {
-                    $this->load->library('log');
-                    $this->log->crit('Could not send notification e-mail: ' . print_r($failures, true));
-                }
-            }
+        return; // TODO remove
+        
+        // send notifications to subscribers
+        $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());
+        foreach($notifications as $notification) {
+            $this->_sendNotification($episode->getParent(), $notification->getUser());
         }
     }
 
+    private function _sendNotification(addventure\Episode $srcDoc, addventure\User $recipient) {
+        $message = Swift_Message::newInstance();
+        $message->setFrom(ADDVENTURE_EMAIL_ADDRESS, ADDVENTURE_EMAIL_NAME);
+        $message->setTo($recipient->getEmail());
+        $message->setSubject('Option filled');
+        $message->setBody('...'); // TODO
+        $transport = Swift_SendmailTransport::newInstance();
+        $mailer = Swift_Mailer::newInstance($transport);
+        if(!$mailer->send($message, $failures)) {
+            $this->load->library('log');
+            $this->log->crit('Could not send notification e-mail: ' . print_r($failures, true));
+        }
+    }
 }
