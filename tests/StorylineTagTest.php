@@ -27,13 +27,13 @@ class StorylineTagTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers addventure\StorylineTag::getId
-     * @todo   Implement testGetId().
+     * @covers addventure\StorylineTag::setId
      */
-    public function testGetId() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+    public function testGetAndSetId() {
+        $this->object->setId(123);
+        $this->assertEquals(123, $this->object->getId());
+        $this->object->setId(456);
+        $this->assertEquals(456, $this->object->getId());
     }
 
     /**
@@ -116,14 +116,10 @@ class StorylineTagTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers addventure\StorylineTag::setId
-     * @todo   Implement testSetId().
+     * @covers addventure\StorylineTag::__construct
      */
-    public function testSetId() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+    public function testConstructor() {
+        $this->assertInstanceOf( '\Doctrine\Common\Collections\ArrayCollection', $this->object->getEpisodes() );
     }
 
 }

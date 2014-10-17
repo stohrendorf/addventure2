@@ -24,6 +24,8 @@ class UserTest extends \PHPUnit_Framework_TestCase {
     public function testGetAndSetId() {
         $this->object->setId(123);
         $this->assertEquals(123, $this->object->getId());
+        $this->object->setId(456);
+        $this->assertEquals(456, $this->object->getId());
     }
 
     /**
@@ -354,6 +356,45 @@ class UserTest extends \PHPUnit_Framework_TestCase {
         catch(\InvalidArgumentException $ex) {
             $this->fail();
         }
+    }
+
+    /**
+     * @covers addventure\User::__construct
+     */
+    public function testConstructor() {
+        $this->assertInstanceOf( '\Doctrine\Common\Collections\ArrayCollection', $this->object->getAuthorNames() );
+        $this->assertEquals(UserRole::Anonymous, $this->object->getRole()->get());
+    }
+
+    /**
+     * @covers addventure\User::isLockedOut
+     * @covers addventure\User::getFailedLogins
+     * @covers addventure\User::setFailedLogins
+     */
+    public function testLockedOut() {
+        $this->assertEquals( 0, $this->object->getFailedLogins() );
+        for( $i=0; $i < ADDVENTURE_MAX_FAILED_LOGINS; ++$i ) {
+            $this->object->setFailedLogins($i);
+            $this->assertEquals( $i, $this->object->getFailedLogins() );
+            $this->assertFalse( $this->object->isLockedOut() );
+        }
+        for( $i=ADDVENTURE_MAX_FAILED_LOGINS; $i < ADDVENTURE_MAX_FAILED_LOGINS+2; ++$i ) {
+            $this->object->setFailedLogins($i);
+            $this->assertEquals( ADDVENTURE_MAX_FAILED_LOGINS, $this->object->getFailedLogins() );
+            $this->assertTrue( $this->object->isLockedOut() );
+        }
+    }
+
+    /**
+     * @covers addventure\User::getRegisteredSince
+     * @covers addventure\User::setRegisteredSince
+     * @expectedException \PHPUnit_Framework_Error
+     */
+    public function testRegisteredSince() {
+        $this->assertEquals( null, $this->object->getRegisteredSince() );
+        $this->object->setRegisteredSince( new \DateTime() );
+        $this->assertNotEquals( null, $this->object->getRegisteredSince() );
+        $this->object->setRegisteredSince( null );
     }
 
 }
