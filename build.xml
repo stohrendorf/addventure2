@@ -77,7 +77,8 @@
         <echo msg="Running PHP_CodeSniffer..."/>
         <exec executable="vendor/bin/phpcs">
             <arg value="--ignore=vendor/*,system/*,dao/proxies/*,templates/compiled/*,doc/*,tests/*,application/config/*"/>
-            <arg value="--report-xml=reports/phpcs.xml"/>
+            <arg value="--report=checkstyle"/>
+            <arg value="--report-file=reports/phpcs.xml"/>
             <arg value="."/>
         </exec>
     </target>
