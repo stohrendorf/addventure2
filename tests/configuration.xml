@@ -18,4 +18,10 @@
             <directory>.</directory>
         </testsuite>
     </testsuites>
+    <logging>
+        <log type="coverage-html" target="../reports/coverage/"/>
+        <log type="coverage-clover" target="../reports/phpunit-coverage-clover.xml"/>
+        <log type="coverage-crap4j" target="../reports/phpunit-coverage-crap4j.xml"/>
+        <log type="junit" target="../reports/phpunit.xml" logIncompleteSkipped="false"/>
+    </logging>
 </phpunit>

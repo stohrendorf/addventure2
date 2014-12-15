@@ -59,10 +59,6 @@
         <exec executable="vendor/bin/phpunit">
             <arg value="-c"/>
             <arg value="tests/configuration.xml"/>
-            <arg value="--log-junit"/>
-            <arg value="reports/phpunit.xml"/>
-            <arg value="--coverage-clover"/>
-            <arg value="reports/phpunit-coverage.xml"/>
         </exec>
         <echo msg="Running PHPMD..."/>
         <exec executable="vendor/bin/phpmd">
@@ -79,6 +75,7 @@
             <arg value="--ignore=vendor/*,system/*,dao/proxies/*,templates/compiled/*,doc/*,tests/*,application/config/*"/>
             <arg value="--report=checkstyle"/>
             <arg value="--report-file=reports/phpcs.xml"/>
+            <arg value="--extensions=php"/>
             <arg value="."/>
         </exec>
     </target>
