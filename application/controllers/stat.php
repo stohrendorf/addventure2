@@ -86,4 +86,12 @@ class Stat extends CI_Controller {
         $smarty->display('stat_mostepisodes.tpl');
     }
 
+    public function weekly() {
+        $this->load->helper('url');
+        $this->load->helper('smarty');
+        $this->load->library('em');
+        $smarty = createSmarty();
+        $smarty->assign('plotdata', $this->em->getEpisodeRepository()->getWeeklyStat());
+        $smarty->display('stat_weekly.tpl');
+    }
 }

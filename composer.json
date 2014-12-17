@@ -28,6 +28,17 @@
                     "reference": "full/4.3.x"
                 }
             }
+        },
+        "jqplot": {
+            "type": "package",
+            "package": {
+                "name": "jqplot",
+                "version": "1.0.8",
+                "dist": {
+                    "url": "https://bitbucket.org/cleonello/jqplot/downloads/jquery.jqplot.1.0.8r1250.zip",
+                    "type": "zip"
+                }
+            }
         }
     },
     "require": {
@@ -39,6 +50,7 @@
         "swiftmailer/swiftmailer": "~5.0",
         "ircmaxell/password-compat": "~1.0",
         "monolog/monolog": "~1.9",
+        "jqplot": "~1.0",
         "ext-ereg": "*",
         "ext-filter": "*",
         "ext-mbstring": "*",

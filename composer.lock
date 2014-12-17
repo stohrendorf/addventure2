@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "996287a4d0e73fee080393686db72c46",
+    "hash": "6233a651799c5d849bedb43db23bc6a4",
     "packages": [
         {
             "name": "ckeditor",
@@ -623,6 +623,17 @@
                 "password"
             ],
             "time": "2014-11-20 16:49:30"
+        },
+        {
+            "name": "jqplot",
+            "version": "1.0.8",
+            "dist": {
+                "type": "zip",
+                "url": "https://bitbucket.org/cleonello/jqplot/downloads/jquery.jqplot.1.0.8r1250.zip",
+                "reference": null,
+                "shasum": null
+            },
+            "type": "library"
         },
         {
             "name": "monolog/monolog",

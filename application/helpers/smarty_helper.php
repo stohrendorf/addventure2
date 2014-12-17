@@ -35,6 +35,15 @@ if(!function_exists('createSmarty')) {
                 'js' => base_url('vendor/twbs/bootstrap/dist/js/bootstrap.min.js'),
                 'css' => base_url('vendor/twbs/bootstrap/dist/css/bootstrap.min.css'),
                 'theme' => base_url('vendor/twbs/bootstrap/dist/css/bootstrap-theme.min.css')
+            ),
+            'jqplot' => array(
+                'excanvas' => base_url('vendor/jqplot/excanvas.min.js'),
+                'js' => base_url('vendor/jqplot/jquery.jqplot.min.js'),
+                'css' => base_url('vendor/jqplot/jquery.jqplot.min.css'),
+                'categoryAxisRenderer' => base_url('vendor/jqplot/plugins/jqplot.categoryAxisRenderer.min.js'),
+                'canvasAxisTickRenderer' => base_url('vendor/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js'),
+                'barRenderer' => base_url('vendor/jqplot/plugins/jqplot.barRenderer.min.js'),
+                'canvasTextRenderer' => base_url('vendor/jqplot/plugins/jqplot.canvasTextRenderer.min.js')
             )
         ));
         return $smarty;
