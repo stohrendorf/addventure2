@@ -22,7 +22,7 @@
     <target name="download-vendor-dev">
         <echo msg="Downloading composer dependencies..."/>
         <exec executable="composer.phar">
-            <arg value="--ansi"/>
+            <arg value="--no-ansi"/>
             <arg value="--no-interaction"/>
             <arg value="install"/>
             <arg value="--dev"/>
@@ -52,8 +52,23 @@
             <arg value="phpdoc.xml"/>
         </exec>
     </target>
-    
-    <target name="test" depends="download-vendor-dev">
+
+    <target name="clean">
+        <delete dir="reports" includeemptydirs="true"/>
+        <delete dir="doc/api" includeemptydirs="true"/>
+        <delete>
+            <fileset dir="templates/cache">
+                <include name="*"/>
+            </fileset>
+        </delete>
+        <delete>
+            <fileset dir="templates/compiled">
+                <include name="*"/>
+            </fileset>
+        </delete>
+    </target>
+        
+    <target name="test" depends="clean,download-vendor-dev">
         <mkdir dir="reports"/>
         <echo msg="Running PHPUnit..."/>
         <exec executable="vendor/bin/phpunit">
@@ -76,6 +91,19 @@
             <arg value="--report=checkstyle"/>
             <arg value="--report-file=reports/phpcs.xml"/>
             <arg value="--extensions=php"/>
+            <arg value="."/>
+        </exec>
+        <echo msg="Running PHP Copy/Paste Detector..."/>
+        <exec executable="vendor/bin/phpcpd">
+            <arg value="--exclude=vendor"/>
+            <arg value="--exclude=system"/>
+            <arg value="--exclude=dao/proxies"/>
+            <arg value="--exclude=templates/compiled"/>
+            <arg value="--exclude=doc"/>
+            <arg value="--exclude=tests"/>
+            <arg value="--exclude=application/config"/>
+            <arg value="--no-ansi"/>
+            <arg value="--log-pmd=reports/php-cpd.xml"/>
             <arg value="."/>
         </exec>
     </target>
