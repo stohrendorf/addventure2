@@ -25,6 +25,7 @@ if(!function_exists('createSmarty')) {
         $smarty->setCompileDir(TEMPLATEPATH . '/compiled');
         $smarty->setConfigDir(TEMPLATEPATH . '/config');
         $smarty->addPluginsDir(TEMPLATEPATH . '/plugins');
+        $smarty->addPluginsDir(VENDORPATH . '/smarty-gettext/smarty-gettext');
         $smarty->assign('url', array(
             'base' => rtrim(base_url(), '/'),
             'site' => site_url(),

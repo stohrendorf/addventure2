@@ -47,5 +47,14 @@ else {
     define('APPPATH', BASEPATH . $application_folder . '/');
 }
 define('TEMPLATEPATH', str_replace('\\', '/', realpath('templates')) . '/');
+define('VENDORPATH', str_replace('\\', '/', realpath('vendor')) . '/');
+
+// TODO language
+putenv("LANG=en"); 
+setlocale(LC_ALL, 'en');
+
+// Set the text domain as 'messages'
+bindtextdomain('messages', VENDORPATH . '/language'); 
+textdomain('messages');
 
 require_once BASEPATH . 'core/CodeIgniter.php';
