@@ -42,15 +42,16 @@
         }
     },
     "require": {
+        "symfony/console": "~2.6",
         "doctrine/orm": "~2.4",
         "ckeditor": "~4.3",
         "smarty/smarty": "~3.1",
+        "smarty-gettext/smarty-gettext": "*",
         "twbs/bootstrap": "~3.1",
         "frameworks/jquery": "~2.1",
         "swiftmailer/swiftmailer": "~5.0",
         "ircmaxell/password-compat": "~1.0",
         "monolog/monolog": "~1.9",
-        "smarty-gettext/smarty-gettext": "*",
         "jqplot": "~1.0",
         "ext-ereg": "*",
         "ext-filter": "*",
