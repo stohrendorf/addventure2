@@ -19,12 +19,12 @@ class Doc extends CI_Controller {
         $smarty = createSmarty();
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === false || $docId === null) {
-            show_error('Invalid doc id');
+            show_error(_('Invalid doc id'), 404);
             return;
         }
         $episode = $this->em->findEpisode($docId);
         if(!$episode) {
-            show_error('Document not found');
+            show_error(_('Document not found'), 404);
             return;
         }
         if($episode->getText() === NULL) {
@@ -47,12 +47,12 @@ class Doc extends CI_Controller {
         $this->load->library('em');
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === false || $docId === null) {
-            show_error(_('Invalid doc id'));
+            show_error(_('Invalid doc id'), 404);
             return;
         }
         $episode = $this->em->findEpisode($docId);
         if(!$episode || $episode->getText() === NULL) {
-            show_error(_('Document not found'));
+            show_error(_('Document not found'), 404);
             return;
         }
         $episode->setLikes($episode->getLikes() + 1);
@@ -65,12 +65,12 @@ class Doc extends CI_Controller {
         $this->load->library('em');
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === false || $docId === null) {
-            show_error(_('Invalid doc id'));
+            show_error(_('Invalid doc id'), 404);
             return;
         }
         $episode = $this->em->findEpisode($docId);
         if(!$episode || $episode->getText() === NULL) {
-            show_error(_('Document not found'));
+            show_error(_('Document not found'), 404);
             return;
         }
         $episode->setDislikes($episode->getDislikes() + 1);
@@ -132,7 +132,7 @@ class Doc extends CI_Controller {
     public function subscribe($docId) {
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === false || $docId === null) {
-            show_error(_('Invalid doc id'));
+            show_error(_('Invalid doc id'), 404);
             return;
         }
         $this->load->library('userinfo');
@@ -144,7 +144,7 @@ class Doc extends CI_Controller {
         $this->load->library('em');
         $episode = $this->em->findEpisode($docId);
         if(!$episode) {
-            show_404(_('Document not found'));
+            show_error(_('Document not found'), 404);
         }
 
         $subscription = new addventure\Notification();
@@ -155,6 +155,36 @@ class Doc extends CI_Controller {
         }
         catch(PDOException $ex) {
             // already subscribed
+        }
+
+        redirect('doc/' . $docId);
+    }
+
+    public function unsubscribe($docId) {
+        $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
+        if($docId === false || $docId === null) {
+            show_error(_('Invalid doc id'), 404);
+            return;
+        }
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user || !$this->userinfo->user->canSubscribe()) {
+            show_error(_('Not allowed'));
+            return;
+        }
+
+        $this->load->library('em');
+        $episode = $this->em->findEpisode($docId);
+        if(!$episode) {
+            show_error(_('Document not found'), 404);
+        }
+
+        $subscriptions = $this->em->getNotificationsForDoc($docId);
+        foreach($subscriptions as $sub) {
+            if($sub->getUser()->getId() == $this->userinfo->user->getId()) {
+                $this->em->getEntityManager()->remove($sub);
+                $this->em->getEntityManager()->flush();
+                break;
+            }
         }
 
         redirect('doc/' . $docId);
@@ -171,12 +201,12 @@ class Doc extends CI_Controller {
         // is allowed to create it.
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === false || $docId === null) {
-            show_error(_('Invalid doc id'));
+            show_error(_('Invalid doc id'), 404);
             return;
         }
         $episode = $this->em->findEpisode($docId);
         if(!$episode) {
-            show_error(_('Document not found'));
+            show_error(_('Document not found'), 404);
             return;
         }
         if($episode->getText() !== NULL) {
@@ -205,7 +235,7 @@ class Doc extends CI_Controller {
             return strlen($value)>0;
         });
         if(!$text || empty($options) || !$title) {
-            // TODO retry
+            // TODO retry with form data recovery
             return;
         }
 
@@ -219,7 +249,7 @@ class Doc extends CI_Controller {
             $postNotes = xss_clean2($postNotes);
         }
         
-        return; // TODO remove
+        return; // TODO remove when UI is ready
         
         // send notifications to subscribers
         $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());
@@ -233,7 +263,18 @@ class Doc extends CI_Controller {
         $message->setFrom(ADDVENTURE_EMAIL_ADDRESS, ADDVENTURE_EMAIL_NAME);
         $message->setTo($recipient->getEmail());
         $message->setSubject(_('Option filled'));
-        $message->setBody('...'); // TODO
+        $docurl = site_url(array('doc', $srcDoc->getId()));
+        $unsubscribe= site_url(array('doc', 'unsubscribe', $srcDoc->getId()));
+        $message->setBody(sprintf(_(<<<'MSG'
+Dear %1$s,
+
+an option of episode "%2$s" (%3$s) has been filled.
+
+You are receiving this message because you have subscribed to updates for that
+episode.  You can unsubscribe from further notifications by clicking on this
+link: %4$s
+MSG
+                    ), $recipient->getUsername(), $srcDoc->getAutoTitle(), $docurl, $unsubscribe));
         $transport = Swift_SendmailTransport::newInstance();
         $mailer = Swift_Mailer::newInstance($transport);
         if(!$mailer->send($message, $failures)) {

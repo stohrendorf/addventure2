@@ -86,16 +86,14 @@ class Account extends CI_Controller {
         $verificationUrl = site_url(array('account', 'verify')) . '?';
         $verificationUrl .= 'a=' . rawurlencode(self::_getVerificationCode($email));
         $verificationUrl .= '&b=' . rawurlencode(base64_encode($this->encrypt->encode($email)));
-        /**
-         * @todo Make it a smarty template and support HTML mails.
-         */
+
         $message = $this->_createMessage($email, _('Addventure2 E-Mail Verification'));
-        $message->setBody(sprintf(_(<<<"MSG"
+        $message->setBody(sprintf(_(<<<'MSG'
 Dear writer!
 
 To verify your e-mail address, please open the following link in your browser:
 
-%s
+%1$s
 
 Happy writing!
 MSG
@@ -252,15 +250,12 @@ MSG
 
         $message = $this->_createMessage($user->getEmail(), _('Addventure2 Password Recovery'));
 
-        /**
-         * @todo Make it a smarty template and support HTML mails.
-         */
-        $message->setBody(sprintf(_(<<<"MSG"
+        $message->setBody(sprintf(_(<<<'MSG'
 Dear writer!
 
 Here is your new password:
 
-%s
+%1$s
 
 Happy writing!
 MSG
