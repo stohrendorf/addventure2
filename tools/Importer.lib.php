@@ -1,6 +1,6 @@
 <?php
 
-/******************************************************************************
+/* * ****************************************************************************
  * Dear user, please be kind.  Do NOT scrape an existing Addventure without
  * permission from the admin.  If you ARE the admin however, use the
  * URLRetriever at the end of this file and supply a LOCAL FILE PATH (i.e.,
@@ -14,7 +14,7 @@
  * of 128 MB.  To be safe, consider using 200--250 MB per 100.000 episodes for
  * memory calculation.  Experience is that you can estimate the number of
  * written episodes by dividing the total number of episodes by 4.
- ******************************************************************************/
+ * **************************************************************************** */
 
 /**
  * Migration script for legacy Addventures.
@@ -31,7 +31,8 @@ require_once '../application/helpers/xss_clean_helper.php';
 /**
  * Interface for retrieving an episode.
  */
-interface IRetriever {
+interface IRetriever
+{
 
     /**
      * Retrieves an episode.
@@ -44,8 +45,8 @@ interface IRetriever {
 /**
  * File retriever.
  */
-class URLRetriever implements IRetriever {
-
+class URLRetriever implements IRetriever
+{
     /**
      * @var string Base URL or File Path
      */
@@ -55,11 +56,13 @@ class URLRetriever implements IRetriever {
      * Constructor
      * @param string $base Base URL or File Path
      */
-    public function __construct($base) {
+    public function __construct($base)
+    {
         $this->base = $base;
     }
 
-    public function retrieve($episodeId) {
+    public function retrieve($episodeId)
+    {
         $raw = @file_get_contents(sprintf('%s/%03d/%d.html', $this->base, (int) ($episodeId / 1000), $episodeId));
         if($raw === null || $raw === false) {
             return null;
@@ -74,8 +77,8 @@ class URLRetriever implements IRetriever {
 /**
  * MySQL database retriever.
  */
-class MySQLRetriever implements IRetriever {
-
+class MySQLRetriever implements IRetriever
+{
     /**
      * @var mysql Database connection
      */
@@ -106,7 +109,8 @@ class MySQLRetriever implements IRetriever {
      * @param string $idColumn Legacy Episode ID column in the table
      * @param string $textColumn Legacy HTML column in the table
      */
-    public function __construct($host, $user, $password, $database, $table, $idColumn, $textColumn) {
+    public function __construct($host, $user, $password, $database, $table, $idColumn, $textColumn)
+    {
         $this->sql = new mysqli($host, $user, $password, $database);
         $this->sql->set_charset('utf8');
         $this->sql->autocommit(FALSE);
@@ -115,7 +119,8 @@ class MySQLRetriever implements IRetriever {
         $this->textColumn = $textColumn;
     }
 
-    public function retrieve($episodeId) {
+    public function retrieve($episodeId)
+    {
         $q = $this->sql->query("SELECT $this->textColumn FROM $this->table WHERE $this->idColumn=$episodeId");
         if(!$q) {
             return null;
@@ -129,20 +134,20 @@ class MySQLRetriever implements IRetriever {
 
 }
 
-class StatAddv {
-
+class StatAddv
+{
     /**
      * @var string[][] Columns of stat.addv
      */
     private $data = array();
-
     const COL_ID = 0;
     const COL_DATE = 2;
     const COL_AUTHOR = 4;
     const COL_PARENT = 5;
     const COL_TITLE = 6;
 
-    public function __construct($statUrl) {
+    public function __construct($statUrl)
+    {
         echo "Loading stat.addv ($statUrl)...\n";
         $stat = preg_split('/$\R?^/m', file_get_contents($statUrl));
 
@@ -166,52 +171,59 @@ class StatAddv {
         echo "\n";
     }
 
-    public function getAllEpisodes() {
+    public function getAllEpisodes()
+    {
         return array_keys($this->data);
     }
 
-    public function contains($id) {
+    public function contains($id)
+    {
         return isset($this->data[(string) $id]);
     }
 
-    public function getDate($id) {
+    public function getDate($id)
+    {
         if(!isset($this->data[(string) $id])) {
             return null;
         }
         return $this->data[(string) $id][static::COL_DATE];
     }
 
-    public function getAuthor($id) {
+    public function getAuthor($id)
+    {
         if(!isset($this->data[(string) $id])) {
             return null;
         }
         return $this->data[(string) $id][static::COL_AUTHOR];
     }
 
-    public function getTitle($id) {
+    public function getTitle($id)
+    {
         if(!isset($this->data[(string) $id])) {
             return null;
         }
         return $this->data[(string) $id][static::COL_TITLE];
     }
 
-
-    public function getParent($id) {
+    public function getParent($id)
+    {
         if(!isset($this->data[(string) $id])) {
             return null;
         }
-        return (int)$this->data[(string) $id][static::COL_PARENT];
+        return (int) $this->data[(string) $id][static::COL_PARENT];
     }
+
 }
 
-class BacklinkAddv {
-
+class BacklinkAddv
+{
     /**
      * @var bool[] IDs with linking flags enabled
      */
     private $data = array();
 
-    public function __construct($statUrl) {
+    public function __construct($statUrl)
+    {
         echo "Loading backlink.addv ($statUrl)...\n";
         $backlink = preg_split('/$\R?^/m', file_get_contents($statUrl));
 
@@ -229,18 +241,19 @@ class BacklinkAddv {
         }
         echo "\n";
     }
-    
-    public function contains($id) {
+
+    public function contains($id)
+    {
         return isset($this->data[(string) $id]);
     }
-}
 
+}
 
 /**
  * Imports legacy episodes.
  */
-class Importer {
-
+class Importer
+{
     /**
      * @var int[] List of successfully imported episodes
      */
@@ -265,7 +278,8 @@ class Importer {
      * Constructor
      * @param IRetriever $retriever Episode retriever
      */
-    public function __construct(IRetriever $retriever, $queue) {
+    public function __construct(IRetriever $retriever, $queue)
+    {
         $this->retriever = $retriever;
         $this->queue = $queue;
         $this->total = count($queue);
@@ -277,7 +291,8 @@ class Importer {
      * @param boolean $reencode Whether to convert from CP1252 to UTF8
      * @return null|string
      */
-    private function cleanupHtml($html, $reencode = false) {
+    private function cleanupHtml($html, $reencode = false)
+    {
         $tidy = new tidy;
         if($reencode) {
             $html = mb_convert_encoding($html, 'UTF-8', 'CP1252');
@@ -294,7 +309,8 @@ class Importer {
      * @param string $text
      * @return boolean
      */
-    private function isPlaceholder($text) {
+    private function isPlaceholder($text)
+    {
         if(!$text) {
             return true;
         }
@@ -307,17 +323,29 @@ class Importer {
         return false;
     }
 
+    private $flushcounter = 0;
+
     /**
      * Import the next episode
      * @return boolean Are there more episodes to be imported?
      */
-    public function importNext() {
+    public function importNext()
+    {
+        $entityManager = initDoctrineConnection();
+        ++$this->flushcounter;
+        if($this->flushcounter % 1000 == 0) {
+            echo "Flushing...\n";
+            $entityManager->flush();
+            $entityManager->clear();
+        }
         if(empty($this->queue)) {
+            echo "Flushing...\n";
+            $entityManager->flush();
+            $entityManager->clear();
             return false;
         }
         $current = array_pop($this->queue);
 
-        $entityManager = initDoctrineConnection();
         $legacy = $entityManager->find('addventure\LegacyEpisode', $current);
         if($legacy && $legacy->getRawContent()) {
             if($this->isPlaceholder($legacy->getRawContent())) {
@@ -326,8 +354,6 @@ class Importer {
                     $entityManager->remove($legacy->getEpisode());
                 }
                 $entityManager->remove($legacy);
-                $entityManager->flush();
-                $entityManager->clear();
                 return true;
             }
             // already imported, so just use it passively...
@@ -364,8 +390,6 @@ class Importer {
         $legacy->setId($current);
         $legacy->setRawContent($clean);
         $entityManager->persist($legacy);
-        $entityManager->flush();
-        $entityManager->clear();
 
         $this->imported[] = $current;
 
@@ -375,7 +399,8 @@ class Importer {
     /**
      * Import ALL episodes.
      */
-    public function importAll() {
+    public function importAll()
+    {
         echo "Retrieving raw episodes... go get some coffee!\n";
         while($this->importNext()) {
             // run run run...
@@ -387,7 +412,8 @@ class Importer {
      * Get all successfully imported episode IDs.
      * @return int[]
      */
-    public function getImported() {
+    public function getImported()
+    {
         return $this->imported;
     }
 
@@ -396,8 +422,8 @@ class Importer {
 /**
  * Transform all legacy episodes to the new infrastructure.
  */
-class Transformer {
-
+class Transformer
+{
     /**
      * @var int[] Queue of episode IDs to be transformed.
      */
@@ -422,7 +448,8 @@ class Transformer {
      * Constructor
      * @param int[] $queue Episode IDs to be imported
      */
-    public function __construct(array $queue, StatAddv $stat, BacklinkAddv $backlink) {
+    public function __construct(array $queue, StatAddv $stat, BacklinkAddv $backlink)
+    {
         $this->queue = $queue;
         $this->totalEpisodes = count($stat->getAllEpisodes());
         sort($this->queue, SORT_NUMERIC);
@@ -436,7 +463,8 @@ class Transformer {
      * @param string $text Legacy HTML
      * @return string|null
      */
-    private function cleanupHtml($text) {
+    private function cleanupHtml($text)
+    {
         $tidy = new tidy;
         $tidy->parseString($text, array('show-body-only' => true, 'output-html' => true, 'wrap' => 200), 'utf8');
         if(!$tidy->cleanRepair()) {
@@ -456,7 +484,8 @@ class Transformer {
      * @param string $html
      * @return string
      */
-    private function extractText($html) {
+    private function extractText($html)
+    {
         $titleLess = explode('</h2>', $html, 2);
         if(!isset($titleLess[1])) {
             return '<div class="alert alert-warning">No text in this episode.</div>';
@@ -482,13 +511,15 @@ class Transformer {
      * @param string $text
      * @return array[]
      */
-    private function extractChildren($text) {
+    private function extractChildren($text)
+    {
         $result = array();
         if(preg_match_all('#(&gt;|\<li\>|\*)\<a href\="\.\.\/[0-9]+\/([0-9]+)\.html"\>(.*?)\<\/a\>\<\/li\>#isuS', '<li>' . $text, $matches, PREG_SET_ORDER)) {
             foreach($matches as $match) {
                 $result[] = array(
                     'id' => (int) $match[2],
-                    'title' => simplifyWhitespace(strip_tags($match[3]), 9999, true)
+                    'title' => simplifyWhitespace(strip_tags($match[3]), 9999, true),
+                    'isBacklink' => ($match[1] === '&gt;')
                 );
             }
         }
@@ -500,7 +531,8 @@ class Transformer {
      * @param string $author Legacy author name
      * @param addventure\Episode $ep The new episode
      */
-    private function findOrCreateAuthor($author, addventure\Episode &$ep) {
+    private function findOrCreateAuthor($author, addventure\Episode &$ep)
+    {
         $author = simplifyWhitespace($author, 9999);
         if(empty($author)) {
             return;
@@ -527,33 +559,49 @@ class Transformer {
             return;
         }
         $ep->setAuthor($nAuthor);
-        $nAuthor->getEpisodes()->add($ep);
         $entityManager->persist($nAuthor);
         $entityManager->persist($nAuthor->getUser());
+        // flush here to avoid unique constraint violations
+        $entityManager->flush($nAuthor);
+        $entityManager->flush($nAuthor->getUser());
+        $nAuthor->getEpisodes()->add($ep);
+        $entityManager->persist($nAuthor);
         echo "author=``$author'' ";
     }
 
+    private $flushcounter = 0;
+    
     /**
      * Transforms a single episode
      * @return boolean Whether there are more episodes to be transformed
      * @throws \RuntimeException
      */
-    public function transformNext() {
+    public function transformNext()
+    {
+        $entityManager = initDoctrineConnection();
+        ++$this->flushcounter;
+        if($this->flushcounter % 1000 == 0) {
+            echo "Flushing...\n";
+            $entityManager->flush();
+            $entityManager->clear();
+        }
         if(empty($this->queue)) {
+            echo "Flushing...\n";
+            $entityManager->flush();
+            $entityManager->clear();
             return false;
         }
         $current = array_pop($this->queue);
-        
+
         // only episodes in the stat.addv should be in the queue
         assert($this->stat->contains($current));
 
-        $entityManager = initDoctrineConnection();
         $legacy = $entityManager->find('addventure\LegacyEpisode', $current);
         if($legacy === null) {
             initLogger()->error("#$current does not exist");
             return true;
         }
-        assert($legacy!=null);
+        assert($legacy != null);
         if($legacy->getEpisode() !== null && $legacy->getEpisode()->getText() !== null && $legacy->getEpisode()->getTitle() !== null) {
             echo "\r[", $this->totalEpisodes - count($this->queue), '/', $this->totalEpisodes, "] #$current already parsed";
             $entityManager->clear();
@@ -627,13 +675,24 @@ class Transformer {
                 continue;
             }
             $linkTitle = $linkInfo['title'];
+            $isBacklink = $linkInfo['isBacklink'];
 
-            echo $targetEpisodeId;
+            if(!$isBacklink) {
+                echo $targetEpisodeId;
+            }
+            else {
+                echo "<$targetEpisodeId>";
+            }
             $legacyTarget = $entityManager->find('addventure\LegacyEpisode', $targetEpisodeId);
             if($legacyTarget !== null && $legacyTarget->getEpisode() === null) {
                 // the target episode doesn't have a "real" episode yet
                 $legacyTarget->setEpisode(new addventure\Episode());
+                $legacyTarget->getEpisode()->setParent($transformed);
                 $entityManager->persist($legacyTarget->getEpisode());
+                $entityManager->persist($legacyTarget);
+            }
+            elseif($legacyTarget !== null && !$isBacklink) {
+                $legacyTarget->getEpisode()->setParent($transformed);
                 $entityManager->persist($legacyTarget);
             }
             /*
@@ -645,6 +704,7 @@ class Transformer {
 
             $link = new addventure\Link();
             $link->setFromEp($transformed);
+            $link->setIsBacklink($isBacklink);
             // maybe the target episode isn't written yet
             $link->setToEp($legacyTarget !== null ? $legacyTarget->getEpisode() : new addventure\Episode());
             $entityManager->persist($link->getToEp());
@@ -676,14 +736,11 @@ class Transformer {
             echo " ";
 
             $entityManager->persist($link);
-            $entityManager->flush();
         }
 
         $legacy->setEpisode($transformed);
         $entityManager->persist($legacy);
         $entityManager->persist($transformed);
-        $entityManager->flush();
-        $entityManager->clear();
 
         echo "\n";
         return TRUE;
@@ -692,7 +749,8 @@ class Transformer {
     /**
      * Transform all queued episodes
      */
-    public function transformAll() {
+    public function transformAll()
+    {
         echo "Transforming raw episodes... go get some coffee!\n";
         while($this->transformNext()) {
             // run run run...

@@ -5,10 +5,10 @@
 {block name=body}
     <h2>{t escape=no}Consider to register{/t}</h2>
     <p>
-        An account has the following benefits:
+        {t}An account has the following benefits:{/t}
     <ul>
-        <li>It allows you to create new episodes and comment on existing ones.</li>
-        <li>You can subscribe to get notified when unwritten options are filled.</li>
-    </ul>{/t}
+        <li>{t}It allows you to create new episodes and comment on existing ones.{/t}</li>
+        <li>{t}You can subscribe to get notified when unwritten options are filled.{/t}</li>
+    </ul>
 </p>
 {/block}

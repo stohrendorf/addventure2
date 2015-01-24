@@ -4,9 +4,11 @@ if(!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Doc extends CI_Controller {
+class Doc extends CI_Controller
+{
 
-    public function index($docId) {
+    public function index($docId)
+    {
         /*
          * Case 1: The document exists and has text, so simply show it.
          * Case 2: It exists, but isn't written yet, so check permissions and show the edit form.
@@ -33,7 +35,7 @@ class Doc extends CI_Controller {
                 $smarty->display('account_benefits.tpl');
                 return;
             }
-            $smarty->display('doc_create.tpl');
+            redirect(site_url(array('doc', 'create', $docId)));
             return;
         }
         $episode->setHitCount($episode->getHitCount() + 1);
@@ -42,7 +44,8 @@ class Doc extends CI_Controller {
         $smarty->display('doc_episode.tpl');
     }
 
-    public function like($docId) {
+    public function like($docId)
+    {
         $this->load->helper('url');
         $this->load->library('em');
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
@@ -60,7 +63,8 @@ class Doc extends CI_Controller {
         redirect(site_url(array('doc', $docId)));
     }
 
-    public function dislike($docId) {
+    public function dislike($docId)
+    {
         $this->load->helper('url');
         $this->load->library('em');
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
@@ -78,7 +82,8 @@ class Doc extends CI_Controller {
         redirect(site_url(array('doc', $docId)));
     }
 
-    private function _createChain(\addventure\Episode &$episode, $numEps) {
+    private function _createChain(\addventure\Episode &$episode, $numEps)
+    {
         $eps = array();
         while($episode && --$numEps >= 0) {
             $smarty = $episode->toSmarty();
@@ -101,7 +106,8 @@ class Doc extends CI_Controller {
         return $eps;
     }
 
-    public function chain($docId, $numEps = 20) {
+    public function chain($docId, $numEps = 20)
+    {
         $this->load->helper('smarty');
         $smarty = createSmarty();
         $numEps = filter_var($numEps, FILTER_SANITIZE_NUMBER_INT);
@@ -114,7 +120,8 @@ class Doc extends CI_Controller {
         $smarty->display('doc_chain.tpl');
     }
 
-    public function random() {
+    public function random()
+    {
         $rsm = new \Doctrine\ORM\Query\ResultSetMapping();
         $rsm->addScalarResult('id', 'id', 'integer');
         $this->load->library('em');
@@ -129,7 +136,8 @@ class Doc extends CI_Controller {
         $this->index($query->getSingleScalarResult());
     }
 
-    public function subscribe($docId) {
+    public function subscribe($docId)
+    {
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === false || $docId === null) {
             show_error(_('Invalid doc id'), 404);
@@ -160,7 +168,8 @@ class Doc extends CI_Controller {
         redirect('doc/' . $docId);
     }
 
-    public function unsubscribe($docId) {
+    public function unsubscribe($docId)
+    {
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === false || $docId === null) {
             show_error(_('Invalid doc id'), 404);
@@ -190,13 +199,14 @@ class Doc extends CI_Controller {
         redirect('doc/' . $docId);
     }
 
-    public function create($docId) {
+    public function create($docId)
+    {
         $this->load->helper('url');
         $this->load->helper('smarty');
         $this->load->library('em');
-        
+
         $smarty = createSmarty();
-        
+
         // Check if the document is ready to be created and that the user
         // is allowed to create it.
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
@@ -219,38 +229,59 @@ class Doc extends CI_Controller {
             return;
         }
 
-        
-        // Check that the necessary information has been entered.
-        $preNotes = $this->input->post('preNotes');
-        $title = $this->input->post('title');
-        $text = $this->input->post('content');
-        $postNotes = $this->input->post('postNotes');
-        $options = $this->input->post('options');
-        // remove empty options
+        // Get the necessary information
         $this->load->helper('xss_clean');
+        $preNotes = $this->input->post('preNotes');
+        if($preNotes === false) {
+            $preNotes = '';
+        }
+        $preNotes = xss_clean2($preNotes);
+
+        $title = $this->input->post('title');
+        if($title === false) {
+            $title = '';
+        }
+        $title = xss_clean2($title);
+
+        $content = $this->input->post('content');
+        if($content === false) {
+            $content = '';
+        }
+        $content = xss_clean2($content);
+
+        $postNotes = $this->input->post('postNotes');
+        if($postNotes === false) {
+            $postNotes = '';
+        }
+        $postNotes = xss_clean2($postNotes);
+
+        $options = $this->input->post('options');
+        if($options === false) {
+            $options = array();
+        }
+        // remove empty options
         array_walk($options, function(&$value) {
             $value = trim(xss_clean2($value));
         });
-        array_filter($options, function(&$value){
-            return strlen($value)>0;
+        array_filter($options, function(&$value) {
+            return !empty($value);
         });
-        if(!$text || empty($options) || !$title) {
-            // TODO retry with form data recovery
+        if(empty($content) || empty($options) || empty($title)) {
+            if($episode->getParent()) {
+                $smarty->assign('parenttext', $episode->getParent()->getText());
+                $smarty->assign('parentnotes', $episode->getParent()->getNotes());
+            }
+            $smarty->assign('content', $content);
+            $smarty->assign('options', $options);
+            $smarty->assign('title', $title);
+            $smarty->assign('prenotes', $preNotes);
+            $smarty->assign('postnotes', $postNotes);
+            $smarty->assign('docid', $docId);
+            $smarty->display('doc_create.tpl');
             return;
         }
 
-        // Do some XSS cleanup.
-        if($preNotes) {
-            $preNotes = xss_clean2($preNotes);
-        }
-        $title = xss_clean2($title);
-        $text = xss_clean2($text);
-        if($postNotes) {
-            $postNotes = xss_clean2($postNotes);
-        }
-        
         return; // TODO remove when UI is ready
-        
         // send notifications to subscribers
         $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());
         foreach($notifications as $notification) {
@@ -258,13 +289,14 @@ class Doc extends CI_Controller {
         }
     }
 
-    private function _sendNotification(addventure\Episode $srcDoc, addventure\User $recipient) {
+    private function _sendNotification(addventure\Episode $srcDoc, addventure\User $recipient)
+    {
         $message = Swift_Message::newInstance();
         $message->setFrom(ADDVENTURE_EMAIL_ADDRESS, ADDVENTURE_EMAIL_NAME);
         $message->setTo($recipient->getEmail());
         $message->setSubject(_('Option filled'));
         $docurl = site_url(array('doc', $srcDoc->getId()));
-        $unsubscribe= site_url(array('doc', 'unsubscribe', $srcDoc->getId()));
+        $unsubscribe = site_url(array('doc', 'unsubscribe', $srcDoc->getId()));
         $message->setBody(sprintf(_(<<<'MSG'
 Dear %1$s,
 
@@ -274,7 +306,7 @@ You are receiving this message because you have subscribed to updates for that
 episode.  You can unsubscribe from further notifications by clicking on this
 link: %4$s
 MSG
-                    ), $recipient->getUsername(), $srcDoc->getAutoTitle(), $docurl, $unsubscribe));
+                        ), $recipient->getUsername(), $srcDoc->getAutoTitle(), $docurl, $unsubscribe));
         $transport = Swift_SendmailTransport::newInstance();
         $mailer = Swift_Mailer::newInstance($transport);
         if(!$mailer->send($message, $failures)) {
@@ -282,4 +314,5 @@ MSG
             $this->log->crit('Could not send notification e-mail: ' . print_r($failures, true));
         }
     }
+
 }

@@ -50,11 +50,45 @@ define('TEMPLATEPATH', str_replace('\\', '/', realpath('templates')) . '/');
 define('VENDORPATH', str_replace('\\', '/', realpath('vendor')) . '/');
 
 // TODO language
-putenv("LANG=en"); 
-setlocale(LC_ALL, 'en');
+putenv("LANG=en");
 
-// Set the text domain as 'messages'
-bindtextdomain('messages', APPPATH . '/language/');
-textdomain('messages');
+function getLanguageFromHttp()
+{
+    // from: http://www.thefutureoftheweb.com/blog/use-accept-language-header
+    $langs = array();
+
+    if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        return 'en';
+    }
+    // break up string into pieces (languages and q factors)
+    preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
+
+    if(empty($lang_parse[1])) {
+        return 'en';
+    }
+    // create a list like "en" => 0.8
+    $langs = array_combine($lang_parse[1], $lang_parse[4]);
+
+    // set default to 1 for any without q factor
+    foreach($langs as $lang => $val) {
+        if($val === '')
+            $langs[$lang] = 1;
+    }
+
+    // sort list based on value	
+    arsort($langs, SORT_NUMERIC);
+    reset($langs);
+    return key($langs);
+}
+
+function setGettextLang() {
+    $lang = getLanguageFromHttp();
+    setlocale(LC_ALL, $lang);
+    // Set the text domain as 'messages'
+    bindtextdomain('messages', APPPATH . '/language/');
+    textdomain('messages');
+}
+
+setGettextLang();
 
 require_once BASEPATH . 'core/CodeIgniter.php';
