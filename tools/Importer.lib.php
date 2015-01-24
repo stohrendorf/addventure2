@@ -669,6 +669,7 @@ class Transformer
 
         // >>> Children/Backlinks
         echo "children=";
+        $backlinked = array();
         foreach($this->extractChildren($text) as $linkInfo) {
             $targetEpisodeId = $linkInfo['id'];
             if($targetEpisodeId == $parent) {
@@ -682,6 +683,11 @@ class Transformer
             }
             else {
                 echo "<$targetEpisodeId>";
+                if(isset($backlinked[$targetEpisodeId])) {
+                    echo "[non-unique]";
+                    continue;
+                }
+                $backlinked[$targetEpisodeId] = true;
             }
             $legacyTarget = $entityManager->find('addventure\LegacyEpisode', $targetEpisodeId);
             if($legacyTarget !== null && $legacyTarget->getEpisode() === null) {
@@ -714,7 +720,7 @@ class Transformer
                 // Link already in database
                 continue;
             }
-
+            
             try {
                 $link->setTitle($linkTitle);
             }

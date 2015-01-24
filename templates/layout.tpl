@@ -43,6 +43,7 @@
                                 <li><a href="{$url.site}/treehouse/mostliked"><span class="glyphicon glyphicon-heart"></span> {t}Most liked episodes{/t}</a></li>
                                 <li><a href="{$url.site}/treehouse/mosthated"><span class="glyphicon glyphicon-heart-empty"></span> {t}Most hated episodes{/t}</a></li>
                                 <li><a href="{$url.site}/treehouse/mostepisodes"><span class="glyphicon glyphicon-pencil"></span> {t}Write-a-holics{/t}</a></li>
+                                <li><a href="{$url.site}/stat/summary"><span class="glyphicon glyphicon-signal"></span> {t}Statistics{/t}</a></li>
                             </ul>
                         </li>
                     </ul>

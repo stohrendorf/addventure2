@@ -30,11 +30,6 @@ class Doc extends CI_Controller
             return;
         }
         if($episode->getText() === NULL) {
-            $this->load->library('userinfo');
-            if(!$this->userinfo->user || !$this->userinfo->user->canCreateEpisode()) {
-                $smarty->display('account_benefits.tpl');
-                return;
-            }
             redirect(site_url(array('doc', 'create', $docId)));
             return;
         }

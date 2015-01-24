@@ -7,5 +7,16 @@
     <link href="{$url.site}/feed/rss/{$user.userid}" rel="alternate" type="application/rss+xml"
           title="{t escape=no 1={$user.username|escape}}Recent episodes by &raquo;%1&laquo; (RSS 2.0){/t}"/>
     <link href="{$url.site}/feed/atom/{$user.userid}" rel="alternate" type="application/atom+xml"
-          title="{t escape=no 1={$user.username|escape}}Recent episodes by &raquo;%1&laquo; (ATOM){t}"/>
+          title="{t escape=no 1={$user.username|escape}}Recent episodes by &raquo;%1&laquo; (ATOM){/t}"/>
+{/block}
+
+{block name="bodyheader"}
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h4>{t escape=no 1={$user.username}}Episodes written by &raquo;%1&laquo;{/t}</h4>
+        </div>
+        <div class="panel-body">
+            {t 1={$user.username} 2={$episodeCount} 3={$firstCreated} 4={$lastCreated}}%1 has written %2 episodes between %3 and %4.{/t}
+        </div>
+    </div>
 {/block}

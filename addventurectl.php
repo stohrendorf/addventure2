@@ -9,13 +9,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Application;
 
-class PatchAuthorComments extends Command
+class PatchAuthorNames extends Command
 {
 
     protected function configure()
     {
         $this
-                ->setName('patch-comments')
+                ->setName('patch-names')
                 ->setDescription('Try to find comments in author names and make them real comments')
                 ->addOption(
                         'min-length', null, InputOption::VALUE_OPTIONAL, 'Minimum required length of author name after splitting', 5
@@ -139,7 +139,7 @@ class CreateTranslations extends Command
         $this
                 ->setName('create-translation')
                 ->setDescription('Create a Gettext POT file')
-                ->addArgument("language", Symfony\Component\Console\Input\InputArgument::REQUIRED, "Language code")
+                ->addArgument("language-code", Symfony\Component\Console\Input\InputArgument::REQUIRED, "Language code")
         ;
     }
 
@@ -156,8 +156,9 @@ class CreateTranslations extends Command
 
 function addventureCtl()
 {
+    chdir(dirname(__FILE__));
     $application = new Application();
-    $application->add(new PatchAuthorComments());
+    $application->add(new PatchAuthorNames());
     $application->add(new CreateTranslations());
     $application->run();
 }

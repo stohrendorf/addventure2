@@ -1,5 +1,6 @@
 {extends 'layout.tpl'}
 {block name=body}
+    {block name=bodyheader}{/block}
     <div class="panel panel-default">
         <div class="panel-body">
             <ol start="{$firstIndex+1}">

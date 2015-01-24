@@ -86,12 +86,28 @@ class Stat extends CI_Controller {
         $smarty->display('stat_mostepisodes.tpl');
     }
 
-    public function weekly() {
-        $this->load->helper('url');
+    public function summary() {
         $this->load->helper('smarty');
         $this->load->library('em');
         $smarty = createSmarty();
-        $smarty->assign('plotdata', $this->em->getEpisodeRepository()->getWeeklyStat());
-        $smarty->display('stat_weekly.tpl');
+        
+        $smarty->assign('weeklydata', $this->em->getEpisodeRepository()->getWeeklyStat());
+        
+        $queryBuilder = $this->em->getEntityManager()->createQueryBuilder();
+        $queryBuilder->select('MIN(e.created) AS minDate, MAX(e.created) AS maxDate, COUNT(e) AS epCount')
+                ->from('addventure\Episode', 'e')
+                ->where('e.text IS NOT NULL');
+        $res = $queryBuilder->getQuery()->getOneOrNullResult();
+        $smarty->assign('episodecount', $res['epCount']);
+        $smarty->assign('firstwritten', $res['minDate']);
+        $smarty->assign('lastwritten', $res['maxDate']);
+
+        $queryBuilder = $this->em->getEntityManager()->createQueryBuilder();
+        $queryBuilder->select('COUNT(u) AS userCount')
+                ->from('addventure\User', 'u');
+        $res = $queryBuilder->getQuery()->getOneOrNullResult();
+        $smarty->assign('usercount', $res['userCount']);
+        
+        $smarty->display('stat_summary.tpl');
     }
 }
