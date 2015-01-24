@@ -1,12 +1,14 @@
 {extends 'layout.tpl'}
 {block name=title}
-    &raquo;{$episode.autoTitle}&laquo;{if isset($episode.author)} by {$episode.author.name}{/if}
+    &raquo;{$episode.autoTitle}&laquo;{if isset($episode.author)} {t}by{/t} {$episode.author.name}{/if}
 {/block}
 
 {block name="headElements" append}
     {if isset($episode.author)}
-        <link href="{$url.site}/feed/rss/{$episode.author.user}" rel="alternate" type="application/rss+xml" title="Recent episodes by &raquo;{$episode.author.name|escape}&laquo; (RSS 2.0)"/>
-        <link href="{$url.site}/feed/atom/{$episode.author.user}" rel="alternate" type="application/atom+xml" title="Recent episodes by &raquo;{$episode.author.name|escape}&laquo; (ATOM)"/>
+        <link href="{$url.site}/feed/rss/{$episode.author.user}" rel="alternate" type="application/rss+xml"
+              title="{t escape=no 1={$episode.author.name|escape}}Recent episodes by &raquo;%1&laquo; (RSS 2.0){/t}"/>
+        <link href="{$url.site}/feed/atom/{$episode.author.user}" rel="alternate" type="application/atom+xml"
+              title="{t escape=no 1={$episode.author.name|escape}}Recent episodes by &raquo;%1&laquo; (ATOM){/t}"/>
     {/if}
 {/block}
 
@@ -27,13 +29,13 @@
                 &raquo;{$episode.autoTitle}&laquo;
                 {if isset($episode.author) or isset($episode.created)}
                     <span class="text-info">
-                        {if isset($episode.author)} by <a href="{$url.site}/user/{$episode.author.user}">{$episode.author.name}</a>{/if}
+                        {if isset($episode.author)} {t}by{/t} <a href="{$url.site}/user/{$episode.author.user}">{$episode.author.name}</a>{/if}
                         {if isset($episode.created)} @ {$episode.created}{/if}
                     </span>
                 {/if}
             </h3>
             <a href="{$url.site}/maintenance/illegal/{$episode.id}" style="color:red;" class="pull-right" id="report"
-               data-toggle="tooltip" data-placement="right" title="This function is for reporting content that breaks the rules, not for crying about a bad story."> <span class="glyphicon glyphicon-fire"></span> Report inappropriate content</a>
+               data-toggle="tooltip" data-placement="right" title="{t}This function is for reporting content that breaks the rules, not for crying about a bad story.{/t}"> <span class="glyphicon glyphicon-fire"></span> {t}Report inappropriate content{/t}</a>
             <span class="clearfix"></span>
             {if !empty($episode.tags)}
                 <span class="glyphicon glyphicon-tags"></span>
@@ -43,11 +45,11 @@
             {/if}
         </div>
         <div class="panel-body">
-            It has been seen {$episode.hitcount} times, and {$episode.likes} people liked it, while {$episode.dislikes} didn't.
+            {t 1={$episode.hitcount} 2={$episode.likes} 3={$episode.dislikes}}It has been seen %1 times, and %2 people liked it, while %3 didn't.{/t}
             <div class="pull-right">
-                What do <em>you</em> think?
-                <a href="{$url.site}/like/{$episode.id}"> <span class="glyphicon glyphicon-heart"></span> I like it!</a>
-                <a href="{$url.site}/dislike/{$episode.id}"> <span class="glyphicon glyphicon-heart-empty"></span> Na, could have been better...</a>
+                {t escape=no}What do <em>you</em> think?{/t}
+                <a href="{$url.site}/like/{$episode.id}"> <span class="glyphicon glyphicon-heart"></span> {t}I like it!{/t}</a>
+                <a href="{$url.site}/dislike/{$episode.id}"> <span class="glyphicon glyphicon-heart-empty"></span> {t}Na, could have been better...{/t}</a>
             </div>
             <div class="clearfix"></div>
         </div>
@@ -59,7 +61,7 @@
             {$canSubscribe=false}
             {foreach $episode.children as $link}
                 {if !empty($link.subtree)}
-                    <a id="show-descendants" class="pull-right" style="cursor:pointer;" data-toggle="tooltip" data-placement="right" title="Show episode tree. (May contain spoilers!)">
+                    <a id="show-descendants" class="pull-right" style="cursor:pointer;" data-toggle="tooltip" data-placement="right" title="{t}Show episode tree. (May contain spoilers!){/t}">
                         <div style="top:0;right:0;" id="show-descendants-plus"><span class="glyphicon glyphicon-plus-sign" style="font-size:2em;"></span></div>
                         <div style="top:0;right:0;display:none;" id="show-descendants-minus"><span class="glyphicon glyphicon-minus-sign" style="font-size:2em;"></span></div>
                     </a>
@@ -96,13 +98,13 @@
                 <p style="margin:0 0 0.3em 1em;">
                     <a href="{$url.site}/doc/{$link.toEp}"
                        {if !$link.isWritten}
-                           class="unwritten-episode" data-toggle="tooltip" data-placement="left" title="If you feel inspired now, you can add a new leaf to the tree.">
+                           class="unwritten-episode" data-toggle="tooltip" data-placement="left" title="{t}If you feel inspired now, you can add a new leaf to the tree.{/t}">
                            <span class="glyphicon glyphicon-pencil"></span>
                            {$canSubscribe=true}
                        {elseif !$link.isBacklink}
                            ><span class="glyphicon glyphicon-arrow-right"></span>
                        {else}
-                           data-toggle="tooltip" data-placement="left" title="This will take you to a (possibly) distant relative.">
+                           data-toggle="tooltip" data-placement="left" title="{t}This will take you to a (possibly) distant relative.{/t}">
                            <span class="glyphicon glyphicon-random"></span>
                        {/if}
                        {$link.title}
@@ -118,12 +120,12 @@
                 <p>
                     <a type="button" href="{$url.site}/doc/subscribe/{$episode.id}" class="btn btn-block btn-default btn-sm">
                         <span class="glyphicon glyphicon-envelope"></span>
-                        Notify me when new options are filled.
+                        {t}Notify me when new options are filled.{/t}
                     </a>
                 </p>
             {/if}
             {if !empty($episode.backlinks)}
-                <h5>Backlinks to this Episode</h5>
+                <h5>{t}Backlinks to this Episode{/t}</h5>
                 <ul>
                     {foreach $episode.backlinks as $link}
                         <li>
@@ -133,7 +135,7 @@
                 </ul>
             {/if}
             {if $episode.linkable}
-                <p class="text-center text-info"><span class="glyphicon glyphicon-info-sign"></span> This episode is linkable.</p>
+                <p class="text-center text-info"><span class="glyphicon glyphicon-info-sign"></span> {t}This episode is linkable.{/t}</p>
             {/if}
         </div>
         <script type="text/javascript">
@@ -145,7 +147,7 @@
             });
         </script>
         {if isset($episode.parent)}
-            <div class="panel-footer"><a href="{$url.site}/doc/{$episode.parent}"><span class="glyphicon glyphicon-circle-arrow-left"></span> Go to the parent episode.</a></div>
+            <div class="panel-footer"><a href="{$url.site}/doc/{$episode.parent}"><span class="glyphicon glyphicon-circle-arrow-left"></span> {t}Go to the parent episode.{/t}</a></div>
         {/if}
     </div>
 

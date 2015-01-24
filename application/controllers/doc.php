@@ -47,12 +47,12 @@ class Doc extends CI_Controller {
         $this->load->library('em');
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === false || $docId === null) {
-            show_error('Invalid doc id');
+            show_error(_('Invalid doc id'));
             return;
         }
         $episode = $this->em->findEpisode($docId);
         if(!$episode || $episode->getText() === NULL) {
-            show_error('Document not found');
+            show_error(_('Document not found'));
             return;
         }
         $episode->setLikes($episode->getLikes() + 1);
@@ -65,12 +65,12 @@ class Doc extends CI_Controller {
         $this->load->library('em');
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === false || $docId === null) {
-            show_error('Invalid doc id');
+            show_error(_('Invalid doc id'));
             return;
         }
         $episode = $this->em->findEpisode($docId);
         if(!$episode || $episode->getText() === NULL) {
-            show_error('Document not found');
+            show_error(_('Document not found'));
             return;
         }
         $episode->setDislikes($episode->getDislikes() + 1);
@@ -132,19 +132,19 @@ class Doc extends CI_Controller {
     public function subscribe($docId) {
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === false || $docId === null) {
-            show_error('Invalid doc id');
+            show_error(_('Invalid doc id'));
             return;
         }
         $this->load->library('userinfo');
         if(!$this->userinfo->user || !$this->userinfo->user->canSubscribe()) {
-            show_error('Not allowed');
+            show_error(_('Not allowed'));
             return;
         }
 
         $this->load->library('em');
         $episode = $this->em->findEpisode($docId);
         if(!$episode) {
-            show_404('Document not found');
+            show_404(_('Document not found'));
         }
 
         $subscription = new addventure\Notification();
@@ -171,16 +171,16 @@ class Doc extends CI_Controller {
         // is allowed to create it.
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === false || $docId === null) {
-            show_error('Invalid doc id');
+            show_error(_('Invalid doc id'));
             return;
         }
         $episode = $this->em->findEpisode($docId);
         if(!$episode) {
-            show_error('Document not found');
+            show_error(_('Document not found'));
             return;
         }
         if($episode->getText() !== NULL) {
-            show_error('Document already created');
+            show_error(_('Document already created'));
             return;
         }
         $this->load->library('userinfo');
@@ -232,7 +232,7 @@ class Doc extends CI_Controller {
         $message = Swift_Message::newInstance();
         $message->setFrom(ADDVENTURE_EMAIL_ADDRESS, ADDVENTURE_EMAIL_NAME);
         $message->setTo($recipient->getEmail());
-        $message->setSubject('Option filled');
+        $message->setSubject(_('Option filled'));
         $message->setBody('...'); // TODO
         $transport = Swift_SendmailTransport::newInstance();
         $mailer = Swift_Mailer::newInstance($transport);

@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 
 require_once 'doctrine-bootstrap.php';
@@ -34,42 +35,36 @@ class PatchAuthorComments extends Command
 
         $output->writeln('<info>Fetching episodes...</info>');
 
-        $n = 0;
-        $totalUpdates = 0;
-        $runs = 0;
-        do {
-            $updates = 0;
-            ++$runs;
-            foreach($qb->getQuery()->iterate() as $row) {
-                $ep = $row[0];
-                $authorName = $ep->getAuthor()->getName();
-                $output->writeln('Checking: ``' . $authorName . "''");
+        $flushCounter = 0;
+        $updates = 0;
+        foreach($qb->getQuery()->iterate() as $row) {
+            $ep = $row[0];
+            $authorName = $ep->getAuthor()->getName();
+            $output->writeln('Checking: ``' . $authorName . "''");
 
-                $updated = $this->trySplit($output, $ep, $threshold, $authorName, '(', ')')
-                        or $this->trySplit($output, $ep, $threshold, $authorName, '[', ']')
-                        or $this->trySplit($output, $ep, $threshold, $authorName, '--', null)
-                        or $this->trySplit($output, $ep, $threshold, $authorName, ' - ', null)
-                        or $this->trySplit($output, $ep, $threshold, $authorName, ',', null)
-                        or $this->trySplit($output, $ep, $threshold, $authorName, ';', null)
-                        or $this->trySplit($output, $ep, $threshold, $authorName, '/', null)
-                ; // <<== closing semicolon
+            $updated = $this->trySplit($output, $ep, $threshold, $authorName, '(', ')')
+                    or $this->trySplit($output, $ep, $threshold, $authorName, '[', ']')
+                    or $this->trySplit($output, $ep, $threshold, $authorName, '--', null)
+                    or $this->trySplit($output, $ep, $threshold, $authorName, ' - ', null)
+                    or $this->trySplit($output, $ep, $threshold, $authorName, ',', null)
+                    or $this->trySplit($output, $ep, $threshold, $authorName, ';', null)
+                    or $this->trySplit($output, $ep, $threshold, $authorName, '/', null)
+            ; // <<== closing semicolon
 
-                if($updated) {
-                    ++$updates;
-                }
-
-                ++$n;
-                if($n % 1000 == 0) {
-                    $output->writeln("<info>$n episodes (flushing)...</info>");
-                    $this->em->flush();
-                    $this->em->clear();
-                }
+            if($updated) {
+                ++$updates;
             }
-            $totalUpdates += $updates;
-        } while($updates > 0);
-        $output->writeln("<info>$totalUpdates episodes were updated in $runs runs.</info>");
+
+            ++$flushCounter;
+            if($flushCounter % 1000 == 0) {
+                $output->writeln("<info>$flushCounter episodes (flushing)...</info>");
+                $this->em->flush();
+                $this->em->clear();
+            }
+        }
         $this->em->flush();
         $this->em->clear();
+        $output->writeln("<info>$updates episodes were updated.</info>");
     }
 
     /**
@@ -136,10 +131,34 @@ class PatchAuthorComments extends Command
 
 }
 
+class CreateTranslations extends Command
+{
+
+    protected function configure()
+    {
+        $this
+                ->setName('create-translation')
+                ->setDescription('Create a Gettext POT file')
+                ->addArgument("language", Symfony\Component\Console\Input\InputArgument::REQUIRED, "Language code")
+        ;
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $output->writeln('Running tsmarty2c...');
+        
+        $outputName = realpath('./application/language') . '/' . $input->getArgument('language') . '.pot';
+        $output->writeln("<info>POT file: $outputName</info>");
+        system('php ./vendor/smarty-gettext/smarty-gettext/tsmarty2c.php -o ' . $outputName . ' ' . realpath('./templates/'));
+	system('xgettext -j -o ' . $outputName . ' ' . realpath('./application') . '/*/*.php');
+    }
+}
+
 function addventureCtl()
 {
     $application = new Application();
     $application->add(new PatchAuthorComments());
+    $application->add(new CreateTranslations());
     $application->run();
 }
 

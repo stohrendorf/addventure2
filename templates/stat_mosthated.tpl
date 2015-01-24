@@ -1,4 +1,4 @@
 {extends 'common_episodelist.tpl'}
 {block name=title}
-    The most hated episodes
+    {t}The most hated episodes{/t}
 {/block}

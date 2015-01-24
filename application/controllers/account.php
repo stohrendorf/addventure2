@@ -83,23 +83,23 @@ class Account extends CI_Controller {
             return;
         }
 
-        $verify = site_url(array('account', 'verify')) . '?';
-        $verify .= 'a=' . rawurlencode(self::_getVerificationCode($email));
-        $verify .= '&b=' . rawurlencode(base64_encode($this->encrypt->encode($email)));
+        $verificationUrl = site_url(array('account', 'verify')) . '?';
+        $verificationUrl .= 'a=' . rawurlencode(self::_getVerificationCode($email));
+        $verificationUrl .= '&b=' . rawurlencode(base64_encode($this->encrypt->encode($email)));
         /**
          * @todo Make it a smarty template and support HTML mails.
          */
-        $message = $this->_createMessage($email, 'Addventure2 E-Mail Verification');
-        $message->setBody(<<<"MSG"
+        $message = $this->_createMessage($email, _('Addventure2 E-Mail Verification'));
+        $message->setBody(sprintf(_(<<<"MSG"
 Dear writer!
 
 To verify your e-mail address, please open the following link in your browser:
 
-{$verify}
+%s
 
 Happy writing!
 MSG
-        );
+        ), $verificationUrl));
         $transport = Swift_SendmailTransport::newInstance();
         $mailer = Swift_Mailer::newInstance($transport);
         if($mailer->send($message, $failures)) {
@@ -108,7 +108,7 @@ MSG
         }
         $this->load->library('log');
         $this->log->crit('Could not send verification e-mail: ' . print_r($failures, true));
-        show_error('Sorry, something bad happened; it\'s not your fault. Our dozens of monkey are probably working on it.');
+        show_error(_('Sorry, something bad happened; it\'s not your fault. Our dozens of monkeys are probably working on it.'));
     }
 
     public function verify() {
@@ -250,21 +250,21 @@ MSG
         $this->load->helper('string');
         $generatedPw = random_string();
 
-        $message = $this->_createMessage($user->getEmail(), 'Addventure2 Password Recovery');
+        $message = $this->_createMessage($user->getEmail(), _('Addventure2 Password Recovery'));
 
         /**
          * @todo Make it a smarty template and support HTML mails.
          */
-        $message->setBody(<<<"MSG"
+        $message->setBody(sprintf(_(<<<"MSG"
 Dear writer!
 
 Here is your new password:
 
-{$generatedPw}
+%s
 
 Happy writing!
 MSG
-        );
+        ), $generatedPw));
         $transport = Swift_SendmailTransport::newInstance();
         $mailer = Swift_Mailer::newInstance($transport);
         if($mailer->send($message, $failures)) {
@@ -275,7 +275,7 @@ MSG
         }
         $this->load->library('log');
         $this->log->crit('Could not send recover e-mail: ' . print_r($failures, true));
-        show_error('Sorry, something bad happened; it\'s not your fault. Our dozens of monkey are probably working on it.');
+        show_error(_('Sorry, something bad happened; it\'s not your fault. Our dozens of monkeys are probably working on it.'));
     }
 
 }

@@ -6,7 +6,7 @@ if(!defined('BASEPATH')) {
 
 class Maintenance extends CI_Controller {
 
-    private function report($docId, $description, $type) {
+    private function _report($docId, $description, $type) {
         $this->load->library('log');
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === null || $docId === false) {
@@ -33,19 +33,19 @@ class Maintenance extends CI_Controller {
     }
 
     public function illegal($docId) {
-        $this->report($docId, 'Illegal', addventure\Report::ILLEGAL);
+        $this->_report($docId, 'Illegal', addventure\Report::ILLEGAL);
     }
 
     public function reportTitle($docId) {
-        $this->report($docId, 'TopNotes', addventure\Report::WRONG_TOP_NOTES);
+        $this->_report($docId, 'TopNotes', addventure\Report::WRONG_TOP_NOTES);
     }
 
     public function reportNotes($docId) {
-        $this->report($docId, 'BottomNotes', addventure\Report::WRONG_BOTTOM_NOTES);
+        $this->_report($docId, 'BottomNotes', addventure\Report::WRONG_BOTTOM_NOTES);
     }
 
     public function reportFormatting($docId) {
-        $this->report($docId, 'Formatting', addventure\Report::FORMATTING);
+        $this->_report($docId, 'Formatting', addventure\Report::FORMATTING);
     }
 
 }

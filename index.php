@@ -54,7 +54,7 @@ putenv("LANG=en");
 setlocale(LC_ALL, 'en');
 
 // Set the text domain as 'messages'
-bindtextdomain('messages', VENDORPATH . '/language'); 
+bindtextdomain('messages', APPPATH . '/language/');
 textdomain('messages');
 
 require_once BASEPATH . 'core/CodeIgniter.php';

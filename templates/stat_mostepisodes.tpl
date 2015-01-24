@@ -1,6 +1,6 @@
 {extends 'layout.tpl'}
 {block name=title}
-    Write-a-holics
+    {t}Write-a-holics{/t}
 {/block}
 {block name=body}
     <div class="panel panel-default">
@@ -14,7 +14,7 @@
                             {if !empty($user.user.username)}
                                 {$user.user.username}
                             {else}
-                                User #{$user.user.userid}
+                                {t 1={$user.user.userid}}User #%1{/t}
                             {/if}
                         </a>
                     </li>

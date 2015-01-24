@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="{$url.jqplot.css}" />
 {/block}
 
-{block name=title}Weekly stats{/block}
+{block name=title}{t}Weekly stats{/t}{/block}
 
 {block name=body}
     <div id="chart" style="width:100%; margin:10px;"></div>
@@ -17,7 +17,7 @@
         $(function () {
             var plotdata = {$plotdata};
             var plot = $.jqplot('chart', [plotdata], {
-                title: 'Episodes written per week',
+                title: '{t}Episodes written per week{/t}',
                 series: [{
                         renderer: $.jqplot.BarRenderer,
                         rendererOptions: {
@@ -42,8 +42,8 @@
                     showMarker: false,
                     tooltipAxes: 'xy',
                     formatString: '<table class="jqplot-highlighter"> \
-                    <tr><td>Date of week</td><td>%s</td></tr> \
-                    <tr><td>Written episodes</td><td>%s</td></tr> \
+                    <tr><td>{t}Date of week{/t}</td><td>%s</td></tr> \
+                    <tr><td>{t}Written episodes{/t}</td><td>%s</td></tr> \
                     </table>'
                 }
             });

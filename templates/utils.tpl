@@ -4,10 +4,10 @@
             &raquo;{$episode.autoTitle}&laquo;
         </a>
         {if isset($episode.author)}
-            by <a href="{$url.site}/recent/user/{$episode.author.user}">{$episode.author.name}</a>
+            {t}by{/t} <a href="{$url.site}/recent/user/{$episode.author.user}">{$episode.author.name}</a>
         {/if}
         {if isset($episode.created)}
-            on {$episode.created}
+            @ {$episode.created}
         {/if}
         <span class="pull-right">
             <span class="glyphicon glyphicon-eye-open" style="color:dodgerblue;"></span>&nbsp;{$episode.hitcount}
@@ -24,10 +24,10 @@
         {if isset($episode.preNotes)}
             <div class="panel-heading">
                 <div class="panel panel-info">
-                    <div class="panel-heading">Author's Notes</div>
+                    <div class="panel-heading">{t}Author's Notes{/t}</div>
                     <div class="panel-body">{$episode.preNotes|smileys}</div>
-                    <div class="panel-footer"><small>This note has been <em>automatically</em> taken from the episode's legacy title, as it seemed pretty long.
-                            But machines aren't perfect: do you think this is wrong? <a href="{$url.site}/maintenance/reportTitle/{$episode.id}">Report it!</a></small></div>
+                    <div class="panel-footer"><small>{t escape=no 1="{$url.site}/maintenance/reportTitle/{$episode.id}"}This note has been <em>automatically</em> taken from the episode's legacy title, as it seemed pretty long.
+                            But machines aren't perfect: do you think this is wrong? <a href="%1">Report it!</a>{/t}</small></div>
                 </div>
             </div>
         {/if}
@@ -39,8 +39,8 @@
                 <div class="panel panel-info">
                     <div class="panel-heading">Author's Notes</div>
                     <div class="panel-body">{$episode.notes|smileys}</div>
-                    <div class="panel-footer"><small>This note has been <em>automatically</em> extracted from the legacy episode's author name.
-                            But machines aren't perfect: do you think this was done wrong? <a href="{$url.site}/maintenance/reportNotes/{$episode.id}">Report it!</a></small></div>
+                    <div class="panel-footer"><small>T{t escape=no 1="{$url.site}/maintenance/reportNotes/{$episode.id}"}his note has been <em>automatically</em> extracted from the legacy episode's author name.
+                            But machines aren't perfect: do you think this was done wrong? <a href="%1">Report it!</a>{/t}</small></div>
                 </div>
             </div>
         {/if}
@@ -57,7 +57,7 @@
                         {if isset($comment.author)}
                             <a href="{$url.site}/recent/user/{$comment.author.user}">{$comment.author.name}</a>
                         {else}
-                            &LeftAngleBracket;John Doe&RightAngleBracket;
+                            &LeftAngleBracket;{t}John Doe{/t}&RightAngleBracket;
                         {/if}
                         <span class="text-info">@ {$comment.created}</span>
                     </h5>

@@ -7,8 +7,8 @@
         <script src="{$url.bootstrap.js}"></script>
         <link href="{$url.bootstrap.css}" rel="stylesheet"/>
         <link href="{$url.bootstrap.theme}" rel="stylesheet"/>
-        <link href="{$url.site}/feed/rss" rel="alternate" type="application/rss+xml" title="Recent episodes (RSS 2.0)"/>
-        <link href="{$url.site}/feed/atom" rel="alternate" type="application/atom+xml" title="Recent episodes (ATOM)"/>
+        <link href="{$url.site}/feed/rss" rel="alternate" type="application/rss+xml" title="{t}Recent episodes (RSS 2.0){/t}"/>
+        <link href="{$url.site}/feed/atom" rel="alternate" type="application/atom+xml" title="{t}Recent episodes (ATOM){/t}"/>
         {literal}<style>
                 a:visited{color:purple;}
                 a.unwritten-episode{color:#AA0000;}
@@ -18,7 +18,7 @@
     </head>
     <body style="margin:auto;">
         <header class="page-header center-block">
-            <h1>Addventure2 <small>your forest of imagination...</small></h1>
+            <h1>Addventure2 <small>{t}your forest of imagination...{/t}</small></h1>
         </header>
         <nav class="navbar navbar-default center-block">
             <div class="container-fluid">
@@ -61,10 +61,10 @@
                                         <form class="navbar-form form-signin" action="{$url.site}/account/login" method="POST">
                                             {csrf_field}
                                             <h5 class="form-signin-heading">
-                                                {t escape=no}Log in or <a href="{$url.site}/account/register">register</a>.{/t}
+                                                {t escape=no 1={$url.site}}Log in or <a href="%1/account/register">register</a>.{/t}
                                             </h5>
-                                            <input class="form-control" type="text" placeholder="Username" name="username" required autofocus/>
-                                            <input class="form-control" type="password" placeholder="Password" name="password" required/>
+                                            <input class="form-control" type="text" placeholder="{t}Username{/t}" name="username" required autofocus/>
+                                            <input class="form-control" type="password" placeholder="{t}Password{/t}" name="password" required/>
                                             <div class="checkbox">
                                                 <label>
                                                     <input class="form-control" type="checkbox" name="remember" id="remember" value="yes"/>

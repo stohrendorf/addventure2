@@ -16,10 +16,10 @@ class Feed extends CI_Controller {
         $eps = $this->_getRecentEpisodes($userid);
         $res = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><rss version="2.0"></rss>');
         $ch = $res->addChild('channel');
-        $ch->addChild('title', 'Addventure2 feed');
-        $ch->addChild('description', 'Recent episodes');
+        $ch->addChild('title', _('Addventure2 feed'));
+        $ch->addChild('description', _('Recent episodes'));
         $ch->addChild('language', 'en-US');
-        $ch->addChild('copyright', 'The Addventure Authors');
+        $ch->addChild('copyright', _('The Addventure Authors'));
         $ch->addChild('pubDate', (new \DateTime())->format(DateTime::RSS));
 
         foreach($eps as $ep) {
@@ -36,14 +36,14 @@ class Feed extends CI_Controller {
         }
         $eps = $this->_getRecentEpisodes($userid);
         $res = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"></feed>');
-        $res->addChild('title', 'Addventure2 feed');
+        $res->addChild('title', _('Addventure2 feed'));
         $res->addChild('id', current_url());
         $res->addChild('updated', (new \DateTime())->format(DateTime::ATOM));
-        $res->addChild('author', 'The Addventure Authors');
+        $res->addChild('author', _('The Addventure Authors'));
         $l = $res->addChild('link');
         $l->addAttribute('href', current_url());
         $l->addAttribute('rel', 'alternate');
-        $res->addChild('subTitle', 'Recent episodes');
+        $res->addChild('subTitle', _('Recent episodes'));
 
         foreach($eps as $ep) {
             $ep->toAtom($res);

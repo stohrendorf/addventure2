@@ -1,14 +1,14 @@
 {extends 'layout.tpl'}
 {block name=title}
-    Sorry...
+    {t}Sorry...{/t}
 {/block}
 {block name=body}
     <div class="panel panel-danger">
         <div class="panel-heading">
-            Sorry!
+            {t}Sorry!{/t}
         </div>
         <div class="panel-body">
-            Your login attempt was not successful.
+            {t}Your login attempt was not successful.{/t}
         </div>
     </div>
 {/block}
