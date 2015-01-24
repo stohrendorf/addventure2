@@ -156,10 +156,11 @@ class Doc extends CI_Controller
         try {
             $this->em->persistAndFlush($subscription);
         }
-        catch(PDOException $ex) {
+        catch(\Doctrine\DBAL\Exception\ConstraintViolationException $ex) {
             // already subscribed
         }
 
+        $this->load->helper('url');
         redirect('doc/' . $docId);
     }
 
@@ -191,6 +192,7 @@ class Doc extends CI_Controller
             }
         }
 
+        $this->load->helper('url');
         redirect('doc/' . $docId);
     }
 
@@ -236,7 +238,7 @@ class Doc extends CI_Controller
         if($title === false) {
             $title = '';
         }
-        $title = xss_clean2($title);
+        $title = xss_clean2(strip_tags($title));
 
         $content = $this->input->post('content');
         if($content === false) {
@@ -250,6 +252,15 @@ class Doc extends CI_Controller
         }
         $postNotes = xss_clean2($postNotes);
 
+        $signedoff = $this->input->post('signedoff');
+        if($signedoff === false || empty($signedoff)) {
+            $signedoff = $this->userinfo->user->getUsername();
+        }
+        $signedoff = xss_clean2($signedoff);
+        if(!empty($signedoff)) {
+            // TODO check if the signed-off name is already occupied by somebody else
+        }
+
         $options = $this->input->post('options');
         if($options === false) {
             $options = array();
@@ -261,7 +272,7 @@ class Doc extends CI_Controller
         array_filter($options, function(&$value) {
             return !empty($value);
         });
-        if(empty($content) || empty($options) || empty($title)) {
+        if(empty($content) || empty($options) || empty($title) || empty($signedoff)) {
             if($episode->getParent()) {
                 $smarty->assign('parenttext', $episode->getParent()->getText());
                 $smarty->assign('parentnotes', $episode->getParent()->getNotes());
@@ -272,16 +283,21 @@ class Doc extends CI_Controller
             $smarty->assign('prenotes', $preNotes);
             $smarty->assign('postnotes', $postNotes);
             $smarty->assign('docid', $docId);
+            $smarty->assign('signedoff', $signedoff);
             $smarty->display('doc_create.tpl');
             return;
         }
+        
+        // TODO persist
 
-        return; // TODO remove when UI is ready
         // send notifications to subscribers
         $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());
         foreach($notifications as $notification) {
             $this->_sendNotification($episode->getParent(), $notification->getUser());
         }
+        
+        $this->load->helper('url');
+        redirect('doc/' . $docId);
     }
 
     private function _sendNotification(addventure\Episode $srcDoc, addventure\User $recipient)

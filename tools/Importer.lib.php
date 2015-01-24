@@ -712,7 +712,14 @@ class Transformer
             $link->setFromEp($transformed);
             $link->setIsBacklink($isBacklink);
             // maybe the target episode isn't written yet
-            $link->setToEp($legacyTarget !== null ? $legacyTarget->getEpisode() : new addventure\Episode());
+            if($legacyTarget !== null) {
+                $link->setToEp($legacyTarget->getEpisode());
+            }
+            else {
+                $newEp = new addventure\Episode();
+                $newEp->setParent($transformed);
+                $link->setToEp($newEp);
+            }
             $entityManager->persist($link->getToEp());
             $entityManager->persist($transformed);
 

@@ -56,9 +56,8 @@
                             {$i=0}
                             {foreach $options as $option}
                                 {$i=$i+1}
-                                <input class="form-control" type="text" placeholder="{t 1=$i}Option %1{/t}" name="options[]"/>
+                                <input class="form-control" type="text" placeholder="{t 1=$i}Option %1{/t}" name="options[]" value="{$option}"/>
                             {/foreach}
-
                         </div>
                     </div>
                 </div>
@@ -75,6 +74,9 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="text" placeholder="{t}Signed off by{/t}" name="signedoff" value="{$signedoff}"/>
         </div>
         <button type="submit" class="button form-control default"><span class="glyphicon glyphicon-share"></span> {t}Publish!{/t}</button>
     </form>
