@@ -23,12 +23,12 @@
     <div class="panel panel-default">
         {if isset($episode.preNotes)}
             <div class="panel-heading">
-                <div class="panel panel-info">
-                    <div class="panel-heading">{t}Author's Notes{/t}</div>
-                    <div class="panel-body">{$episode.preNotes|smileys}</div>
-                    <div class="panel-footer"><small>{t escape=no 1="{$url.site}/maintenance/reportTitle/{$episode.id}"}This note has been <em>automatically</em> taken from the episode's legacy title, as it seemed pretty long.
-                            But machines aren't perfect: do you think this is wrong? <a href="%1">Report it!</a>{/t}</small></div>
-                </div>
+                <b>{t}Author's Notes{/t}</b>
+                &mdash;
+                {$episode.preNotes|smileys}
+                <br/><br/>
+                <small style="font-style: italic;">{t escape=no 1="{$url.site}/maintenance/reportTitle/{$episode.id}"}This note has been <em>automatically</em> taken from the episode's legacy title, as it seemed pretty long.
+                    But machines aren't perfect: do you think this is wrong? <a href="%1">Report it!</a>{/t}</small>
             </div>
         {/if}
 
@@ -36,12 +36,12 @@
 
         {if isset($episode.notes)}
             <div class="panel-footer">
-                <div class="panel panel-info">
-                    <div class="panel-heading">Author's Notes</div>
-                    <div class="panel-body">{$episode.notes|smileys}</div>
-                    <div class="panel-footer"><small>T{t escape=no 1="{$url.site}/maintenance/reportNotes/{$episode.id}"}his note has been <em>automatically</em> extracted from the legacy episode's author name.
-                            But machines aren't perfect: do you think this was done wrong? <a href="%1">Report it!</a>{/t}</small></div>
-                </div>
+                <b>{t}Author's Notes{/t}</b>
+                &mdash;
+                {$episode.notes|smileys}
+                <br/><br/>
+                <small style="font-style: italic;">{t escape=no 1="{$url.site}/maintenance/reportNotes/{$episode.id}"}This note has been <em>automatically</em> extracted from the legacy episode's author name.
+                    But machines aren't perfect: do you think this was done wrong? <a href="%1">Report it!</a>{/t}</small>
             </div>
         {/if}
     </div>
