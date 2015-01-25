@@ -269,7 +269,7 @@ class Doc extends CI_Controller
         array_walk($options, function(&$value) {
             $value = trim(xss_clean2($value));
         });
-        array_filter($options, function(&$value) {
+        $options = array_filter($options, function(&$value) {
             return !empty($value);
         });
         if(empty($content) || empty($options) || empty($title) || empty($signedoff)) {

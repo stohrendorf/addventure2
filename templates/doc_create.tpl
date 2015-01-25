@@ -49,17 +49,50 @@
                     <div class="panel-body">
                         <div class="form-group"><input class="form-control" type="text" placeholder="{t}The Awesome Episode Title{/t}" name="title"/>{$title}</div>
                         <textarea class="ckeditor" name="content">{$content}</textarea>
-                        <div class="form-group">
+                        <div class="form-group" id="options">
+                            <div class="input-group hidden" id="option-template">
+                                <a href="#" class="rm-option-btn input-group-addon"><span class="glyphicon glyphicon-trash"></span></a>
+                                <input class="form-control" type="text" placeholder="{t}Option{/t}" name="options[]" value=""/>
+                            </div>
                             {if empty($options)}
                                 {$options=array('','')}
                             {/if}
                             {$i=0}
                             {foreach $options as $option}
                                 {$i=$i+1}
-                                <input class="form-control" type="text" placeholder="{t 1=$i}Option %1{/t}" name="options[]" value="{$option}"/>
+                                <div class="input-group">
+                                    <a href="#" class="rm-option-btn input-group-addon"><span class="glyphicon glyphicon-trash"></span></a>
+                                    <input class="form-control" type="text" placeholder="{t 1=$i}Option %1{/t}" name="options[]" value="{$option}"/>
+                                </div>
                             {/foreach}
                         </div>
+                        <div class="form-group">
+                            <a class="btn btn-block btn-primary add-option-btn" href="#">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </div>
                     </div>
+                    <script>
+                        {literal}
+                            $(function () {
+                                var handleRmBtn = function () {
+                                    var btn = $(this);
+                                    var inp = btn.parent();
+                                    inp.remove();
+                                    return false;
+                                };
+                                $('.rm-option-btn').click(handleRmBtn);
+
+                                var handleAddButton = function () {
+                                    var cloned = $('#option-template').clone(true);
+                                    cloned.removeClass('hidden');
+                                    cloned.appendTo($('#options'));
+                                    return false;
+                                };
+                                $('.add-option-btn').click(handleAddButton);
+                            });
+                        {/literal}
+                    </script>
                 </div>
             </div>
             <div class="list-group-item">
