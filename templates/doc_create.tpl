@@ -52,7 +52,7 @@
                         <div class="form-group" id="options">
                             <div class="input-group hidden" id="option-template">
                                 <a href="#" class="rm-option-btn input-group-addon"><span class="glyphicon glyphicon-trash"></span></a>
-                                <input class="form-control" type="text" placeholder="{t}Option{/t}" name="options[]" value=""/>
+                                <input class="option-text form-control" type="text" placeholder="{t}Option{/t}" name="options[]" value=""/>
                             </div>
                             {if empty($options)}
                                 {$options=array('','')}
@@ -62,7 +62,7 @@
                                 {$i=$i+1}
                                 <div class="input-group">
                                     <a href="#" class="rm-option-btn input-group-addon"><span class="glyphicon glyphicon-trash"></span></a>
-                                    <input class="form-control" type="text" placeholder="{t 1=$i}Option %1{/t}" name="options[]" value="{$option}"/>
+                                    <input class="option-text form-control" type="text" placeholder="{t 1=$i}Option %1{/t}" name="options[]" value="{$option}"/>
                                 </div>
                             {/foreach}
                         </div>
@@ -73,25 +73,50 @@
                         </div>
                     </div>
                     <script>
-                        {literal}
-                            $(function () {
-                                var handleRmBtn = function () {
-                                    var btn = $(this);
-                                    var inp = btn.parent();
-                                    inp.remove();
-                                    return false;
-                                };
-                                $('.rm-option-btn').click(handleRmBtn);
+                        $(function () {
+                            var backlinkHandler = function () {
+                                if ($(this).val()[0] !== '@') {
+                                    return true;
+                                }
+                                var self = $(this);
+                                $.getJSON(
+                                        '{$url.site}/api/backlinks/' + encodeURIComponent($(this).val().substr(1)),
+                                        function (data) {
+                                            var content = '<ul class="list-group">';
+                                            data.entries.forEach(function (e) {
+                                                content += '<li class="list-group-item">' + e.title + '</li>';
+                                                console.log(e);
+                                            });
+                                            content += '</ul>'
+                                            self.popover('destroy');
+                                            self.popover({
+                                                title: content,
+                                                html: true,
+                                                placement: 'bottom',
+                                                trigger: 'manual'
+                                            }).popover('show');
+                                        }
+                                );
+                                return true;
+                            };
+                            $('input.option-text').keyup(backlinkHandler);
 
-                                var handleAddButton = function () {
-                                    var cloned = $('#option-template').clone(true);
-                                    cloned.removeClass('hidden');
-                                    cloned.appendTo($('#options'));
-                                    return false;
-                                };
-                                $('.add-option-btn').click(handleAddButton);
-                            });
-                        {/literal}
+                            var handleRmBtn = function () {
+                                var btn = $(this);
+                                var inp = btn.parent();
+                                inp.remove();
+                                return false;
+                            };
+                            $('.rm-option-btn').click(handleRmBtn);
+
+                            var handleAddButton = function () {
+                                var cloned = $('#option-template').clone(true);
+                                cloned.removeClass('hidden');
+                                cloned.appendTo($('#options'));
+                                return false;
+                            };
+                            $('.add-option-btn').click(handleAddButton);
+                        });
                     </script>
                 </div>
             </div>
