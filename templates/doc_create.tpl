@@ -46,7 +46,7 @@
                 </div>
                 <div id="collapseB" class="list-group-item-text collapse in">
                     <div class="panel-body">
-                        <div class="form-group"><input class="form-control" type="text" placeholder="{t}The Awesome Episode Title{/t}" name="title"/>{$title}</div>
+                        <div class="form-group"><input class="form-control" type="text" placeholder="{t}The Awesome Episode Title{/t}" name="title" value="{$title}"/></div>
                         <textarea class="ckeditor" name="content">{$content}</textarea>
                         <div class="form-group" id="options">
                             <div class="input-group hidden" id="option-template">

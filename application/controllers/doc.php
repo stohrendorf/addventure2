@@ -201,7 +201,7 @@ class Doc extends CI_Controller
         $combinedOpts = array_filter($combinedOpts, function(&$entry) {
             return !empty($entry['title']);
         });
-        
+
         return $combinedOpts;
     }
 
@@ -297,7 +297,7 @@ class Doc extends CI_Controller
         if($signedoff === false || empty($signedoff)) {
             $signedoff = $this->userinfo->user->getUsername();
         }
-        $signedoff = xss_clean2($signedoff);
+        $signedoff = trim(xss_clean2($signedoff));
         if(!empty($signedoff)) {
             // TODO check if the signed-off name is already occupied by somebody else
         }
@@ -305,6 +305,15 @@ class Doc extends CI_Controller
         $options = $this->input->post('options');
         $targets = $this->input->post('targets');
         $combinedOpts = $this->_parseOptions($options, $targets);
+
+        $author = $this->em->getEntityManager()->createQueryBuilder()
+                        ->select('a')->from('addventure\AuthorName', 'a')
+                        ->where('a.name = :name')
+                        ->setParameter('name', $signedoff)
+                        ->getQuery()->getOneOrNullResult();
+        if(!$author || $author->getUser()->getId() != $this->userinfo->user->getId()) {
+            $author = null;
+        }
 
         if(empty($content) || empty($combinedOpts) || empty($title) || empty($signedoff)) {
             if($episode->getParent()) {
@@ -322,7 +331,47 @@ class Doc extends CI_Controller
             return;
         }
 
+        $this->em->getEntityManager()->beginTransaction();
+
+        if($author === null) {
+            $author = new addventure\AuthorName();
+            $author->setName($signedoff);
+            $author->setUser($this->userinfo->user);
+            $this->userinfo->user->getAuthorNames()->add($author);
+            $this->em->getEntityManager()->persist($this->userinfo->user);
+        }
+
+        $thisEp = $this->em->findEpisode($docId);
+        $thisEp->setAuthor($author);
+        $thisEp->setTitle($title);
+        $thisEp->setPreNotes($preNotes);
+        $thisEp->setNotes($postNotes);
+        $thisEp->setText($content);
+        foreach($combinedOpts as $opt) {
+            $link = new addventure\Link();
+            $link->setTitle($opt['title']);
+            $link->setFromEp($thisEp);
+            if(!empty($opt['target'])) {
+                $link->setToEp($this->em->findEpisode($opt['target']));
+                assert($link->getToEp() != null);
+                assert($link->getToEp()->getLinkable());
+                $link->setIsBacklink(true);
+            }
+            else {
+                $newChild = new addventure\Episode();
+                $link->setToEp($newChild);
+                $newChild->setParent($thisEp);
+                $this->em->getEntityManager()->persist($newChild);
+            }
+            $this->em->getEntityManager()->persist($link);
+        }
+        $author->getEpisodes()->add($thisEp);
+        $this->em->getEntityManager()->persist($author);
+        $this->em->getEntityManager()->persist($thisEp);
+
         // TODO persist
+        $this->em->getEntityManager()->rollback();
+
         // send notifications to subscribers
         $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());
         foreach($notifications as $notification) {
