@@ -2,9 +2,8 @@
 {block name=headElements}
     <script src="{$url.ckeditor}"></script>
     <script type="text/javascript">
-        CKEDITOR.config.removePlugins = 'div,preview,newpage,iframe,flash,templates,forms,colordialog,table,tabletools,table,pagebreak,filebrowser,save,elementspath,print,showblocks,showborders,sourcearea,tab';
-    </script>
-{/block}
+        CKEDITOR.config.removePlugins = 'div,preview,newpage,iframe,flash,templates,forms,colordialog,table,tabletools,table,pagebreak,filebrowser,save,elementspath,print,showblocks,showborders,sourcearea,tab';</script>
+    {/block}
 
 {block name=title}{t 1=$docid}Create episode %1{/t}{/block}
 
@@ -51,8 +50,9 @@
                         <textarea class="ckeditor" name="content">{$content}</textarea>
                         <div class="form-group" id="options">
                             <div class="input-group hidden" id="option-template">
-                                <a href="#" class="rm-option-btn input-group-addon"><span class="glyphicon glyphicon-trash"></span></a>
-                                <input class="option-text form-control" type="text" placeholder="{t}Option{/t}" name="options[]" value=""/>
+                                <a href="#" class="rm-option-btn input-group-addon" title="{t}Remove this option{/t}"><span class="glyphicon glyphicon-trash"></span></a>
+                                <a href="#" class="backlink-btn input-group-addon" title="{t}Create a backlink{/t}"><span class="glyphicon glyphicon-random"></span><span id="backlink-target"></span></a>
+                                <input class="option-text form-control" type="text" placeholder="{t}Link title{/t}" name="options[]" value=""/>
                             </div>
                             {if empty($options)}
                                 {$options=array('','')}
@@ -61,46 +61,21 @@
                             {foreach $options as $option}
                                 {$i=$i+1}
                                 <div class="input-group">
-                                    <a href="#" class="rm-option-btn input-group-addon"><span class="glyphicon glyphicon-trash"></span></a>
-                                    <input class="option-text form-control" type="text" placeholder="{t 1=$i}Option %1{/t}" name="options[]" value="{$option}"/>
+                                    <a href="#" class="rm-option-btn input-group-addon" title="{t}Remove this option{/t}"><span class="glyphicon glyphicon-trash"></span></a>
+                                    <a href="#" class="backlink-btn input-group-addon" title="{t}Create a backlink{/t}"><span class="glyphicon glyphicon-random"></span><span id="backlink-target"></span></a>
+                                    <input class="option-text form-control" type="text" placeholder="{t}Link title{/t}" name="options[]" value="{$option}"/>
                                 </div>
                             {/foreach}
                         </div>
                         <div class="form-group">
-                            <a class="btn btn-block btn-primary add-option-btn" href="#">
+                            <button class="btn btn-block btn-outline add-option-btn" href="#">
                                 <span class="glyphicon glyphicon-plus"></span>
-                            </a>
+                                {t}New link{/t}
+                            </button>
                         </div>
                     </div>
                     <script>
                         $(function () {
-                            var backlinkHandler = function () {
-                                if ($(this).val()[0] !== '@') {
-                                    return true;
-                                }
-                                var self = $(this);
-                                $.getJSON(
-                                        '{$url.site}/api/backlinks/' + encodeURIComponent($(this).val().substr(1)),
-                                        function (data) {
-                                            var content = '<ul class="list-group">';
-                                            data.entries.forEach(function (e) {
-                                                content += '<li class="list-group-item">' + e.title + '</li>';
-                                                console.log(e);
-                                            });
-                                            content += '</ul>'
-                                            self.popover('destroy');
-                                            self.popover({
-                                                title: content,
-                                                html: true,
-                                                placement: 'bottom',
-                                                trigger: 'manual'
-                                            }).popover('show');
-                                        }
-                                );
-                                return true;
-                            };
-                            $('input.option-text').keyup(backlinkHandler);
-
                             var handleRmBtn = function () {
                                 var btn = $(this);
                                 var inp = btn.parent();
@@ -116,6 +91,47 @@
                                 return false;
                             };
                             $('.add-option-btn').click(handleAddButton);
+
+                            var dlg = $('#backlinks-dialog');
+                            dlg.modal('hide');
+                            var selectedOption = null;
+                            var handleBacklinkButton = function () {
+                                selectedOption = $(this);
+                                dlg.modal('show');
+                                return false;
+                            };
+                            $('.backlink-btn').click(handleBacklinkButton);
+
+                            var typeaheadHandler = function () {
+                                var query = $('#backlinks-filter').val();
+                                if (query.length <= 0) {
+                                    return;
+                                }
+                                $.getJSON(
+                                        '{$url.site}/api/backlinks/' + encodeURIComponent(query),
+                                        function (data) {
+                                            var list = $('#backlinks');
+                                            list.empty();
+                                            data.entries.forEach(function (e) {
+                                                var clone = $('#backlink-template').clone(true);
+                                                clone.text(e.title);
+                                                clone.html(e.toEp + '&mdash;' + clone.html())
+                                                clone.attr('target', e.toEp);
+                                                clone.appendTo(list);
+                                                clone.removeClass('hidden');
+                                            });
+                                        }
+                                );
+                            };
+                            $('#backlinks-filter').keyup(typeaheadHandler);
+
+                            var setBacklink = function () {
+                                dlg.modal('hide');
+                                var t = $(this).attr('target');
+                                selectedOption.children('#backlink-target').text(' ' + t);
+                                return false;
+                            };
+                            $('#backlink-template').click(setBacklink);
                         });
                     </script>
                 </div>
@@ -138,4 +154,24 @@
         </div>
         <button type="submit" class="button form-control default"><span class="glyphicon glyphicon-share"></span> {t}Publish!{/t}</button>
     </form>
+
+    <div class="modal fade" id="backlinks-dialog" role="dialog" aria-labelledby="" aria-hidden="true" title="{t}Select backlink target{/t}">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">{t}Select backlink target{/t}</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="backlinks-filter" class="form-control" placeholder="{t}Episode title or ID{/t}">
+                    <a class="list-group-item hidden" id="backlink-template" href="#"></a>
+                    <div class="list-group" id="backlinks">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{t}Abort{/t}</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {/block}
