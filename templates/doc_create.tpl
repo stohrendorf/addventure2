@@ -51,19 +51,21 @@
                         <div class="form-group" id="options">
                             <div class="input-group hidden" id="option-template">
                                 <a href="#" class="rm-option-btn input-group-addon" title="{t}Remove this option{/t}"><span class="glyphicon glyphicon-trash"></span></a>
-                                <a href="#" class="backlink-btn input-group-addon" title="{t}Create a backlink{/t}"><span class="glyphicon glyphicon-random"></span><span id="backlink-target"></span></a>
+                                <a href="#" class="backlink-btn input-group-addon" title="{t}Create a backlink{/t}"><span class="glyphicon glyphicon-random"></span> <span id="backlink-target"></span></a>
                                 <input class="option-text form-control" type="text" placeholder="{t}Link title{/t}" name="options[]" value=""/>
+                                <input class="option-target" type="hidden" name="targets[]" value=""/>
                             </div>
                             {if empty($options)}
-                                {$options=array('','')}
+                                {$options=array()}
                             {/if}
                             {$i=0}
                             {foreach $options as $option}
                                 {$i=$i+1}
                                 <div class="input-group">
                                     <a href="#" class="rm-option-btn input-group-addon" title="{t}Remove this option{/t}"><span class="glyphicon glyphicon-trash"></span></a>
-                                    <a href="#" class="backlink-btn input-group-addon" title="{t}Create a backlink{/t}"><span class="glyphicon glyphicon-random"></span><span id="backlink-target"></span></a>
-                                    <input class="option-text form-control" type="text" placeholder="{t}Link title{/t}" name="options[]" value="{$option}"/>
+                                    <a href="#" class="backlink-btn input-group-addon" title="{t}Create a backlink{/t}"><span class="glyphicon glyphicon-random"></span> <span id="backlink-target">{$option['target']}</span></a>
+                                    <input class="option-text form-control" type="text" placeholder="{t}Link title{/t}" name="options[]" value="{$option['title']|escape}"/>
+                                    <input class="option-target" type="hidden" name="targets[]" value="{$option['target']}"/>
                                 </div>
                             {/foreach}
                         </div>
@@ -107,21 +109,23 @@
                                 if (query.length <= 0) {
                                     return;
                                 }
-                                $.getJSON(
-                                        '{$url.site}/api/backlinks/' + encodeURIComponent(query),
-                                        function (data) {
-                                            var list = $('#backlinks');
-                                            list.empty();
-                                            data.entries.forEach(function (e) {
-                                                var clone = $('#backlink-template').clone(true);
-                                                clone.text(e.title);
-                                                clone.html(e.toEp + '&mdash;' + clone.html())
-                                                clone.attr('target', e.toEp);
-                                                clone.appendTo(list);
-                                                clone.removeClass('hidden');
-                                            });
-                                        }
-                                );
+                                $.post(
+                                        '{$url.site}/api/backlinks/',
+                                        { {csrf_json}, 'query': query },
+                                function (data) {
+                                    var list = $('#backlinks');
+                                    list.empty();
+                                    data.entries.forEach(function (e) {
+                                        var clone = $('#backlink-template').clone(true);
+                                        clone.text(e.title);
+                                        clone.html(e.toEp + '&mdash;' + clone.html())
+                                        clone.attr('target', e.toEp);
+                                        clone.appendTo(list);
+                                        clone.removeClass('hidden');
+                                    });
+                                },
+                                        'json'
+                                        );
                             };
                             $('#backlinks-filter').keyup(typeaheadHandler);
 
@@ -129,6 +133,7 @@
                                 dlg.modal('hide');
                                 var t = $(this).attr('target');
                                 selectedOption.children('#backlink-target').text(' ' + t);
+                                selectedOption.parent().children('.option-target').val(t);
                                 return false;
                             };
                             $('#backlink-template').click(setBacklink);

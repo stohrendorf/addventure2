@@ -164,6 +164,47 @@ class Doc extends CI_Controller
         redirect('doc/' . $docId);
     }
 
+    private function _parseOptions($options, $targets)
+    {
+        if($options === false || $targets === false || count($options) != count($targets)) {
+            $options = array();
+            $targets = array();
+        }
+
+        $combinedOpts = array();
+        for($i = 0; $i < count($options); ++$i) {
+            $target = $targets[$i];
+            if(!empty($target)) {
+                $target = filter_var($targets[$i], FILTER_SANITIZE_NUMBER_INT);
+                if(!$target) {
+                    $target = '';
+                }
+            }
+            $combinedOpts[] = array(
+                'title' => $options[$i],
+                'target' => $target
+            );
+        }
+
+        // remove empty options and wrong targets
+        $em = $this->em;
+        array_walk($combinedOpts, function(&$entry) use($em) {
+            $entry['title'] = trim(xss_clean2($entry['title']));
+            if(!empty($entry['target'])) {
+                $ep = $em->findEpisode($entry['target']);
+                if(!$ep || !$ep->getLinkable()) {
+                    $entry['target'] = '';
+                }
+            }
+        });
+
+        $combinedOpts = array_filter($combinedOpts, function(&$entry) {
+            return !empty($entry['title']);
+        });
+        
+        return $combinedOpts;
+    }
+
     public function unsubscribe($docId)
     {
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
@@ -262,23 +303,16 @@ class Doc extends CI_Controller
         }
 
         $options = $this->input->post('options');
-        if($options === false) {
-            $options = array();
-        }
-        // remove empty options
-        array_walk($options, function(&$value) {
-            $value = trim(xss_clean2($value));
-        });
-        $options = array_filter($options, function(&$value) {
-            return !empty($value);
-        });
-        if(empty($content) || empty($options) || empty($title) || empty($signedoff)) {
+        $targets = $this->input->post('targets');
+        $combinedOpts = $this->_parseOptions($options, $targets);
+
+        if(empty($content) || empty($combinedOpts) || empty($title) || empty($signedoff)) {
             if($episode->getParent()) {
                 $smarty->assign('parenttext', $episode->getParent()->getText());
                 $smarty->assign('parentnotes', $episode->getParent()->getNotes());
             }
             $smarty->assign('content', $content);
-            $smarty->assign('options', $options);
+            $smarty->assign('options', $combinedOpts);
             $smarty->assign('title', $title);
             $smarty->assign('prenotes', $preNotes);
             $smarty->assign('postnotes', $postNotes);
@@ -287,15 +321,14 @@ class Doc extends CI_Controller
             $smarty->display('doc_create.tpl');
             return;
         }
-        
-        // TODO persist
 
+        // TODO persist
         // send notifications to subscribers
         $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());
         foreach($notifications as $notification) {
             $this->_sendNotification($episode->getParent(), $notification->getUser());
         }
-        
+
         $this->load->helper('url');
         redirect('doc/' . $docId);
     }

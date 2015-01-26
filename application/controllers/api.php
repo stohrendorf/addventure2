@@ -36,14 +36,14 @@ class Api extends CI_Controller
         $this->output->set_content_type('application/json');
     }
 
-    public function backlinks($filter = '')
+    public function backlinks()
     {
-
         $this->load->library('em');
 
+        $filter = $this->input->post('query');
         $result = array();
 
-        if(empty($filter)) {
+        if($filter===false || empty($filter)) {
             echo json_encode(array('entries' => $result));
             return;
         }
