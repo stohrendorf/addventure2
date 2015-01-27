@@ -20,9 +20,4 @@ $ php composer.phar create-project -s dev application/addventure /path/to/addven
 
 What is the current state?
 ==========================
-It's all in development; the very core is stable enough to be considered 99% frozen,
-but much functionality relying on it isn't fully implemented yet (if at all).
-For example, users can register for an account and even activate it, which enables
-them to write new episodes -- but there's only a very, very simple edit form they get
-without any working business logic behind it, i.e. all they write will be redirected to
-``/dev/null``.
+It's usable for now, though some administrative functionality is not implemented yet, such as user management or deleting/editing episodes.
