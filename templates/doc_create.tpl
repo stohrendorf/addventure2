@@ -45,7 +45,7 @@
                 <ul>
                     {foreach $errors as $error}
                         <li>{$error|escape}</li>
-                    {/foreach}
+                        {/foreach}
                 </ul>
             </div>
         </div>
@@ -183,6 +183,12 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="input-group checkbox">
+            <label>
+                <input type="checkbox" value="true" name="linkable" {if $linkable}checked{/if}/>
+                {t}This episode is back-linkable.{/t}
+            </label>
         </div>
         <div class="form-group">
             <input class="form-control" type="text" placeholder="{t}Signed off by{/t}" name="signedoff" value="{$signedoff}"/>

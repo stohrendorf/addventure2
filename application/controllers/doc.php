@@ -301,6 +301,8 @@ class Doc extends CI_Controller
         if(!empty($signedoff)) {
             // TODO check if the signed-off name is already occupied by somebody else
         }
+        
+        $linkable = $this->input->post('linkable') === 'true';
 
         $options = $this->input->post('options');
         $targets = $this->input->post('targets');
@@ -344,6 +346,7 @@ class Doc extends CI_Controller
             $smarty->assign('postnotes', $postNotes);
             $smarty->assign('docid', $docId);
             $smarty->assign('signedoff', $signedoff);
+            $smarty->assign('linkable', $linkable);
             $smarty->display('doc_create.tpl');
             return;
         }
@@ -357,6 +360,7 @@ class Doc extends CI_Controller
         $thisEp->setPreNotes($preNotes);
         $thisEp->setNotes($postNotes);
         $thisEp->setText($content);
+        $thisEp->setLinkable($linkable);
         foreach($combinedOpts as $opt) {
             $link = new addventure\Link();
             $link->setTitle($opt['title']);
