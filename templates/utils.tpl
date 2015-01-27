@@ -46,10 +46,10 @@
         {/if}
     </div>
 
-    {if !empty($episode.comments)}
-        <div class="list-group">
+    <div class="list-group">
+        {if !empty($episode.comments)}
             <h4 class="list-group-item list-group-item-info">
-                <span class="glyphicon glyphicon-comment"></span> Comments...
+                <span class="glyphicon glyphicon-comment"></span> {t}Comments...{/t}
             </h4>
             {foreach $episode.comments as $comment}
                 <div class="list-group-item">
@@ -64,6 +64,74 @@
                     <div class="list-group-item-text">{$comment.text|smileys}</div>
                 </div>
             {/foreach}
+            {if $client.canCreateComment}
+                <div class="list-group-item">
+                    <button class="btn btn-default btn-sm btn-block" id="add-comment">
+                        <span class="glyphicon glyphicon-comment"></span>
+                        {t}Add a comment{/t}
+                    </button>
+                </div>
+            {/if}
+        {else}
+            <h4 class="list-group-item list-group-item-info">
+                <span class="glyphicon glyphicon-comment"></span> {t}No comments yet{/t}
+            </h4>
+            {if $client.canCreateComment}
+                <div class="list-group-item">
+                    <button class="btn btn-default btn-sm btn-block" id="add-comment">
+                        <span class="glyphicon glyphicon-comment"></span>
+                        {t}Be the first to comment on this episode!{/t}
+                    </button>
+                </div>
+            {/if}
+        {/if}
+    </div>
+
+
+    <div class="modal fade" id="comment-dialog" role="dialog" aria-labelledby="" aria-hidden="true" title="{t}Add a comment{/t}">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">{t}Add a comment{/t}</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" id="comment-text" style="min-height: 200px;" required placeholder="{t}Your comment{/t}"></textarea>
+                    <input type="text" class="form-control" id="comment-author" required placeholder="{t}Signed off{/t}" value="{$client.username}"/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="publish-comment">{t}Publish!{/t}</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{t}Abort{/t}</button>
+                </div>
+            </div>
         </div>
-    {/if}
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            var dlg = $('#comment-dialog');
+            dlg.modal('hide');
+            var addCommentBtn = function () {
+                dlg.modal('show');
+                return false;
+            };
+            $('#add-comment').click(addCommentBtn);
+
+            var publishComment = function () {
+                $.post(
+                        '{$url.site}/api/addcomment/{$episode.id}',
+                        {
+                            {csrf_json},
+                            'comment': $('#comment-text').val(),
+                            'author': $('#comment-author').val()
+                        },
+                        function(data){ console.log(data); location.reload(); },
+                        'text'
+                );
+                return false;
+            };
+            $('#publish-comment').click(publishComment);
+        });
+    </script>
+
 {/function}

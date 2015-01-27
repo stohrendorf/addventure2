@@ -43,7 +43,7 @@ class Api extends CI_Controller
         $filter = $this->input->post('query');
         $result = array();
 
-        if($filter===false || empty($filter)) {
+        if($filter === false || empty($filter)) {
             echo json_encode(array('entries' => $result));
             return;
         }
@@ -78,6 +78,71 @@ class Api extends CI_Controller
 
         echo json_encode(array('entries' => $result));
         return;
+    }
+
+    public function addcomment($docId)
+    {
+        $this->output->set_content_type('text/plain');
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user || !$this->userinfo->user->canCreateComment()) {
+echo "{error:1}";
+            return;
+        }
+
+        $this->load->helper('xss_clean');
+        $commentText = $this->input->post('comment');
+        if($commentText === false) {
+echo "{error:2}";
+            return;
+        }
+        $commentText = trim(xss_clean2(strip_tags($commentText)));
+        if(empty($commentText)) {
+echo "{error:3}";
+            return;
+        }
+        
+        $authorName = $this->input->post('author');
+        if($authorName === false) {
+echo "{error:4}";
+            return;
+        }
+        $authorName = trim(strip_tags($authorName));
+        if(empty($authorName)) {
+echo "{error:5}";
+            return;
+        }
+
+        $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
+        if($docId === false || $docId === null) {
+echo "{error:6}";
+            return;
+        }
+
+        $this->load->library('em');
+        $episode = $this->em->findEpisode($docId);
+        if(!$episode) {
+echo "{error:7}";
+            return;
+        }
+        if($episode->getText() === NULL) {
+echo "{error:8}";
+            return;
+        }
+        
+        $author = $this->em->findOrCreateAuthorForUser($this->userinfo->user, $authorName, true);
+        if(!$author) {
+echo "{error:9}";
+            return;
+        }
+        
+        $cmt = new addventure\Comment();
+        $cmt->setAuthorName($author);
+        $cmt->setEpisode($episode);
+        $cmt->setText($commentText);
+        $cmt->setCreated(new \DateTime());
+        $episode->getComments()->add($cmt);
+        $this->em->getEntityManager()->persist($cmt);
+        $this->em->persistAndFlush($episode);
     }
 
 }

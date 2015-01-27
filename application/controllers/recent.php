@@ -4,9 +4,11 @@ if(!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Recent extends CI_Controller {
+class Recent extends CI_Controller
+{
 
-    public function index($page = 0) {
+    public function index($page = 0)
+    {
         $this->load->helper('pagination');
         $this->load->helper('url');
         $this->load->helper('smarty');
@@ -27,7 +29,8 @@ class Recent extends CI_Controller {
         $smarty->display('recent.tpl');
     }
 
-    public function user($userId, $page = 0) {
+    public function user($userId, $page = 0)
+    {
         $this->load->helper('pagination');
         $this->load->helper('url');
         $this->load->helper('smarty');
@@ -40,10 +43,13 @@ class Recent extends CI_Controller {
             $page = 0;
         }
         $smarty = createSmarty();
+        $smarty->assign('episodes', array());
         $numEpisodes = $this->em->getEpisodeRepository()->findByUser(
-            $userId, function(addventure\Episode $ep) use($smarty) {
-                $smarty->append('episodes', $ep->toSmarty());
-            }, $page
+                $userId,
+                function(addventure\Episode $ep) use($smarty) {
+                    $smarty->append('episodes', $ep->toSmarty());
+                },
+                $page
         );
         $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
         $firstCreated = $this->em->getEpisodeRepository()->firstCreatedByUser($userId);

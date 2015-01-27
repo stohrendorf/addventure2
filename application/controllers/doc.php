@@ -306,15 +306,6 @@ class Doc extends CI_Controller
         $targets = $this->input->post('targets');
         $combinedOpts = $this->_parseOptions($options, $targets);
 
-        $author = $this->em->getEntityManager()->createQueryBuilder()
-                        ->select('a')->from('addventure\AuthorName', 'a')
-                        ->where('a.name = :name')
-                        ->setParameter('name', $signedoff)
-                        ->getQuery()->getOneOrNullResult();
-        if(!$author || $author->getUser()->getId() != $this->userinfo->user->getId()) {
-            $author = null;
-        }
-
         $errors = array();
         if(empty($content)) {
             $errors[] = _('You haven\'t entered a story yet.');
@@ -324,6 +315,12 @@ class Doc extends CI_Controller
         }
         if(empty($signedoff)) {
             $errors[] = _('You haven\'t signed your story.');
+        }
+        else {
+            $author = $this->em->findOrCreateAuthorForUser($this->userinfo->user, $signedoff, false);
+            if(!$author) {
+                $errors[] = _('The name you chose is already used by somebody else.');
+            }
         }
         if(count($combinedOpts) < ADDVENTURE_MIN_LINKS) {
             $errors[] = sprintf(_('You have to provide at least %1$d links.'), ADDVENTURE_MIN_LINKS);
@@ -353,15 +350,8 @@ class Doc extends CI_Controller
 
         $this->em->getEntityManager()->beginTransaction();
 
-        if($author === null) {
-            $author = new addventure\AuthorName();
-            $author->setName($signedoff);
-            $author->setUser($this->userinfo->user);
-            $this->userinfo->user->getAuthorNames()->add($author);
-            $this->em->getEntityManager()->persist($this->userinfo->user);
-        }
-
         $thisEp = $this->em->findEpisode($docId);
+        $author = $this->em->findOrCreateAuthorForUser($this->userinfo->user, $signedoff, true);
         $thisEp->setAuthor($author);
         $thisEp->setTitle($title);
         $thisEp->setPreNotes($preNotes);
