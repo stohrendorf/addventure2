@@ -51,10 +51,10 @@ class Api extends CI_Controller
         if(preg_match('/^[0-9]+$/', $filter)) {
             $filter = filter_var($filter, FILTER_SANITIZE_NUMBER_INT);
             $qb = $this->em->getEntityManager()->createQueryBuilder();
-            $qb->select('l')->from('addventure\Link', 'l')
-                    ->where('l.isBacklink = TRUE')
-                    ->andWhere('CONCAT(IDENTITY(l.toEp), \'\') LIKE :filter')
-                    ->orderBy('l.toEp') // and then ordered by target
+            $qb->select('DISTINCT e')->from('addventure\Episode', 'e')
+                    ->where('e.linkable = TRUE')
+                    ->andWhere('CONCAT(IDENTITY(e.id), \'\') LIKE :filter')
+                    ->orderBy('e.id') // and then ordered by target
                     ->setMaxResults(50);
             $qb->setParameter('filter', '%' . addcslashes($filter, '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
             foreach($qb->getQuery()->getResult() as $link) {
@@ -64,11 +64,11 @@ class Api extends CI_Controller
         else {
             $filter = filter_var($filter, FILTER_SANITIZE_STRING);
             $qb = $this->em->getEntityManager()->createQueryBuilder();
-            $qb->select('l, LENGTH(l.title) AS HIDDEN len')->from('addventure\Link', 'l')
-                    ->where('l.isBacklink = TRUE')
-                    ->andWhere('UPPER(l.title) LIKE :filter')
+            $qb->select('DISTINCT e, LENGTH(e.title) AS HIDDEN len')->from('addventure\Episode', 'e')
+                    ->where('e.linkable = TRUE')
+                    ->andWhere('UPPER(e.title) LIKE :filter')
                     ->orderBy('len') // the most-matching first
-                    ->addOrderBy('l.title') // and then ordered by target
+                    ->addOrderBy('e.title') // and then ordered by target
                     ->setMaxResults(50);
             $qb->setParameter('filter', '%' . addcslashes(mb_convert_case($filter, MB_CASE_UPPER), '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
             foreach($qb->getQuery()->getResult() as $link) {

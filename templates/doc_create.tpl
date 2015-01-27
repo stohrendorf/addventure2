@@ -2,8 +2,20 @@
 {block name=headElements}
     <script src="{$url.ckeditor}"></script>
     <script type="text/javascript">
-        CKEDITOR.config.removePlugins = 'div,preview,newpage,iframe,flash,templates,forms,colordialog,table,tabletools,table,pagebreak,filebrowser,save,elementspath,print,showblocks,showborders,sourcearea,tab';</script>
-    {/block}
+        CKEDITOR.config.removePlugins = 'div,preview,newpage,iframe,flash,templates,forms,colordialog,table,tabletools,table,pagebreak,filebrowser,save,elementspath,print,showblocks,showborders,sourcearea,tab';
+    </script>
+    <style type="text/css">
+        .modal-dialog,
+        .modal-content {
+            height: 90%;
+        }
+
+        .modal-body {
+            max-height: calc(100% - 120px);
+            overflow-y: scroll;
+        }
+    </style>
+{/block}
 
 {block name=title}{t 1=$docid}Create episode %1{/t}{/block}
 
@@ -111,19 +123,22 @@
                                 }
                                 $.post(
                                         '{$url.site}/api/backlinks/',
-                                        { {csrf_json}, 'query': query },
-                                function (data) {
-                                    var list = $('#backlinks');
-                                    list.empty();
-                                    data.entries.forEach(function (e) {
-                                        var clone = $('#backlink-template').clone(true);
-                                        clone.text(e.title);
-                                        clone.html(e.toEp + '&mdash;' + clone.html())
-                                        clone.attr('target', e.toEp);
-                                        clone.appendTo(list);
-                                        clone.removeClass('hidden');
-                                    });
-                                },
+                                        {
+                                            {csrf_json},
+                                            'query': query
+                                        },
+                                        function (data) {
+                                            var list = $('#backlinks');
+                                            list.empty();
+                                            data.entries.forEach(function (e) {
+                                                var clone = $('#backlink-template').clone(true);
+                                                clone.text(e.title);
+                                                clone.html(e.id + '&mdash;' + clone.html())
+                                                clone.attr('target', e.id);
+                                                clone.appendTo(list);
+                                                clone.removeClass('hidden');
+                                            });
+                                        },
                                         'json'
                                         );
                             };
