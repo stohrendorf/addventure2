@@ -130,11 +130,15 @@ class EM
                         ->getQuery()->getOneOrNullResult();
         if($author) {
             if($author->getUser()->getId() != $user->getId()) {
-                return null;
+                return $persist ? null : false;
             }
             else {
                 return $author;
             }
+        }
+        
+        if(!$persist) {
+            return true;
         }
 
         $author = new addventure\AuthorName();

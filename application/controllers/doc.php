@@ -380,8 +380,8 @@ class Doc extends CI_Controller
         $this->em->getEntityManager()->persist($author);
         $this->em->getEntityManager()->persist($thisEp);
 
-        // TODO persist
-        $this->em->getEntityManager()->rollback();
+        $this->em->getEntityManager()->commit();
+        $this->em->getEntityManager()->flush();
 
         // send notifications to subscribers
         $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());

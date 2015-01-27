@@ -192,12 +192,12 @@ class Episode implements IAddventure {
     }
 
     public function setNotes($notes) {
-        $this->notes = $notes;
+        $this->notes = empty($notes) ? null : $notes;
         return $this;
     }
 
     public function setPreNotes($notes) {
-        $this->preNotes = $notes;
+        $this->preNotes = empty($notes) ? null : $notes;
         return $this;
     }
 
