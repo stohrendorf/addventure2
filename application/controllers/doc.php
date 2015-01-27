@@ -372,9 +372,10 @@ class Doc extends CI_Controller
             $link->setTitle($opt['title']);
             $link->setFromEp($thisEp);
             if(!empty($opt['target'])) {
-                $link->setToEp($this->em->findEpisode($opt['target']));
-                assert($link->getToEp() != null);
-                assert($link->getToEp()->getLinkable());
+                $targetEp = $this->em->findEpisode($opt['target']);
+                assert($targetEp != null);
+                assert($targetEp->getLinkable());
+                $link->setToEp($targetEp);
                 $link->setIsBacklink(true);
             }
             else {
