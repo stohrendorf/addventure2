@@ -618,7 +618,7 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         $rsm->addScalarResult('date', 'date', 'string');
         $query = $this->getEntityManager()->createNativeQuery('SELECT COUNT(*) AS count, '
                 . 'EXTRACT(YEAR FROM created) || \'-\' || EXTRACT(MONTH FROM MIN(created)) || \'-\' || EXTRACT(DAY FROM MIN(created)) AS date '
-                . 'FROM episode WHERE created IS NOT NULL '
+                . 'FROM Episode WHERE created IS NOT NULL '
                 . 'GROUP BY EXTRACT(YEAR FROM created), EXTRACT(WEEK FROM created) '
                 . 'ORDER BY EXTRACT(YEAR FROM created), EXTRACT(WEEK FROM created)', $rsm);
         $result = array();

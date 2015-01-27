@@ -90,7 +90,7 @@ class PatchAuthorNames extends Command
 
         $newAuthor->getEpisodes()->add($ep);
 
-        $ep->setPreNotes($notes);
+        $ep->setNotes($notes);
         $this->em->persist($ep);
         $this->em->persist($oldAuthor);
 
@@ -98,9 +98,9 @@ class PatchAuthorNames extends Command
         return TRUE;
     }
 
-    private function tryFindSplit($threshold, $autorWithComment, $leftHull, $rightHull)
+    private function tryFindSplit($threshold, $authorWithComment, $leftHull, $rightHull)
     {
-        $commentParts = explode($leftHull, $autorWithComment);
+        $commentParts = explode($leftHull, $authorWithComment);
         if(count($commentParts) <= 1) {
             return FALSE;
         }

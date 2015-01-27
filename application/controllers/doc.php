@@ -121,7 +121,7 @@ class Doc extends CI_Controller
         $rsm->addScalarResult('id', 'id', 'integer');
         $this->load->library('em');
         if(ADDVENTURE_DB_DRIVER === 'pdo_mysql') {
-            $query = $this->em->getEntityManager()->createNativeQuery('SELECT r1.id AS id FROM Episode AS r1 JOIN (SELECT (RAND() * (SELECT MAX(e.id) FROM Episode e)) AS id) AS r2'
+            $query = $this->em->getEntityManager()->createNativeQuery('SELECT r1.id AS id FROM Episode AS r1 JOIN (SELECT (RAND() * (SELECT MAX(e.id) FROM Episode e))+1 AS id) AS r2'
                     . ' WHERE r1.id >= r2.id AND r1.text IS NOT NULL'
                     . ' ORDER BY r1.id ASC LIMIT 1', $rsm);
         }
@@ -361,6 +361,7 @@ class Doc extends CI_Controller
         $thisEp->setNotes($postNotes);
         $thisEp->setText($content);
         $thisEp->setLinkable($linkable);
+        $thisEp->setCreated(new \DateTime());
         foreach($combinedOpts as $opt) {
             $link = new addventure\Link();
             $link->setTitle($opt['title']);
@@ -377,20 +378,24 @@ class Doc extends CI_Controller
                 $link->setToEp($newChild);
                 $newChild->setParent($thisEp);
                 $this->em->getEntityManager()->persist($newChild);
+                $this->em->getEntityManager()->flush($newChild);
             }
             $this->em->getEntityManager()->persist($link);
         }
         $author->getEpisodes()->add($thisEp);
         $this->em->getEntityManager()->persist($author);
         $this->em->getEntityManager()->persist($thisEp);
+        $this->em->getEntityManager()->flush($thisEp);
 
         $this->em->getEntityManager()->commit();
         $this->em->getEntityManager()->flush();
 
         // send notifications to subscribers
-        $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());
-        foreach($notifications as $notification) {
-            $this->_sendNotification($episode->getParent(), $notification->getUser());
+        if($episode->getParent()) {
+            $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());
+            foreach($notifications as $notification) {
+                $this->_sendNotification($episode->getParent(), $notification->getUser());
+            }
         }
 
         $this->load->helper('url');
