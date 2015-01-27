@@ -35,6 +35,21 @@
             {/if}
         </div>
     {/if}
+    {if isset($errors)}
+        <div class="panel panel-danger">
+            <div class="panel-heading">
+                {t}Keep calm!{/t}
+            </div>
+            <div class="panel-body">
+                {t}There are some requirements for publishing a story. Please solve these problems first:{/t}
+                <ul>
+                    {foreach $errors as $error}
+                        <li>{$error|escape}</li>
+                    {/foreach}
+                </ul>
+            </div>
+        </div>
+    {/if}
     <form method="POST">
         {csrf_field}
         <div class="list-group" id="all-edit">

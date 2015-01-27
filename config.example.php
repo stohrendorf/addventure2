@@ -27,7 +27,8 @@ define('ADDVENTURE_DB_SCHEMA', 'addventure');
  */
 define('ADDVENTURE_MAX_RECENT', 100);
 /**
- * Maximum number entries on a general result page.
+ * Maximum number of entries on a general result page.
+ * This also affects the number of results in the backlink search dialog.
  */
 define('ADDVENTURE_RESULTS_PER_PAGE', 20);
 /**
@@ -54,3 +55,11 @@ define('ADDVENTURE_MAX_FAILED_LOGINS', 5);
  * After this many hours, an "AwaitingApproval" account will become invalid.
  */
 define('ADDVENTURE_MAX_AWAITING_APPROVAL_HOURS', 8);
+/**
+ * Minimum number of required links when creating an episode.
+ */
+define('ADDVENTURE_MIN_LINKS', 3);
+/**
+ * Maximum number of allowed links when creating an episode.
+ */
+define('ADDVENTURE_MAX_LINKS', 6);

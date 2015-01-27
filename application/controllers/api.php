@@ -55,7 +55,7 @@ class Api extends CI_Controller
                     ->where('e.linkable = TRUE')
                     ->andWhere('CONCAT(IDENTITY(e.id), \'\') LIKE :filter')
                     ->orderBy('e.id') // and then ordered by target
-                    ->setMaxResults(50);
+                    ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
             $qb->setParameter('filter', '%' . addcslashes($filter, '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
             foreach($qb->getQuery()->getResult() as $link) {
                 $result[] = $link->toJson();
@@ -69,7 +69,7 @@ class Api extends CI_Controller
                     ->andWhere('UPPER(e.title) LIKE :filter')
                     ->orderBy('len') // the most-matching first
                     ->addOrderBy('e.title') // and then ordered by target
-                    ->setMaxResults(50);
+                    ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
             $qb->setParameter('filter', '%' . addcslashes(mb_convert_case($filter, MB_CASE_UPPER), '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
             foreach($qb->getQuery()->getResult() as $link) {
                 $result[] = $link->toJson();

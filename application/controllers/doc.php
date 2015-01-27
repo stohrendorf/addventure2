@@ -315,10 +315,30 @@ class Doc extends CI_Controller
             $author = null;
         }
 
-        if(empty($content) || empty($combinedOpts) || empty($title) || empty($signedoff)) {
+        $errors = array();
+        if(empty($content)) {
+            $errors[] = _('You haven\'t entered a story yet.');
+        }
+        if(empty($title)) {
+            $errors[] = _('Your episode doesn\'t have a title.');
+        }
+        if(empty($signedoff)) {
+            $errors[] = _('You haven\'t signed your story.');
+        }
+        if(count($combinedOpts) < ADDVENTURE_MIN_LINKS) {
+            $errors[] = sprintf(_('You have to provide at least %1$d links.'), ADDVENTURE_MIN_LINKS);
+        }
+        elseif(count($combinedOpts) > ADDVENTURE_MAX_LINKS) {
+            $errors[] = sprintf(_('You may not provide more than %1$d links.'), ADDVENTURE_MAX_LINKS);
+        }
+
+        if(!empty($errors)) {
             if($episode->getParent()) {
                 $smarty->assign('parenttext', $episode->getParent()->getText());
                 $smarty->assign('parentnotes', $episode->getParent()->getNotes());
+            }
+            if($this->input->post('title') !== false) {
+                $smarty->assign('errors', $errors);
             }
             $smarty->assign('content', $content);
             $smarty->assign('options', $combinedOpts);
