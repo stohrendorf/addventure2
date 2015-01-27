@@ -63,3 +63,7 @@ define('ADDVENTURE_MIN_LINKS', 3);
  * Maximum number of allowed links when creating an episode.
  */
 define('ADDVENTURE_MAX_LINKS', 6);
+/**
+ * Show "This comment has automatically been..." warnings.
+ */
+define('ADDVENTURE_LEGACY_INFO', FALSE);
