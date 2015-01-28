@@ -16,7 +16,8 @@ else {
  * @return \Monolog\Logger
  * @codeCoverageIgnore
  */
-function initLogger() {
+function initLogger()
+{
     static $logger = null;
     if($logger !== null) {
         return $logger;
@@ -51,7 +52,8 @@ else {
  * @return \Doctrine\ORM\EntityManager
  * @codeCoverageIgnore
  */
-function initDoctrineConnection() {
+function initDoctrineConnection()
+{
     static $entityManager = null;
 
     if($entityManager !== null) {
@@ -77,8 +79,30 @@ function initDoctrineConnection() {
         );
     }
 
-    $doctrineConfig = Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration(array(__DIR__ . "/dao/core"), ENVIRONMENT !== 'production', __DIR__ . "/dao/proxies");
-    
+    if(extension_loaded('apc')) {
+        $cache = new \Doctrine\Common\Cache\ApcCache();
+    }
+    elseif(extension_loaded('xcache')) {
+        $cache = new \Doctrine\Common\Cache\XcacheCache();
+    }
+    elseif(extension_loaded('memcache')) {
+        $memcache = new \Memcache();
+        $memcache->connect('127.0.0.1');
+        $cache = new \Doctrine\Common\Cache\MemcacheCache();
+        $cache->setMemcache($memcache);
+    }
+    elseif(extension_loaded('redis')) {
+        $redis = new \Redis();
+        $redis->connect('127.0.0.1');
+        $cache = new \Doctrine\Common\Cache\RedisCache();
+        $cache->setRedis($redis);
+    }
+    else {
+        $cache = new ArrayCache();
+    }
+
+    $doctrineConfig = Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration(array(__DIR__ . "/dao/core"), ENVIRONMENT !== 'production', __DIR__ . "/dao/proxies", $cache);
+
     $entityManager = Doctrine\ORM\EntityManager::create($doctrineDbConfig, $doctrineConfig);
 
     if(ENVIRONMENT === 'testing') {
@@ -102,7 +126,8 @@ $entityManager = initDoctrineConnection();
  * @return string Simplified string
  * @throws \InvalidArgumentException if the length is exceeded or if $allowEmpty is true and the string is empty
  */
-function simplifyWhitespace($text, $maxLength, $allowEmpty = true) {
+function simplifyWhitespace($text, $maxLength, $allowEmpty = true)
+{
     $text = trim(preg_replace('/\s+/', ' ', $text));
     if(mb_strlen($text) > $maxLength) {
         throw new \InvalidArgumentException("Text too long");
