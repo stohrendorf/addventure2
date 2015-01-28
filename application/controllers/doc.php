@@ -117,18 +117,25 @@ class Doc extends CI_Controller
 
     public function random()
     {
-        $rsm = new \Doctrine\ORM\Query\ResultSetMapping();
-        $rsm->addScalarResult('id', 'id', 'integer');
         $this->load->library('em');
-        if(ADDVENTURE_DB_DRIVER === 'pdo_mysql') {
-            $query = $this->em->getEntityManager()->createNativeQuery('SELECT r1.id AS id FROM Episode AS r1 JOIN (SELECT (RAND() * (SELECT MAX(e.id) FROM Episode e))+1 AS id) AS r2'
-                    . ' WHERE r1.id >= r2.id AND r1.text IS NOT NULL'
-                    . ' ORDER BY r1.id ASC LIMIT 1', $rsm);
+        $query = $this->em->getEntityManager()->createQuery('SELECT MIN(e.id) AS minId, MAX(e.id) AS maxId FROM addventure\Episode e WHERE e.text IS NOT NULL');
+        $limits = $query->getOneOrNullResult();
+        
+        if(!$limits) {
+            redirect('/');
+            return;
         }
-        else {
-            $query = $this->em->getEntityManager()->createNativeQuery('SELECT id FROM Episode WHERE text IS NOT NULL AND id>=(SELECT RANDOM()*MAX(id) FROM Episode) LIMIT 1', $rsm);
+        
+        $ep = null;
+        while(!$ep) {
+            $rid = rand($limits['minId'], $limits['maxId']);
+            $ep = $this->em->findEpisode($rid);
+            if(!$ep->getText()) {
+                $ep = null;
+            }
         }
-        $this->index($query->getSingleScalarResult());
+        
+        $this->index($ep->getId());
     }
 
     public function subscribe($docId)
