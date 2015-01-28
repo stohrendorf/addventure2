@@ -1,6 +1,5 @@
 #!/usr/bin/env php
 <?php
-
 require_once 'doctrine-bootstrap.php';
 
 use Symfony\Component\Console\Command\Command;
@@ -8,6 +7,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Application;
+
+// -----------------------------------------------------------------------------
 
 class PatchAuthorNames extends Command
 {
@@ -131,6 +132,8 @@ class PatchAuthorNames extends Command
 
 }
 
+// -----------------------------------------------------------------------------
+
 class CreateTranslations extends Command
 {
 
@@ -146,13 +149,85 @@ class CreateTranslations extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeln('Running tsmarty2c...');
-        
+
         $outputName = realpath('./application/language') . '/' . $input->getArgument('language') . '.pot';
         $output->writeln("<info>POT file: $outputName</info>");
         system('php ./vendor/smarty-gettext/smarty-gettext/tsmarty2c.php -o ' . $outputName . ' ' . realpath('./templates/'));
-	system('xgettext -j -o ' . $outputName . ' ' . realpath('./application') . '/*/*.php');
+        system('xgettext -j -o ' . $outputName . ' ' . realpath('./application') . '/*/*.php');
     }
+
 }
+
+// -----------------------------------------------------------------------------
+
+class FindOrphans extends Command
+{
+
+    protected function configure()
+    {
+        $this
+                ->setName('find-orphans')
+                ->setDescription('Find episodes that have a parent that does not have a link to that episode')
+                ->setHelp('Orphans are episodes, where the parent episode has been deleted (due to spam reasons or rule violations),' . "\n"
+                        . 'and later someone created a new episode from the grand-parent\'s episode, replacing the deleted parent.' . "\n"
+                        . 'In the old Addventure, this leads to the problem that the replaced parent episode now contains' . "\n"
+                        . 'completely unrelated child links which don\'t link to the orphan anymore.  This command finds' . "\n"
+                        . 'these episodes.')
+        ;
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $output->writeln('Searching for orphans...');
+
+        $em = initDoctrineConnection();
+        $query = $em->createQuery('SELECT e FROM addventure\Episode e WHERE e.parent IS NOT NULL AND NOT EXISTS '
+                . '(SELECT 1 FROM addventure\Link l WHERE l.fromEp=e.parent AND l.toEp=e.id)');
+        $n = 0;
+        foreach($query->iterate() as $row) {
+            $ep = $row[0];
+            $parent = $ep->getParent()->getId();
+            $id = $ep->getId();
+            $output->writeln("#$id is orphaned through parent #$parent");
+            ++$n;
+        }
+        $output->writeln("<info>$n orphans found</info>");
+    }
+
+}
+
+// -----------------------------------------------------------------------------
+
+class FindRoots extends Command
+{
+
+    protected function configure()
+    {
+        $this
+                ->setName('find-roots')
+                ->setDescription('Find episodes that do not have a parent')
+        ;
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $output->writeln('Searching for roots...');
+
+        $em = initDoctrineConnection();
+        $query = $em->createQuery('SELECT e FROM addventure\Episode e WHERE e.parent IS NULL');
+        $n = 0;
+        foreach($query->iterate() as $row) {
+            $ep = $row[0];
+            $id = $ep->getId();
+            $output->writeln("#$id");
+            ++$n;
+        }
+        $output->writeln("<info>$n roots found</info>");
+    }
+
+}
+
+// -----------------------------------------------------------------------------
 
 function addventureCtl()
 {
@@ -160,6 +235,8 @@ function addventureCtl()
     $application = new Application();
     $application->add(new PatchAuthorNames());
     $application->add(new CreateTranslations());
+    $application->add(new FindOrphans());
+    $application->add(new FindRoots());
     $application->run();
 }
 
