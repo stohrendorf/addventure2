@@ -1,6 +1,6 @@
 <?php
 
-define('ENVIRONMENT', 'testing');
+@define('ENVIRONMENT', 'testing');
 define('ADDVENTURE_DB_DRIVER', '');
 define('ADDVENTURE_DB_USER', '');
 define('ADDVENTURE_DB_PASSWORD', '');

@@ -5,7 +5,7 @@ namespace addventure;
 /**
  * @Entity
  * @Table(
- *     indexes={@Index(name="userIndex", columns={"user_id"}), @Index(name="episodeIndex", columns={"episode_id"})}
+ *     indexes={@Index(name="notificationUserIndex", columns={"user_id"}), @Index(name="notificationEpisodeIndex", columns={"episode_id"})}
  * )
  */
 class Notification {

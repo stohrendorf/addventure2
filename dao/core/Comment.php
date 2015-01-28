@@ -6,8 +6,8 @@ namespace addventure;
  * @Entity
  * @Table(
  *     indexes={
- *         @Index(name="episodeIndex", columns={"episode_id"}),
- *         @Index(name="authorIndex", columns={"author_name_id"})
+ *         @Index(name="commentEpisodeIndex", columns={"episode_id"}),
+ *         @Index(name="commentAuthorIndex", columns={"author_name_id"})
  *     },
  *     uniqueConstraints={
  *         @UniqueConstraint(name="episodeTimestampComment", columns={"episode_id","created"})
