@@ -27,17 +27,16 @@ function initLogger() {
         Monolog\ErrorHandler::register($logger);
     }
 
-    if(php_sapi_name() !== 'cli' && !extension_loaded('apc')) {
-        $logger->warning('You are seeing this message because you haven\' enabled APC in your server. Please do so to get better performance');
-    }
-    if(ENVIRONMENT !== 'production') {
-        $logger->warning('You are running the Addventure in development mode');
+    if(php_sapi_name() !== 'cli') {
+        if(!extension_loaded('apc') && !extension_loaded('memcache') && !extension_loaded('xcache') && !extension_loaded('redis')) {
+            $logger->warning('You are seeing this message because you haven\' enabled APC/memcache/xcache/redis in your server. Please do so to get better performance');
+        }
     }
     return $logger;
 }
 
 if(ENVIRONMENT !== 'production') {
-    initLogger()->warning('You are running the Addventure in development mode');
+    initLogger()->warning('You are not running the Addventure in production mode');
     define('JSON_FLAGS', JSON_PRETTY_PRINT);
     if(ENVIRONMENT !== 'testing') {
         error_reporting(E_ALL);
@@ -79,7 +78,7 @@ function initDoctrineConnection() {
     }
 
     $doctrineConfig = Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration(array(__DIR__ . "/dao/core"), ENVIRONMENT !== 'production', __DIR__ . "/dao/proxies");
-
+    
     $entityManager = Doctrine\ORM\EntityManager::create($doctrineDbConfig, $doctrineConfig);
 
     if(ENVIRONMENT === 'testing') {

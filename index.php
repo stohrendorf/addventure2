@@ -49,9 +49,6 @@ else {
 define('TEMPLATEPATH', str_replace('\\', '/', realpath('templates')) . '/');
 define('VENDORPATH', str_replace('\\', '/', realpath('vendor')) . '/');
 
-// TODO language
-putenv("LANG=en");
-
 function getLanguageFromHttp()
 {
     // from: http://www.thefutureoftheweb.com/blog/use-accept-language-header
@@ -83,6 +80,7 @@ function getLanguageFromHttp()
 
 function setGettextLang() {
     $lang = getLanguageFromHttp();
+    putenv("LANG=$lang");
     setlocale(LC_ALL, $lang);
     // Set the text domain as 'messages'
     bindtextdomain('messages', APPPATH . '/language/');
