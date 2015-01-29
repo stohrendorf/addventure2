@@ -56,7 +56,7 @@
     </div>
 
     {call name="showEpisode"}
-    <div class="panel panel-primary">
+    <div class="panel panel-primary children">
         <div class="panel-body" id="links">
             {$canSubscribe=false}
             {foreach $episode.children as $link}

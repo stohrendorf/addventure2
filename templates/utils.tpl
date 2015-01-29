@@ -24,7 +24,7 @@
         {if isset($episode.preNotes) || $client.canEdit}
             <div class="panel-heading">
                 {if isset($episode.preNotes)}
-                    <b>{t}Author's Notes{/t}</b>
+                    <h4><b>{t}Author's Notes{/t}</b></h4>
                     <p>{$episode.preNotes|smileys}</p>
                     {if $smarty.const.ADDVENTURE_LEGACY_INFO}
                         <small style="font-style: italic;">{t escape=no 1="{$url.site}/maintenance/reportTitle/{$episode.id}"}This note has been <em>automatically</em> taken from the episode's legacy title, as it seemed pretty long.
@@ -32,7 +32,7 @@
                     {/if}
                 {/if}
                 {if $client.canEdit}
-                    <a href="{$url.site}/doc/edit/{$episode.id}"><span class="glyphicon glyphicon-edit"></span> {t}Edit{/t}</a>
+                    <a href="{$url.site}/doc/edit/{$episode.id}"><span class="glyphicon glyphicon-edit"></span>&nbsp;{t}Edit{/t}</a>
                 {/if}
             </div>
         {/if}
@@ -43,7 +43,7 @@
 
         {if isset($episode.notes)}
             <div class="panel-footer">
-                <b>{t}Author's Notes{/t}</b>
+                <h4><b>{t}Author's Notes{/t}</b></h4>
                 <p>{$episode.notes|smileys}</p>
                 {if $smarty.const.ADDVENTURE_LEGACY_INFO}
                     <small style="font-style: italic;">{t escape=no 1="{$url.site}/maintenance/reportNotes/{$episode.id}"}This note has been <em>automatically</em> extracted from the legacy episode's author name.
@@ -53,7 +53,7 @@
         {/if}
     </div>
 
-    <div class="list-group">
+    <div class="list-group comments">
         {if !empty($episode.comments)}
             <h4 class="list-group-item list-group-item-info">
                 <span class="glyphicon glyphicon-comment"></span> {t}Comments...{/t}

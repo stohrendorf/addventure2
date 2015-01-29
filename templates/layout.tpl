@@ -11,16 +11,28 @@
         <link href="{$url.site}/feed/atom" rel="alternate" type="application/atom+xml" title="{t}Recent episodes (ATOM){/t}"/>
         {literal}<style>
                 a:visited{color:purple;}
-                a.unwritten-episode{color:#AA0000;}
-                body > * {max-width:960px;}
+                a.unwritten-episode {
+                    color:#AA0000;
+                }
+                h1, h2, h3, h4, h5, h6 {
+                    font-family: "Linux Libertine",Georgia,Times,serif;
+                }
+                article {
+                    font-family: "Linux Libertine O",Georgia,Times,serif;
+                    font-size: 110%;
+                }
+                div.comments, div.children {
+                    max-width: 960px;
+                    margin: auto;
+                }
             </style>{/literal}
         {block name=headElements}{/block}
     </head>
     <body style="margin:auto;">
         <header class="page-header center-block">
-            <h1>Addventure2 <small>{t}your forest of imagination...{/t}</small></h1>
+            <h1>Addventure<sup>2</sup> <small>{t}your forest of imagination...{/t}</small></h1>
         </header>
-        <nav class="navbar navbar-default center-block">
+        <nav class="navbar navbar-default center-block  container-fluid">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
@@ -83,7 +95,7 @@
                 </div>
             </div>
         </nav>
-        <article class="content container page-body">
+        <article class="content  container-fluid page-body">
             {block name=body}{/block}
         </article>
     </body>
