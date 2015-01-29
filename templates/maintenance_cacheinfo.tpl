@@ -1,6 +1,6 @@
 {extends 'layout.tpl'}
 {block name=title}
-    {t}Account locked{/t}
+    {t}Cache information{/t}
 {/block}
 {block name=body}
     <h3>{t}Database caching statistics{/t}</h3>
