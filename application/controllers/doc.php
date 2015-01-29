@@ -416,7 +416,6 @@ class Doc extends CI_Controller
         }
         else {
             // TODO update link texts
-            print_r($combinedOpts);
             foreach($combinedOpts as $opt) {
                 $query = $this->em->getEntityManager()->createQuery('SELECT l FROM addventure\Link l WHERE l.fromEp=?1 AND l.toEp=?2')
                         ->setParameter(1, $episode->getId())
