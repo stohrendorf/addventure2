@@ -35,7 +35,7 @@
                 {/if}
             </h3>
             <a href="{$url.site}/maintenance/illegal/{$episode.id}" style="color:red;" class="pull-right" id="report"
-               data-toggle="tooltip" data-placement="right" title="{t}This function is for reporting content that breaks the rules, not for crying about a bad story.{/t}"> <span class="glyphicon glyphicon-fire"></span> {t}Report inappropriate content{/t}</a>
+               data-toggle="tooltip" data-placement="right auto" title="{t}This function is for reporting content that breaks the rules, not for crying about a bad story.{/t}"> <span class="glyphicon glyphicon-fire"></span> {t}Report inappropriate content{/t}</a>
             <span class="clearfix"></span>
             {if !empty($episode.tags)}
                 <span class="glyphicon glyphicon-tags"></span>
@@ -56,12 +56,105 @@
     </div>
 
     {call name="showEpisode"}
+    
+    <div class="list-group comments">
+        {if !empty($episode.comments)}
+            <h4 class="list-group-item list-group-item-info">
+                <span class="glyphicon glyphicon-comment"></span> {t}Comments...{/t}
+            </h4>
+            {foreach $episode.comments as $comment}
+                <div class="list-group-item">
+                    <h5 class="list-group-item-heading">
+                        {if $client.canEdit}
+                            <a href="{$url.site}/maintenance/deletecomment/{$comment.id}"><span class="glyphicon glyphicon-trash"></span> {t}Delete{/t}</a>
+                        {/if}
+                        {if isset($comment.author)}
+                            <a href="{$url.site}/recent/user/{$comment.author.user}">{$comment.author.name}</a>
+                        {else}
+                            &LeftAngleBracket;{t}John Doe{/t}&RightAngleBracket;
+                        {/if}
+                        <span class="text-info">@ {$comment.created}</span>
+                    </h5>
+                    <div class="list-group-item-text">{$comment.text|smileys}</div>
+                </div>
+            {/foreach}
+            {if $client.canCreateComment}
+                <div class="list-group-item">
+                    <button class="btn btn-default btn-sm btn-block" id="add-comment">
+                        <span class="glyphicon glyphicon-comment"></span>
+                        {t}Add a comment{/t}
+                    </button>
+                </div>
+            {/if}
+        {else}
+            <h4 class="list-group-item list-group-item-info">
+                <span class="glyphicon glyphicon-comment"></span> {t}No comments yet{/t}
+            </h4>
+            {if $client.canCreateComment}
+                <div class="list-group-item">
+                    <button class="btn btn-default btn-sm btn-block" id="add-comment">
+                        <span class="glyphicon glyphicon-comment"></span>
+                        {t}Be the first to comment on this episode!{/t}
+                    </button>
+                </div>
+            {/if}
+        {/if}
+    </div>
+
+
+    <div class="modal fade" id="comment-dialog" role="dialog" aria-labelledby="" aria-hidden="true" title="{t}Add a comment{/t}">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">{t}Add a comment{/t}</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" id="comment-text" style="min-height: 200px;" required placeholder="{t}Your comment{/t}"></textarea>
+                    <input type="text" class="form-control" id="comment-author" required placeholder="{t}Signed off{/t}" value="{$client.username}"/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="publish-comment">{t}Publish!{/t}</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{t}Abort{/t}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            var dlg = $('#comment-dialog');
+            dlg.modal('hide');
+            var addCommentBtn = function () {
+                dlg.modal('show');
+                return false;
+            };
+            $('#add-comment').click(addCommentBtn);
+
+            var publishComment = function () {
+                $.post(
+                    '{$url.site}/api/addcomment/{$episode.id}',
+                    {
+                        {csrf_json},
+                        'comment': $('#comment-text').val(),
+                        'author': $('#comment-author').val()
+                    },
+                    function () {
+                        location.reload();
+                    }
+                );
+                return false;
+            };
+            $('#publish-comment').click(publishComment);
+        });
+    </script>
+    
     <div class="panel panel-primary children">
         <div class="panel-body" id="links">
             {$canSubscribe=false}
             {foreach $episode.children as $link}
                 {if !empty($link.subtree)}
-                    <a id="show-descendants" class="pull-right" style="cursor:pointer;" data-toggle="tooltip" data-placement="right" title="{t}Show episode tree. (May contain spoilers!){/t}">
+                    <a id="show-descendants" class="pull-right" style="cursor:pointer;" data-toggle="tooltip" data-placement="right auto" title="{t}Show episode tree. (May contain spoilers!){/t}">
                         <div style="top:0;right:0;" id="show-descendants-plus"><span class="glyphicon glyphicon-plus-sign" style="font-size:2em;"></span></div>
                         <div style="top:0;right:0;display:none;" id="show-descendants-minus"><span class="glyphicon glyphicon-minus-sign" style="font-size:2em;"></span></div>
                     </a>
@@ -98,13 +191,13 @@
                 <p style="margin:0 0 0.3em 1em;">
                     <a href="{$url.site}/doc/{$link.toEp}"
                        {if !$link.isWritten}
-                           class="unwritten-episode" data-toggle="tooltip" data-placement="left" title="{t}If you feel inspired now, you can add a new leaf to the tree.{/t}">
+                           class="unwritten-episode" data-toggle="tooltip" data-placement="left auto" title="{t}If you feel inspired now, you can add a new leaf to the tree.{/t}">
                            <span class="glyphicon glyphicon-pencil"></span>
                            {$canSubscribe=true}
                        {elseif !$link.isBacklink}
                            ><span class="glyphicon glyphicon-arrow-right"></span>
                        {else}
-                           data-toggle="tooltip" data-placement="left" title="{t}This will take you to a (possibly) distant relative.{/t}">
+                           data-toggle="tooltip" data-placement="left auto" title="{t}This will take you to a (possibly) distant relative.{/t}">
                            <span class="glyphicon glyphicon-random"></span>
                        {/if}
                        {$link.title}
@@ -147,7 +240,10 @@
             });
         </script>
         {if isset($episode.parent)}
-            <div class="panel-footer"><a href="{$url.site}/doc/{$episode.parent}"><span class="glyphicon glyphicon-circle-arrow-left"></span> {t}Go to the parent episode.{/t}</a></div>
+            <div class="panel-footer">
+                <a href="{$url.site}/doc/{$episode.parent}"><span class="glyphicon glyphicon-circle-arrow-left"></span> {t}Go to the parent episode.{/t}</a>
+                <a href="{$url.site}/doc/chain/{$episode.id}/10" class="pull-right"><span class="glyphicon glyphicon-circle-arrow-up"></span> {t}What leads here?{/t}</a>
+            </div>
         {/if}
     </div>
 
