@@ -14,6 +14,7 @@ class Maintenance extends CI_Controller
         if($docId === null || $docId === false) {
             $this->log->warning('Maintenance/' . $description . ' - invalid DocID');
             show_404();
+            return;
         }
         $this->load->library('em');
         $episode = $this->em->findEpisode($docId);
@@ -86,4 +87,31 @@ class Maintenance extends CI_Controller
         $smarty->display('maintenance_cacheinfo.tpl');
     }
 
+    public function deletecomment($commentid) {
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user || !$this->userinfo->user->canEdit()) {
+            show_error(_('Forbidden'), 403);
+            return;
+        }
+        $this->load->library('log');
+        $commentid = filter_var($commentid, FILTER_SANITIZE_NUMBER_INT);
+        if($commentid === null || $commentid === false) {
+            $this->log->warning('Maintenance/deletecomment - invalid ID');
+            show_404();
+            return;
+        }
+        
+        $this->load->library('em');
+        $comment = $this->em->getEntityManager()->find('addventure\Comment', $commentid);
+        if(!$comment) {
+            $this->log->warning('Maintenance/deletecomment - comment not found');
+            show_404();
+            return;
+        }
+        $docid = $comment->getEpisode()->getId();
+        $this->em->getEntityManager()->remove($comment);
+        $this->em->getEntityManager()->flush();
+        $this->load->helper('url');
+        redirect("doc/$docid");
+    }
 }

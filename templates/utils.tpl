@@ -61,6 +61,9 @@
             {foreach $episode.comments as $comment}
                 <div class="list-group-item">
                     <h5 class="list-group-item-heading">
+                        {if $client.canEdit}
+                            <a href="{$url.site}/maintenance/deletecomment/{$comment.id}"><span class="glyphicon glyphicon-trash"></span> {t}Delete{/t}</a>
+                        {/if}
                         {if isset($comment.author)}
                             <a href="{$url.site}/recent/user/{$comment.author.user}">{$comment.author.name}</a>
                         {else}

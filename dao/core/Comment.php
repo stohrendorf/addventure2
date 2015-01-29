@@ -121,6 +121,7 @@ class Comment implements IAddventure {
      */
   public function toSmarty() {
       return array(
+          'id' => $this->id,
           'author' => ($this->authorName ? $this->authorName->toSmarty() : null),
           'created' => $this->created->format("l, d M Y H:i"),
           'text' => $this->text

@@ -36,6 +36,8 @@ function initLogger()
     return $logger;
 }
 
+initLogger();
+
 if(ENVIRONMENT !== 'production') {
     initLogger()->warning('You are not running the Addventure in production mode');
     define('JSON_FLAGS', JSON_PRETTY_PRINT);
