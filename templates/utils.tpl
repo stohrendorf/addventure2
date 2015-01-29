@@ -21,18 +21,25 @@
 {/function}
 {function name=showEpisode}
     <div class="panel panel-default">
-        {if isset($episode.preNotes)}
+        {if isset($episode.preNotes) || $client.canEdit}
             <div class="panel-heading">
-                <b>{t}Author's Notes{/t}</b>
-                <p>{$episode.preNotes|smileys}</p>
-                {if $smarty.const.ADDVENTURE_LEGACY_INFO}
-                    <small style="font-style: italic;">{t escape=no 1="{$url.site}/maintenance/reportTitle/{$episode.id}"}This note has been <em>automatically</em> taken from the episode's legacy title, as it seemed pretty long.
-                        But machines aren't perfect: do you think this is wrong? <a href="%1">Report it!</a>{/t}</small>
+                {if isset($episode.preNotes)}
+                    <b>{t}Author's Notes{/t}</b>
+                    <p>{$episode.preNotes|smileys}</p>
+                    {if $smarty.const.ADDVENTURE_LEGACY_INFO}
+                        <small style="font-style: italic;">{t escape=no 1="{$url.site}/maintenance/reportTitle/{$episode.id}"}This note has been <em>automatically</em> taken from the episode's legacy title, as it seemed pretty long.
+                            But machines aren't perfect: do you think this is wrong? <a href="%1">Report it!</a>{/t}</small>
+                    {/if}
+                {/if}
+                {if $client.canEdit}
+                    <a href="{$url.site}/doc/edit/{$episode.id}"><span class="glyphicon glyphicon-edit"></span> {t}Edit{/t}</a>
                 {/if}
             </div>
         {/if}
 
-        <div class="panel-body" style="background-color:#fffcee;">{$episode.text}</div>
+        <div class="panel-body" style="background-color:#fffcee;">
+            {$episode.text}
+        </div>
 
         {if isset($episode.notes)}
             <div class="panel-footer">

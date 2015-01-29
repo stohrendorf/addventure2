@@ -120,12 +120,12 @@ class Doc extends CI_Controller
         $this->load->library('em');
         $query = $this->em->getEntityManager()->createQuery('SELECT MIN(e.id) AS minId, MAX(e.id) AS maxId FROM addventure\Episode e WHERE e.text IS NOT NULL');
         $limits = $query->getOneOrNullResult();
-        
+
         if(!$limits) {
             redirect('/');
             return;
         }
-        
+
         $ep = null;
         while(!$ep) {
             $rid = rand($limits['minId'], $limits['maxId']);
@@ -134,7 +134,7 @@ class Doc extends CI_Controller
                 $ep = null;
             }
         }
-        
+
         $this->index($ep->getId());
     }
 
@@ -171,7 +171,7 @@ class Doc extends CI_Controller
         redirect('doc/' . $docId);
     }
 
-    private function _parseOptions($options, $targets)
+    private function _parseOptions($options, $targets, $isCreation)
     {
         if($options === false || $targets === false || count($options) != count($targets)) {
             $options = array();
@@ -195,9 +195,9 @@ class Doc extends CI_Controller
 
         // remove empty options and wrong targets
         $em = $this->em;
-        array_walk($combinedOpts, function(&$entry) use($em) {
+        array_walk($combinedOpts, function(&$entry) use($em, $isCreation) {
             $entry['title'] = trim(xss_clean2($entry['title']));
-            if(!empty($entry['target'])) {
+            if($isCreation && !empty($entry['target'])) {
                 $ep = $em->findEpisode($entry['target']);
                 if(!$ep || !$ep->getLinkable()) {
                     $entry['target'] = '';
@@ -244,13 +244,14 @@ class Doc extends CI_Controller
         redirect('doc/' . $docId);
     }
 
-    public function create($docId)
+    private function _editEpisode($docId, $isCreation)
     {
         $this->load->helper('url');
         $this->load->helper('smarty');
         $this->load->library('em');
 
         $smarty = createSmarty();
+        $smarty->assign('isCreation', $isCreation);
 
         // Check if the document is ready to be created and that the user
         // is allowed to create it.
@@ -264,56 +265,71 @@ class Doc extends CI_Controller
             show_error(_('Document not found'), 404);
             return;
         }
-        if($episode->getText() !== NULL) {
-            show_error(_('Document already created'));
-            return;
-        }
+
         $this->load->library('userinfo');
-        if(!$this->userinfo->user || !$this->userinfo->user->canCreateEpisode()) {
-            $smarty->display('account_benefits.tpl');
-            return;
+
+        if($isCreation) {
+            if($episode->getText() !== NULL) {
+                show_error(_('Document already created'));
+                return;
+            }
+            if(!$this->userinfo->user || !$this->userinfo->user->canCreateEpisode()) {
+                $smarty->display('account_benefits.tpl');
+                return;
+            }
+        }
+        else {
+            if(!$this->userinfo->user || !$this->userinfo->user->canEdit()) {
+                $smarty->display('account_benefits.tpl');
+                return;
+            }
         }
 
         // Get the necessary information
         $this->load->helper('xss_clean');
         $preNotes = $this->input->post('preNotes');
         if($preNotes === false) {
-            $preNotes = '';
+            $preNotes = $isCreation ? '' : $episode->getPreNotes();
         }
         $preNotes = xss_clean2($preNotes);
 
         $title = $this->input->post('title');
         if($title === false) {
-            $title = '';
+            $title = $isCreation ? '' : $episode->getTitle();
         }
         $title = xss_clean2(strip_tags($title));
 
         $content = $this->input->post('content');
         if($content === false) {
-            $content = '';
+            $content = $isCreation ? '' : $episode->getText();
         }
         $content = xss_clean2($content);
 
         $postNotes = $this->input->post('postNotes');
         if($postNotes === false) {
-            $postNotes = '';
+            $postNotes = $isCreation ? '' : $episode->getNotes();
         }
         $postNotes = xss_clean2($postNotes);
 
         $signedoff = $this->input->post('signedoff');
         if($signedoff === false || empty($signedoff)) {
-            $signedoff = $this->userinfo->user->getUsername();
+            $signedoff = $isCreation ? $this->userinfo->user->getUsername() : $episode->getAuthor()->getName();
         }
         $signedoff = trim(xss_clean2($signedoff));
-        if(!empty($signedoff)) {
-            // TODO check if the signed-off name is already occupied by somebody else
-        }
-        
-        $linkable = $this->input->post('linkable') === 'true';
+
+        $linkable = $isCreation ? ($this->input->post('linkable') === 'true') : $episode->getLinkable();
 
         $options = $this->input->post('options');
         $targets = $this->input->post('targets');
-        $combinedOpts = $this->_parseOptions($options, $targets);
+        $combinedOpts = $this->_parseOptions($options, $targets, $isCreation);
+        if(empty($combinedOpts)) {
+            $combinedOpts = array();
+            $query = $this->em->getEntityManager()->createQuery('SELECT l FROM addventure\Link l WHERE l.fromEp=?1 ORDER BY l.toEp')
+                    ->setParameter(1, $episode->getId());
+            foreach($query->getResult() as $link) {
+                $combinedOpts[] = array('title' => $link->getTitle(), 'target' => $link->getToEp()->getId());
+            }
+        }
 
         $errors = array();
         if(empty($content)) {
@@ -322,13 +338,15 @@ class Doc extends CI_Controller
         if(empty($title)) {
             $errors[] = _('Your episode doesn\'t have a title.');
         }
-        if(empty($signedoff)) {
-            $errors[] = _('You haven\'t signed your story.');
-        }
-        else {
-            $author = $this->em->findOrCreateAuthorForUser($this->userinfo->user, $signedoff, false);
-            if(!$author) {
-                $errors[] = _('The name you chose is already used by somebody else.');
+        if($isCreation) {
+            if(empty($signedoff)) {
+                $errors[] = _('You haven\'t signed your story.');
+            }
+            else {
+                $author = $this->em->findOrCreateAuthorForUser($this->userinfo->user, $signedoff, false);
+                if(!$author) {
+                    $errors[] = _('The name you chose is already used by somebody else.');
+                }
             }
         }
         if(count($combinedOpts) < ADDVENTURE_MIN_LINKS) {
@@ -338,7 +356,7 @@ class Doc extends CI_Controller
             $errors[] = sprintf(_('You may not provide more than %1$d links.'), ADDVENTURE_MAX_LINKS);
         }
 
-        if(!empty($errors)) {
+        if(!empty($errors) || (!$isCreation && false === $this->input->post('content'))) {
             if($episode->getParent()) {
                 $smarty->assign('parenttext', $episode->getParent()->getText());
                 $smarty->assign('parentnotes', $episode->getParent()->getNotes());
@@ -360,53 +378,86 @@ class Doc extends CI_Controller
 
         $this->em->getEntityManager()->beginTransaction();
 
-        $thisEp = $this->em->findEpisode($docId);
-        $author = $this->em->findOrCreateAuthorForUser($this->userinfo->user, $signedoff, true);
-        $thisEp->setAuthor($author);
-        $thisEp->setTitle($title);
-        $thisEp->setPreNotes($preNotes);
-        $thisEp->setNotes($postNotes);
-        $thisEp->setText($content);
-        $thisEp->setLinkable($linkable);
-        $thisEp->setCreated(new \DateTime());
-        foreach($combinedOpts as $opt) {
-            $link = new addventure\Link();
-            $link->setTitle($opt['title']);
-            $link->setFromEp($thisEp);
-            if(!empty($opt['target'])) {
-                $targetEp = $this->em->findEpisode($opt['target']);
-                assert($targetEp != null);
-                assert($targetEp->getLinkable());
-                $link->setToEp($targetEp);
-                $link->setIsBacklink(true);
-            }
-            else {
-                $newChild = new addventure\Episode();
-                $link->setToEp($newChild);
-                $newChild->setParent($thisEp);
-                $this->em->getEntityManager()->persist($newChild);
-                $this->em->getEntityManager()->flush($newChild);
-            }
-            $this->em->getEntityManager()->persist($link);
+        if($isCreation) {
+            $author = $this->em->findOrCreateAuthorForUser($this->userinfo->user, $signedoff, true);
+            $episode->setAuthor($author);
         }
-        $author->getEpisodes()->add($thisEp);
-        $this->em->getEntityManager()->persist($author);
-        $this->em->getEntityManager()->persist($thisEp);
-        $this->em->getEntityManager()->flush($thisEp);
+        $episode->setTitle($title);
+        $episode->setPreNotes($preNotes);
+        $episode->setNotes($postNotes);
+        $episode->setText($content);
+        $episode->setLinkable($linkable);
+        if($isCreation) {
+            $episode->setCreated(new \DateTime());
+        }
+        if($isCreation) {
+            foreach($combinedOpts as $opt) {
+                $link = new addventure\Link();
+                $link->setTitle($opt['title']);
+                $link->setFromEp($episode);
+                if(!empty($opt['target'])) {
+                    $targetEp = $this->em->findEpisode($opt['target']);
+                    assert($targetEp != null);
+                    assert($targetEp->getLinkable());
+                    $link->setToEp($targetEp);
+                    $link->setIsBacklink(true);
+                }
+                else {
+                    $newChild = new addventure\Episode();
+                    $link->setToEp($newChild);
+                    $newChild->setParent($episode);
+                    $this->em->getEntityManager()->persist($newChild);
+                    $this->em->getEntityManager()->flush($newChild);
+                }
+                $this->em->getEntityManager()->persist($link);
+            }
+            $author->getEpisodes()->add($episode);
+            $this->em->getEntityManager()->persist($author);
+        }
+        else {
+            // TODO update link texts
+            print_r($combinedOpts);
+            foreach($combinedOpts as $opt) {
+                $query = $this->em->getEntityManager()->createQuery('SELECT l FROM addventure\Link l WHERE l.fromEp=?1 AND l.toEp=?2')
+                        ->setParameter(1, $episode->getId())
+                        ->setParameter(2, $opt['target']);
+                $link = $query->getOneOrNullResult();
+                if(!$link) {
+                    show_error(_('Internal fault'), 503);
+                    return;
+                }
+                $link->setTitle($opt['title']);
+                $this->em->persistAndFlush($link);
+            }
+        }
+        $this->em->getEntityManager()->persist($episode);
+        $this->em->getEntityManager()->flush($episode);
 
         $this->em->getEntityManager()->commit();
         $this->em->getEntityManager()->flush();
 
-        // send notifications to subscribers
-        if($episode->getParent()) {
-            $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());
-            foreach($notifications as $notification) {
-                $this->_sendNotification($episode->getParent(), $notification->getUser());
+        if($isCreation) {
+            // send notifications to subscribers
+            if($episode->getParent()) {
+                $notifications = $this->em->getNotificationsForDoc($episode->getParent()->getId());
+                foreach($notifications as $notification) {
+                    $this->_sendNotification($episode->getParent(), $notification->getUser());
+                }
             }
         }
 
         $this->load->helper('url');
         redirect('doc/' . $docId);
+    }
+
+    public function create($docId)
+    {
+        $this->_editEpisode($docId, true);
+    }
+
+    public function edit($docId)
+    {
+        $this->_editEpisode($docId, false);
     }
 
     private function _sendNotification(addventure\Episode $srcDoc, addventure\User $recipient)

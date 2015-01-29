@@ -278,6 +278,10 @@ class User {
     public function canSubscribe() {
         return !$this->isLockedOut() && !$this->blocked && $this->role >= UserRole::Registered;
     }
+    
+    public function canEdit() {
+        return !$this->isLockedOut() && !$this->blocked && $this->role >= UserRole::Moderator;
+    }
 
     public function getUsername() {
         return $this->username;
@@ -323,6 +327,9 @@ class User {
             'canCreateEpisode' => $this->canCreateEpisode(),
             'canCreateComment' => $this->canCreateComment(),
             'canSubscribe' => $this->canSubscribe(),
+            'isAdministrator' => $this->isAdministrator(),
+            'isModerator' => $this->isModerator(),
+            'canEdit' => $this->canEdit(),
             'registeredSince' => ($this->registeredSince === null ? '' : $this->registeredSince->format("l, d M Y H:i"))
         );
     }
@@ -340,6 +347,9 @@ class User {
             'canCreateEpisode' => false,
             'canCreateComment' => false,
             'canSubscribe' => false,
+            'isAdministrator' => false,
+            'isModerator' => false,
+            'canEdit' => false,
             'registeredSince' => ''
         );
     }

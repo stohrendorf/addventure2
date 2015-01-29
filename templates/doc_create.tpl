@@ -17,7 +17,13 @@
     </style>
 {/block}
 
-{block name=title}{t 1=$docid}Create episode %1{/t}{/block}
+{block name=title}
+    {if $isCreation}
+        {t 1=$docid}Create episode %1{/t}
+    {else}
+        {t 1=$docid}Edit episode %1{/t}
+    {/if}
+{/block}
 
 {block name=body}
     <h3><span class="glyphicon glyphicon-edit"></span> {t 1=$docid}Create episode %1{/t}</h3>
@@ -76,12 +82,14 @@
                         <div class="form-group"><input class="form-control" type="text" placeholder="{t}The Awesome Episode Title{/t}" name="title" value="{$title}"/></div>
                         <textarea class="ckeditor" name="content">{$content}</textarea>
                         <div class="form-group" id="options">
-                            <div class="input-group hidden" id="option-template">
-                                <a href="#" class="rm-option-btn input-group-addon" title="{t}Remove this option{/t}"><span class="glyphicon glyphicon-trash"></span></a>
-                                <a href="#" class="backlink-btn input-group-addon" title="{t}Create a backlink{/t}"><span class="glyphicon glyphicon-random"></span> <span id="backlink-target"></span></a>
-                                <input class="option-text form-control" type="text" placeholder="{t}Link title{/t}" name="options[]" value=""/>
-                                <input class="option-target" type="hidden" name="targets[]" value=""/>
-                            </div>
+                            {if $isCreation}
+                                <div class="input-group hidden" id="option-template">
+                                    <a href="#" class="rm-option-btn input-group-addon" title="{t}Remove this option{/t}"><span class="glyphicon glyphicon-trash"></span></a>
+                                    <a href="#" class="backlink-btn input-group-addon" title="{t}Create a backlink{/t}"><span class="glyphicon glyphicon-random"></span> <span id="backlink-target"></span></a>
+                                    <input class="option-text form-control" type="text" placeholder="{t}Link title{/t}" name="options[]" value=""/>
+                                    <input class="option-target" type="hidden" name="targets[]" value=""/>
+                                </div>
+                            {/if}
                             {if empty($options)}
                                 {$options=array()}
                             {/if}
@@ -89,86 +97,101 @@
                             {foreach $options as $option}
                                 {$i=$i+1}
                                 <div class="input-group">
-                                    <a href="#" class="rm-option-btn input-group-addon" title="{t}Remove this option{/t}"><span class="glyphicon glyphicon-trash"></span></a>
-                                    <a href="#" class="backlink-btn input-group-addon" title="{t}Create a backlink{/t}"><span class="glyphicon glyphicon-random"></span> <span id="backlink-target">{$option['target']}</span></a>
+                                    {if $isCreation}
+                                        <a href="#" class="rm-option-btn input-group-addon" title="{t}Remove this option{/t}">
+                                            <span class="glyphicon glyphicon-trash"></span>
+                                        </a>
+                                        <a href="#" class="backlink-btn input-group-addon" title="{t}Create a backlink{/t}">
+                                            <span class="glyphicon glyphicon-random"></span>
+                                            <span id="backlink-target">{$option['target']}</span>
+                                        </a>
+                                    {else}
+                                        <span class="backlink-btn input-group-addon">
+                                            <span id="backlink-target">{$option['target']}</span>
+                                        </span>
+                                    {/if}
                                     <input class="option-text form-control" type="text" placeholder="{t}Link title{/t}" name="options[]" value="{$option['title']|escape}"/>
                                     <input class="option-target" type="hidden" name="targets[]" value="{$option['target']}"/>
                                 </div>
                             {/foreach}
                         </div>
-                        <div class="form-group">
-                            <button class="btn btn-block btn-outline add-option-btn" href="#">
-                                <span class="glyphicon glyphicon-plus"></span>
-                                {t}New link{/t}
-                            </button>
-                        </div>
+                        {if $isCreation}
+                            <div class="form-group">
+                                <button class="btn btn-block btn-outline add-option-btn" href="#">
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                    {t}New link{/t}
+                                </button>
+                            </div>
+                        {/if}
                     </div>
-                    <script>
-                        $(function () {
-                            var handleRmBtn = function () {
-                                var btn = $(this);
-                                var inp = btn.parent();
-                                inp.remove();
-                                return false;
-                            };
-                            $('.rm-option-btn').click(handleRmBtn);
+                    {if $isCreation}
+                        <script>
+                            $(function () {
+                                var handleRmBtn = function () {
+                                    var btn = $(this);
+                                    var inp = btn.parent();
+                                    inp.remove();
+                                    return false;
+                                };
+                                $('.rm-option-btn').click(handleRmBtn);
 
-                            var handleAddButton = function () {
-                                var cloned = $('#option-template').clone(true);
-                                cloned.removeClass('hidden');
-                                cloned.appendTo($('#options'));
-                                return false;
-                            };
-                            $('.add-option-btn').click(handleAddButton);
+                                var handleAddButton = function () {
+                                    var cloned = $('#option-template').clone(true);
+                                    cloned.removeClass('hidden');
+                                    cloned.appendTo($('#options'));
+                                    return false;
+                                };
+                                $('.add-option-btn').click(handleAddButton);
 
-                            var dlg = $('#backlinks-dialog');
-                            dlg.modal('hide');
-                            var selectedOption = null;
-                            var handleBacklinkButton = function () {
-                                selectedOption = $(this);
-                                dlg.modal('show');
-                                return false;
-                            };
-                            $('.backlink-btn').click(handleBacklinkButton);
-
-                            var typeaheadHandler = function () {
-                                var query = $('#backlinks-filter').val();
-                                if (query.length <= 0) {
-                                    return;
-                                }
-                                $.post(
-                                        '{$url.site}/api/backlinks/',
-                                        {
-                                            {csrf_json},
-                                            'query': query
-                                        },
-                                        function (data) {
-                                            var list = $('#backlinks');
-                                            list.empty();
-                                            data.entries.forEach(function (e) {
-                                                var clone = $('#backlink-template').clone(true);
-                                                clone.text(e.title);
-                                                clone.html(e.id + '&mdash;' + clone.html())
-                                                clone.attr('target', e.id);
-                                                clone.appendTo(list);
-                                                clone.removeClass('hidden');
-                                            });
-                                        },
-                                        'json'
-                                        );
-                            };
-                            $('#backlinks-filter').keyup(typeaheadHandler);
-
-                            var setBacklink = function () {
+                                var dlg = $('#backlinks-dialog');
                                 dlg.modal('hide');
-                                var t = $(this).attr('target');
-                                selectedOption.children('#backlink-target').text(' ' + t);
-                                selectedOption.parent().children('.option-target').val(t);
-                                return false;
-                            };
-                            $('#backlink-template').click(setBacklink);
-                        });
-                    </script>
+                                var selectedOption = null;
+                                var handleBacklinkButton = function () {
+                                    selectedOption = $(this);
+                                    dlg.modal('show');
+                                    return false;
+                                };
+                                $('.backlink-btn').click(handleBacklinkButton);
+
+                                var typeaheadHandler = function () {
+                                    var query = $('#backlinks-filter').val();
+                                    if (query.length <= 0) {
+                                        return;
+                                    }
+                                    $.post(
+                                            '{$url.site}/api/backlinks/',
+                                            {
+                                                {csrf_json},
+                                                'query': query
+                                            },
+                                            function (data) {
+                                                var list = $('#backlinks');
+                                                list.empty();
+                                                data.entries.forEach(function (e) {
+                                                    var clone = $('#backlink-template').clone(true);
+                                                    clone.text(e.title);
+                                                    clone.html(e.id + '&mdash;' + clone.html())
+                                                    clone.attr('target', e.id);
+                                                    clone.appendTo(list);
+                                                    clone.removeClass('hidden');
+                                                });
+                                            },
+                                            'json'
+                                            );
+                                };
+                                $('#backlinks-filter').keyup(typeaheadHandler);
+
+                                var setBacklink = function () {
+                                    dlg.modal('hide');
+                                    var t = $(this).attr('target');
+                                    selectedOption.children('#backlink-target').text(' ' + t);
+                                    selectedOption.parent().children('.option-target').val(t);
+                                    return false;
+                                };
+                                $('#backlink-template').click(setBacklink);
+                            });
+                        </script>
+                    {/if}
                 </div>
             </div>
             <div class="list-group-item">
@@ -190,9 +213,11 @@
                 {t}This episode is back-linkable.{/t}
             </label>
         </div>
-        <div class="form-group">
-            <input class="form-control" type="text" placeholder="{t}Signed off by{/t}" name="signedoff" value="{$signedoff}"/>
-        </div>
+        {if $isCreation}
+            <div class="form-group">
+                <input class="form-control" type="text" placeholder="{t}Signed off by{/t}" name="signedoff" value="{$signedoff}"/>
+            </div>
+        {/if}
         <button type="submit" class="button form-control default"><span class="glyphicon glyphicon-share"></span> {t}Publish!{/t}</button>
     </form>
 
