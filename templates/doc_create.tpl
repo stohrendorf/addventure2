@@ -26,7 +26,14 @@
 {/block}
 
 {block name=body}
-    <h3><span class="glyphicon glyphicon-edit"></span> {t 1=$docid}Create episode %1{/t}</h3>
+    <h3>
+        <span class="glyphicon glyphicon-edit"></span>
+        {if $isCreation}
+            {t 1=$docid}Create episode %1{/t}
+        {else}
+            {t 1=$docid}Edit episode %1{/t}
+        {/if}
+    </h3>
     {if isset($parenttext)}
         <div class="panel panel-default">
             <div class="panel-body" style="background-color:#fffcee;">{$parenttext}</div>
@@ -51,7 +58,7 @@
                 <ul>
                     {foreach $errors as $error}
                         <li>{$error|escape}</li>
-                        {/foreach}
+                    {/foreach}
                 </ul>
             </div>
         </div>
@@ -116,12 +123,25 @@
                             {/foreach}
                         </div>
                         {if $isCreation}
-                            <div class="form-group">
-                                <button class="btn btn-block btn-outline add-option-btn" href="#">
-                                    <span class="glyphicon glyphicon-plus"></span>
-                                    {t}New link{/t}
-                                </button>
-                            </div>
+                            <center class="form-inline">
+                                <div class="form-group">
+                                    <button class="btn btn-default add-option-btn" href="#">
+                                        <span class="glyphicon glyphicon-plus"></span>
+                                        {t}New link{/t}
+                                    </button>
+                                </div>
+                                <span style="margin:1em;"></span>
+                                <div class="input-group checkbox">
+                                    <label>
+                                        <input type="checkbox" value="true" name="linkable" {if $linkable}checked{/if}/>
+                                        {t}Allow back-links to this episode.{/t}
+                                    </label>
+                                </div>
+                                <span style="margin:1em;"></span>
+                                <div class="form-group">
+                                    <input class="form-control" type="text" placeholder="{t}Signed off by{/t}" name="signedoff" value="{$signedoff}" style="min-width:300px;"/>
+                                </div>
+                            </center>
                         {/if}
                     </div>
                     {if $isCreation}
@@ -207,37 +227,48 @@
                 </div>
             </div>
         </div>
-        <div class="input-group checkbox">
-            <label>
-                <input type="checkbox" value="true" name="linkable" {if $linkable}checked{/if}/>
-                {t}This episode is back-linkable.{/t}
-            </label>
-        </div>
         {if $isCreation}
-            <div class="form-group">
-                <input class="form-control" type="text" placeholder="{t}Signed off by{/t}" name="signedoff" value="{$signedoff}"/>
-            </div>
+            <center>
+                <div class="form-inline">
+                    <button type="submit" class="button form-control default btn-success"><span class="glyphicon glyphicon-share"></span> {t}Publish{/t}</button>
+                    {if isset($parentid)}
+                        {$backurl="{$url.site}/doc/{$parentid}"}
+                    {else}
+                        {$backurl={$url.site}}
+                    {/if}
+                    <a href="{$backurl}" class="button form-control default btn-danger" style="text-decoration: none; color: white;"><span class="glyphicon glyphicon-remove"></span> {t}Abort{/t}</a>
+                </div>
+            </center>
+        {else}
+            <center>
+                <div class="form-inline">
+                    <button type="submit" class="button form-control default btn-success"><span class="glyphicon glyphicon-ok"></span> {t}Save{/t}</button>
+                    <a href="{$url.site}/doc/{$docid}" class="button form-control default btn-danger" style="text-decoration: none; color: white;"><span class="glyphicon glyphicon-remove"></span> {t}Abort{/t}</a>
+                </div>
+            </center>
         {/if}
-        <button type="submit" class="button form-control default"><span class="glyphicon glyphicon-share"></span> {t}Publish!{/t}</button>
+        <div style="min-height: 500px;"></div>
     </form>
 
-    <div class="modal fade" id="backlinks-dialog" role="dialog" aria-labelledby="" aria-hidden="true" title="{t}Select backlink target{/t}">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">{t}Select backlink target{/t}</h4>
-                </div>
-                <div class="modal-body">
-                    <input type="text" id="backlinks-filter" class="form-control" placeholder="{t}Episode title or ID{/t}">
-                    <a class="list-group-item hidden" id="backlink-template" href="#"></a>
-                    <div class="list-group" id="backlinks">
+    {if $isCreation}
+        <div class="modal fade" id="backlinks-dialog" role="dialog" aria-labelledby="" aria-hidden="true" title="{t}Select backlink target{/t}">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{t}Select backlink target{/t}</h4>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">{t}Abort{/t}</button>
+                    <div class="modal-body">
+                        <input type="text" id="backlinks-filter" class="form-control" placeholder="{t}Episode title or ID{/t}">
+                        <a class="list-group-item hidden" id="backlink-template" href="#"></a>
+                        <div class="list-group" id="backlinks">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{t}Abort{/t}</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    {/if}
 {/block}

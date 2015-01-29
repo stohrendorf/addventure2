@@ -313,7 +313,12 @@ class Doc extends CI_Controller
 
         $signedoff = $this->input->post('signedoff');
         if($signedoff === false || empty($signedoff)) {
-            $signedoff = $isCreation ? $this->userinfo->user->getUsername() : $episode->getAuthor()->getName();
+            if($isCreation) {
+                $signedoff = $this->userinfo->user->getUsername();
+            }
+            else {
+                $signedoff = '';
+            }
         }
         $signedoff = trim(xss_clean2($signedoff));
 
@@ -360,6 +365,7 @@ class Doc extends CI_Controller
             if($episode->getParent()) {
                 $smarty->assign('parenttext', $episode->getParent()->getText());
                 $smarty->assign('parentnotes', $episode->getParent()->getNotes());
+                $smarty->assign('parentid', $episode->getParent()->getId());
             }
             if($this->input->post('title') !== false) {
                 $smarty->assign('errors', $errors);
@@ -415,7 +421,6 @@ class Doc extends CI_Controller
             $this->em->getEntityManager()->persist($author);
         }
         else {
-            // TODO update link texts
             foreach($combinedOpts as $opt) {
                 $query = $this->em->getEntityManager()->createQuery('SELECT l FROM addventure\Link l WHERE l.fromEp=?1 AND l.toEp=?2')
                         ->setParameter(1, $episode->getId())
