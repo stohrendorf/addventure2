@@ -100,7 +100,7 @@ function initDoctrineConnection()
         $cache->setRedis($redis);
     }
     else {
-        $cache = new ArrayCache();
+        $cache = new \Doctrine\Common\Cache\ArrayCache();
     }
 
     $doctrineConfig = Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration(array(__DIR__ . "/dao/core"), ENVIRONMENT !== 'production', __DIR__ . "/dao/proxies", $cache);
