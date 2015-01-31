@@ -1,6 +1,5 @@
 /vendor/
 /nbproject/private/
-/dao/proxies/*
 /init.sql
 /config.php
 /templates/cache/*

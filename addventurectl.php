@@ -91,7 +91,7 @@ class PatchAuthorNames extends Command
 
         $newAuthor->getEpisodes()->add($ep);
 
-        $ep->setNotes($notes);
+        $ep->setPostNotes($notes);
         $this->em->persist($ep);
         $this->em->persist($oldAuthor);
 

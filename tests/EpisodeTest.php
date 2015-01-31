@@ -89,10 +89,10 @@ class EpisodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers addventure\Episode::getNotes
-     * @todo   Implement testGetNotes().
+     * @covers addventure\Episode::getPostNotes
+     * @todo   Implement testGetPostNotes().
      */
-    public function testGetNotes()
+    public function testGetPostNotes()
     {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
@@ -245,10 +245,10 @@ class EpisodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers addventure\Episode::setNotes
+     * @covers addventure\Episode::setPostNotes
      * @todo   Implement testSetNotes().
      */
-    public function testSetNotes()
+    public function testSetPostNotes()
     {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(

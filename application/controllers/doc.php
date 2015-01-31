@@ -307,7 +307,7 @@ class Doc extends CI_Controller
 
         $postNotes = $this->input->post('postNotes');
         if($postNotes === false) {
-            $postNotes = $isCreation ? '' : $episode->getNotes();
+            $postNotes = $isCreation ? '' : $episode->getPostNotes();
         }
         $postNotes = xss_clean2($postNotes);
 
@@ -364,7 +364,7 @@ class Doc extends CI_Controller
         if(!empty($errors) || (!$isCreation && false === $this->input->post('content'))) {
             if($episode->getParent()) {
                 $smarty->assign('parenttext', $episode->getParent()->getText());
-                $smarty->assign('parentnotes', $episode->getParent()->getNotes());
+                $smarty->assign('parentnotes', $episode->getParent()->getPostNotes());
                 $smarty->assign('parentid', $episode->getParent()->getId());
             }
             if($this->input->post('title') !== false) {
@@ -390,7 +390,7 @@ class Doc extends CI_Controller
         }
         $episode->setTitle($title);
         $episode->setPreNotes($preNotes);
-        $episode->setNotes($postNotes);
+        $episode->setPostNotes($postNotes);
         $episode->setText($content);
         $episode->setLinkable($linkable);
         if($isCreation) {

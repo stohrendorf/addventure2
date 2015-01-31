@@ -39,7 +39,7 @@ class Episode implements IAddventure {
      * @Column(type="text", nullable=true)
      * @var string
      */
-    private $notes = null;
+    private $postNotes = null;
 
     /**
      * @Column(type="text", nullable=true)
@@ -136,8 +136,8 @@ class Episode implements IAddventure {
         return $this->created;
     }
 
-    public function getNotes() {
-        return $this->notes;
+    public function getPostNotes() {
+        return $this->postNotes;
     }
 
     public function getPreNotes() {
@@ -191,8 +191,8 @@ class Episode implements IAddventure {
         return $this;
     }
 
-    public function setNotes($notes) {
-        $this->notes = empty($notes) ? null : $notes;
+    public function setPostNotes($notes) {
+        $this->postNotes = empty($notes) ? null : $notes;
         return $this;
     }
 
@@ -332,7 +332,7 @@ class Episode implements IAddventure {
         $result['hitcount'] = $this->getHitCount();
         $result['likes'] = $this->getLikes();
         $result['dislikes'] = $this->getDislikes();
-        $result['notes'] = $this->getNotes();
+        $result['postNotes'] = $this->getPostNotes();
         $result['preNotes'] = $this->getPreNotes();
         $result['linkable'] = $this->getLinkable();
         if(($parent = $this->getParent())) {

@@ -41,10 +41,10 @@
             {$episode.text}
         </div>
 
-        {if isset($episode.notes)}
+        {if isset($episode.postNotes)}
             <div class="panel-footer">
                 <h4><b>{t}Author's Notes{/t}</b></h4>
-                <p>{$episode.notes|smileys}</p>
+                <p>{$episode.postNotes|smileys}</p>
                 {if $smarty.const.ADDVENTURE_LEGACY_INFO}
                     <small style="font-style: italic;">{t escape=no 1="{$url.site}/maintenance/reportNotes/{$episode.id}"}This note has been <em>automatically</em> extracted from the legacy episode's author name.
                         But machines aren't perfect: do you think this was done wrong? <a href="%1">Report it!</a>{/t}</small>
