@@ -28,6 +28,8 @@ require_once '../doctrine-bootstrap.php';
 define('BASEPATH', ''); // HACK to make the following require_once work
 require_once '../application/helpers/xss_clean_helper.php';
 
+define('FLUSH_BULK_SIZE', 5000);
+
 /**
  * Interface for retrieving an episode.
  */
@@ -333,7 +335,7 @@ class Importer
     {
         $entityManager = initDoctrineConnection();
         ++$this->flushcounter;
-        if($this->flushcounter % 1000 == 0) {
+        if($this->flushcounter % FLUSH_BULK_SIZE == 0) {
             echo "Flushing...\n";
             $entityManager->flush();
             $entityManager->clear();
@@ -580,7 +582,7 @@ class Transformer
     {
         $entityManager = initDoctrineConnection();
         ++$this->flushcounter;
-        if($this->flushcounter % 1000 == 0) {
+        if($this->flushcounter % FLUSH_BULK_SIZE == 0) {
             echo "Flushing...\n";
             $entityManager->flush();
             $entityManager->clear();
