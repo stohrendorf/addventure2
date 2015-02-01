@@ -24,15 +24,8 @@ function initLogger()
     }
     $logger = new \Monolog\Logger('');
     $logger->pushHandler(new Monolog\Handler\RotatingFileHandler(LOG_FILENAME, 7, (ENVIRONMENT !== 'production') ? \Monolog\Logger::DEBUG : \Monolog\Logger::WARNING));
-    if(ENVIRONMENT !== 'testing') {
-        Monolog\ErrorHandler::register($logger);
-    }
+    Monolog\ErrorHandler::register($logger);
 
-    if(php_sapi_name() !== 'cli') {
-        if(!extension_loaded('apc') && !extension_loaded('memcache') && !extension_loaded('xcache') && !extension_loaded('redis')) {
-            $logger->warning('You are seeing this message because you haven\' enabled APC/memcache/xcache/redis in your server. Please do so to get better performance');
-        }
-    }
     return $logger;
 }
 
@@ -41,9 +34,7 @@ initLogger();
 if(ENVIRONMENT !== 'production') {
     initLogger()->warning('You are not running the Addventure in production mode');
     define('JSON_FLAGS', JSON_PRETTY_PRINT);
-    if(ENVIRONMENT !== 'testing') {
-        error_reporting(E_ALL);
-    }
+    error_reporting(E_ALL);
 }
 else {
     define('JSON_FLAGS', 0);
@@ -100,6 +91,9 @@ function initDoctrineConnection()
         $cache->setRedis($redis);
     }
     else {
+        if(ENVIRONMENT === 'production') {
+            initLogger()->warning('You are seeing this message because you haven\' enabled APC/memcache/xcache/redis in your server. Please do so to get better performance');
+        }
         $cache = new \Doctrine\Common\Cache\ArrayCache();
     }
 

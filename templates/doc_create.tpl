@@ -20,9 +20,9 @@
 
 {block name=title}
     {if $isCreation}
-        {t 1=$docid}Create episode %1{/t}
+        {t 1=$episode.id}Create episode %1{/t}
     {else}
-        {t 1=$docid}Edit episode %1{/t}
+        {t 1=$episode.id}Edit episode %1{/t}
     {/if}
 {/block}
 
@@ -30,21 +30,19 @@
     <h3>
         <span class="glyphicon glyphicon-edit"></span>
         {if $isCreation}
-            {t 1=$docid}Create episode %1{/t}
+            {t 1=$episode.id}Create episode %1{/t}
         {else}
-            {t 1=$docid}Edit episode %1{/t}
+            {t 1=$episode.id}Edit episode %1{/t}
         {/if}
     </h3>
-    {if isset($parenttext)}
+    {if $parent}
         <div class="panel panel-default">
-            <div class="panel-body" style="background-color:#fffcee;">{$parenttext}</div>
+            <div class="panel-body" style="background-color:#fffcee;">{$parent.text}</div>
 
-            {if !empty($parentnotes)}
+            {if !empty($parent.postNotes)}
                 <div class="panel-footer">
-                    <div class="panel panel-info">
-                        <div class="panel-heading">Author's Notes</div>
-                        <div class="panel-body">{$parentnotes|smileys}</div>
-                    </div>
+                    <h4><b>{t}Author's Notes{/t}</b></h4>
+                    <p>{$parent.postNotes|smileys}</p>
                 </div>
             {/if}
         </div>
@@ -75,7 +73,7 @@
                 </div>
                 <div id="collapseA" class="list-group-item-text collapse">
                     <div class="panel-body">
-                        <textarea class="ckeditor" name="preNotes">{$prenotes}</textarea>
+                        <textarea class="ckeditor" name="preNotes">{$episode.preNotes|default:''}</textarea>
                     </div>
                 </div>
             </div>
@@ -87,8 +85,8 @@
                 </div>
                 <div id="collapseB" class="list-group-item-text collapse in">
                     <div class="panel-body">
-                        <div class="form-group"><input class="form-control" type="text" placeholder="{t}The Awesome Episode Title{/t}" name="title" value="{$title}"/></div>
-                        <textarea class="ckeditor" name="content">{$content}</textarea>
+                        <div class="form-group"><input class="form-control" type="text" placeholder="{t}The Awesome Episode Title{/t}" name="title" value="{$episode.title|default:''}"/></div>
+                        <textarea class="ckeditor" name="content">{$episode.text|default:''}</textarea>
                         <div class="form-group" id="options">
                             {if $isCreation}
                                 <div class="input-group hidden" id="option-template">
@@ -134,7 +132,7 @@
                                 <span style="margin:1em;"></span>
                                 <div class="input-group checkbox">
                                     <label>
-                                        <input type="checkbox" value="true" name="linkable" {if $linkable}checked{/if}/>
+                                        <input type="checkbox" value="true" name="linkable" {if $episode.linkable}checked{/if}/>
                                         {t}Allow back-links to this episode.{/t}
                                     </label>
                                 </div>
@@ -223,7 +221,7 @@
                 </div>
                 <div id="collapseC" class="list-group-item-text collapse">
                     <div class="panel-body">
-                        <textarea class="ckeditor" name="postNotes">{$postnotes}</textarea>
+                        <textarea class="ckeditor" name="postNotes">{$episode.postNotes}</textarea>
                     </div>
                 </div>
             </div>
@@ -232,8 +230,8 @@
             <center>
                 <div class="form-inline">
                     <button type="submit" class="button form-control default btn-success"><span class="glyphicon glyphicon-share"></span> {t}Publish{/t}</button>
-                    {if isset($parentid)}
-                        {$backurl="{$url.site}/doc/{$parentid}"}
+                    {if $parent}
+                        {$backurl="{$url.site}/doc/{$parent.id}"}
                     {else}
                         {$backurl={$url.site}}
                     {/if}
@@ -244,7 +242,7 @@
             <center>
                 <div class="form-inline">
                     <button type="submit" class="button form-control default btn-success"><span class="glyphicon glyphicon-ok"></span> {t}Save{/t}</button>
-                    <a href="{$url.site}/doc/{$docid}" class="button form-control default btn-danger" style="text-decoration: none; color: white;"><span class="glyphicon glyphicon-remove"></span> {t}Abort{/t}</a>
+                    <a href="{$url.site}/doc/{$episode.id}" class="button form-control default btn-danger" style="text-decoration: none; color: white;"><span class="glyphicon glyphicon-remove"></span> {t}Abort{/t}</a>
                 </div>
             </center>
         {/if}

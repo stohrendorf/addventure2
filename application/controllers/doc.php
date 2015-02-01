@@ -89,7 +89,7 @@ class Doc extends CI_Controller
                 if(!$link) {
                     $this->load->library('log');
                     $this->log->crit('No link from doc #' . $parent->getId() . ' to doc #' . $episode->getId());
-                    $smarty['chosen'] = 'o.O MAGIC';
+                    $smarty['chosen'] = _('[Orphaned link]');
                 }
                 else {
                     $smarty['chosen'] = $link->getTitle();
@@ -291,25 +291,25 @@ class Doc extends CI_Controller
         if($preNotes === false) {
             $preNotes = $isCreation ? '' : $episode->getPreNotes();
         }
-        $preNotes = xss_clean2($preNotes);
+        $episode->setPreNotes( xss_clean2($preNotes) );
 
         $title = $this->input->post('title');
         if($title === false) {
             $title = $isCreation ? '' : $episode->getTitle();
         }
-        $title = xss_clean2(strip_tags($title));
+        $episode->setTitle( xss_clean2(strip_tags($title)) );
 
         $content = $this->input->post('content');
         if($content === false) {
             $content = $isCreation ? '' : $episode->getText();
         }
-        $content = xss_clean2($content);
+        $episode->setText( xss_clean2($content) );
 
         $postNotes = $this->input->post('postNotes');
         if($postNotes === false) {
             $postNotes = $isCreation ? '' : $episode->getPostNotes();
         }
-        $postNotes = xss_clean2($postNotes);
+        $episode->setPostNotes( xss_clean2($postNotes) );
 
         $signedoff = $this->input->post('signedoff');
         if($signedoff === false || empty($signedoff)) {
@@ -322,7 +322,7 @@ class Doc extends CI_Controller
         }
         $signedoff = trim(xss_clean2($signedoff));
 
-        $linkable = $isCreation ? ($this->input->post('linkable') === 'true') : $episode->getLinkable();
+        $episode->setLinkable( $isCreation ? ($this->input->post('linkable') === 'true') : $episode->getLinkable() );
 
         $options = $this->input->post('options');
         $targets = $this->input->post('targets');
@@ -337,10 +337,10 @@ class Doc extends CI_Controller
         }
 
         $errors = array();
-        if(empty($content)) {
+        if(empty($episode->getText())) {
             $errors[] = _('You haven\'t entered a story yet.');
         }
-        if(empty($title)) {
+        if(empty($episode->getTitle())) {
             $errors[] = _('Your episode doesn\'t have a title.');
         }
         if($isCreation) {
@@ -362,22 +362,17 @@ class Doc extends CI_Controller
         }
 
         if(!empty($errors) || (!$isCreation && false === $this->input->post('content'))) {
-            if($episode->getParent()) {
-                $smarty->assign('parenttext', $episode->getParent()->getText());
-                $smarty->assign('parentnotes', $episode->getParent()->getPostNotes());
-                $smarty->assign('parentid', $episode->getParent()->getId());
-            }
             if($this->input->post('title') !== false) {
                 $smarty->assign('errors', $errors);
             }
-            $smarty->assign('content', $content);
             $smarty->assign('options', $combinedOpts);
-            $smarty->assign('title', $title);
-            $smarty->assign('prenotes', $preNotes);
-            $smarty->assign('postnotes', $postNotes);
-            $smarty->assign('docid', $docId);
             $smarty->assign('signedoff', $signedoff);
-            $smarty->assign('linkable', $linkable);
+            
+            $smarty->assign('episode', $episode->toSmarty());
+            if($episode->getParent()) {
+                $smarty->assign('parent', $episode->getParent()->toSmarty());
+            }
+            
             $smarty->display('doc_create.tpl');
             return;
         }
@@ -388,12 +383,7 @@ class Doc extends CI_Controller
             $author = $this->em->findOrCreateAuthorForUser($this->userinfo->user, $signedoff, true);
             $episode->setAuthor($author);
         }
-        $episode->setTitle($title);
-        $episode->setPreNotes($preNotes);
-        $episode->setPostNotes($postNotes);
-        $episode->setText($content);
-        $episode->setLinkable($linkable);
-        if($isCreation) {
+        if(!$episode->getCreated()) {
             $episode->setCreated(new \DateTime());
         }
         if($isCreation) {
@@ -451,7 +441,7 @@ class Doc extends CI_Controller
         }
 
         $this->load->helper('url');
-        redirect('doc/' . $docId);
+        redirect('doc/' . $episode->getId());
     }
 
     public function create($docId)
