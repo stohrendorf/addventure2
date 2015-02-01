@@ -114,4 +114,28 @@ class Maintenance extends CI_Controller
         $this->load->helper('url');
         redirect("doc/$docid");
     }
+    
+    public function userinfo($uid) {
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user || !$this->userinfo->user->isAdministrator()) {
+            show_error(_('Forbidden'), 403);
+            return;
+        }
+        $this->load->library('log');
+        $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
+        if($uid === null || $uid === false) {
+            $this->log->warning('Maintenance/userinfo - invalid User ID');
+            show_404();
+            return;
+        }
+        
+        $this->load->library('em');
+        $user = $this->em->findUser($uid);
+        
+        $this->load->helper('smarty');
+        $smarty = createSmarty();
+        $smarty->assign('user', $user->toSmarty());
+
+        $smarty->display('maintenance_userinfo.tpl');
+    }
 }

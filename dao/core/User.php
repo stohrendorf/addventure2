@@ -320,6 +320,7 @@ class User {
     public function toSmarty() {
         return array(
             'blocked' => $this->getBlocked(),
+            'failedLogins' => $this->getFailedLogins(),
             'userid' => $this->getId(),
             'username' => $this->getUsername(),
             'role' => $this->getRole()->get(),
@@ -340,6 +341,7 @@ class User {
     public static function defaultSmarty() {
         return array(
             'blocked' => false,
+            'failedLogins' => 0,
             'userid' => -1,
             'username' => '',
             'role' => UserRole::Anonymous,
