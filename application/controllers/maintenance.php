@@ -138,4 +138,171 @@ class Maintenance extends CI_Controller
 
         $smarty->display('maintenance_userinfo.tpl');
     }
+    
+    public function setrole($uid, $role) {
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user || !$this->userinfo->user->isAdministrator()) {
+            show_error(_('Forbidden'), 403);
+            return;
+        }
+        
+        $this->load->library('log');
+        
+        $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
+        if($uid === null || $uid === false) {
+            $this->log->warning('Maintenance/setrole - invalid User ID');
+            show_404();
+            return;
+        }
+        
+        if($uid == $this->userinfo->user->getId()) {
+            $this->log->warning('Maintenance/setrole - cannot change own role');
+            show_404();
+            return;
+        }
+        
+        $role = filter_var($role, FILTER_SANITIZE_NUMBER_INT);
+        if($role === null || $role === false) {
+            $this->log->warning('Maintenance/setrole - invalid User role');
+            show_404();
+            return;
+        }
+        try {
+            $role = new addventure\UserRole((int)$role);
+        }
+        catch(\InvalidArgumentException $ex) {
+            $this->log->warning('Maintenance/setrole - invalid User role');
+            show_404();
+            return;
+        }
+        
+        $this->load->library('em');
+        $user = $this->em->findUser($uid);
+        if(!$user) {
+            $this->log->warning('Maintenance/setrole - invalid User ID');
+            show_404();
+            return;
+        }
+        $user->setRole($role);
+        try {
+            $user->checkInvariants();
+        }
+        catch (\InvalidArgumentException $ex) {
+            show_error($ex->getMessage());
+            return;
+        }
+        $this->em->persistAndFlush($user);
+        
+        $this->load->helper('url');
+        redirect(array('maintenance', 'userinfo', $uid));
+    }
+    
+    public function resetlogins($uid) {
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user || !$this->userinfo->user->isAdministrator()) {
+            show_error(_('Forbidden'), 403);
+            return;
+        }
+        
+        $this->load->library('log');
+        
+        $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
+        if($uid === null || $uid === false) {
+            $this->log->warning('Maintenance/setrole - invalid User ID');
+            show_404();
+            return;
+        }
+        
+        if($uid == $this->userinfo->user->getId()) {
+            $this->log->warning('Maintenance/setrole - cannot change own user data');
+            show_404();
+            return;
+        }
+        
+        $this->load->library('em');
+        $user = $this->em->findUser($uid);
+        if(!$user) {
+            $this->log->warning('Maintenance/setrole - invalid User ID');
+            show_404();
+            return;
+        }
+        $user->setFailedLogins(0);
+        $this->em->persistAndFlush($user);
+        
+        $this->load->helper('url');
+        redirect(array('maintenance', 'userinfo', $uid));
+    }
+    
+    public function block($uid) {
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user || (!$this->userinfo->user->isModerator() && !$this->userinfo->user->isAdministrator())) {
+            show_error(_('Forbidden'), 403);
+            return;
+        }
+        
+        $this->load->library('log');
+        
+        $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
+        if($uid === null || $uid === false) {
+            $this->log->warning('Maintenance/setrole - invalid User ID');
+            show_404();
+            return;
+        }
+        
+        if($uid == $this->userinfo->user->getId()) {
+            $this->log->warning('Maintenance/setrole - cannot block own account');
+            show_404();
+            return;
+        }
+        
+        $this->load->library('em');
+        $user = $this->em->findUser($uid);
+        if(!$user) {
+            $this->log->warning('Maintenance/setrole - invalid User ID');
+            show_404();
+            return;
+        }
+        $user->setBlocked(true);
+        $this->em->persistAndFlush($user);
+        
+        $this->load->helper('url');
+        redirect(array('maintenance', 'userinfo', $uid));
+    }
+    
+    public function unblock($uid) {
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user || (!$this->userinfo->user->isModerator() && !$this->userinfo->user->isAdministrator())) {
+            show_error(_('Forbidden'), 403);
+            return;
+        }
+        
+        $this->load->library('log');
+        
+        $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
+        if($uid === null || $uid === false) {
+            $this->log->warning('Maintenance/setrole - invalid User ID');
+            show_404();
+            return;
+        }
+        
+        if($uid == $this->userinfo->user->getId()) {
+            $this->log->warning('Maintenance/setrole - cannot unblock own account');
+            show_404();
+            return;
+        }
+        
+        $this->load->library('em');
+        $user = $this->em->findUser($uid);
+        if(!$user) {
+            $this->log->warning('Maintenance/setrole - invalid User ID');
+            show_404();
+            return;
+        }
+        $user->setBlocked(false);
+        
+        $this->em->persistAndFlush($user);
+        
+        $this->load->helper('url');
+        redirect(array('maintenance', 'userinfo', $uid));
+    }
 }
