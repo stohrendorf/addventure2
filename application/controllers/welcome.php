@@ -4,13 +4,25 @@ if(!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Welcome extends CI_Controller {
+class Welcome extends CI_Controller
+{
 
-    public function index() {
-        global $smarty;
-        $this->load->helper('url');
+    public function index()
+    {
         $this->load->helper('smarty');
+        $this->load->library('em');
+        
+        $query = $this->em->getEntityManager()->createQuery('SELECT e FROM addventure\Episode e WHERE e.parent IS NULL ORDER BY e.id');
+        $roots = array();
+        foreach($query->iterate() as $row) {
+            $ep = $row[0];
+            $roots[] = array(
+                'id' => $ep->getId(),
+                'title' => $ep->getAutoTitle()
+            );
+        }
         $smarty = createSmarty();
+        $smarty->assign('roots', $roots);
         $smarty->display('main.tpl');
     }
 
