@@ -115,12 +115,57 @@ class Maintenance extends CI_Controller
         redirect("doc/$docid");
     }
     
-    public function userinfo($uid) {
+    private function _checkAdminOrModerator()
+    {
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user || !($this->userinfo->user->isAdministrator() || $this->userinfo->user->isModerator())) {
+            show_error(_('Forbidden'), 403);
+            return false;
+        }
+        return true;
+    }
+    
+    private function _checkAdmin()
+    {
         $this->load->library('userinfo');
         if(!$this->userinfo->user || !$this->userinfo->user->isAdministrator()) {
             show_error(_('Forbidden'), 403);
+            return false;
+        }
+        return true;
+    }
+    
+    private function _getNonSelfUser($uid) {
+        $this->load->library('log');
+        $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
+        if($uid === null || $uid === false) {
+            $this->log->warning('Maintenance - invalid User ID');
+            show_404();
+            return null;
+        }
+        
+        $this->load->library('userinfo');
+        if($uid == $this->userinfo->user->getId()) {
+            $this->log->warning('Maintenance - cannot change own account');
+            show_404();
+            return null;
+        }
+        
+        $this->load->library('em');
+        $user = $this->em->findUser($uid);
+        if(!$user) {
+            $this->log->warning('Maintenance - invalid User ID');
+            show_404();
+            return null;
+        }
+        return $user;
+    }
+    
+    public function userinfo($uid) {
+        if(!$this->_checkAdminOrModerator()) {
             return;
         }
+        
         $this->load->library('log');
         $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
         if($uid === null || $uid === false) {
@@ -140,24 +185,13 @@ class Maintenance extends CI_Controller
     }
     
     public function setrole($uid, $role) {
-        $this->load->library('userinfo');
-        if(!$this->userinfo->user || !$this->userinfo->user->isAdministrator()) {
-            show_error(_('Forbidden'), 403);
+        if(!$this->_checkAdmin()) {
             return;
         }
         
         $this->load->library('log');
-        
-        $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
-        if($uid === null || $uid === false) {
-            $this->log->warning('Maintenance/setrole - invalid User ID');
-            show_404();
-            return;
-        }
-        
-        if($uid == $this->userinfo->user->getId()) {
-            $this->log->warning('Maintenance/setrole - cannot change own role');
-            show_404();
+        $user = $this->_getNonSelfUser($uid);
+        if(!$user) {
             return;
         }
         
@@ -176,13 +210,6 @@ class Maintenance extends CI_Controller
             return;
         }
         
-        $this->load->library('em');
-        $user = $this->em->findUser($uid);
-        if(!$user) {
-            $this->log->warning('Maintenance/setrole - invalid User ID');
-            show_404();
-            return;
-        }
         $user->setRole($role);
         try {
             $user->checkInvariants();
@@ -198,34 +225,17 @@ class Maintenance extends CI_Controller
     }
     
     public function resetlogins($uid) {
-        $this->load->library('userinfo');
-        if(!$this->userinfo->user || !$this->userinfo->user->isAdministrator()) {
-            show_error(_('Forbidden'), 403);
+        if(!$this->_checkAdmin()) {
             return;
         }
         
         $this->load->library('log');
         
-        $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
-        if($uid === null || $uid === false) {
-            $this->log->warning('Maintenance/setrole - invalid User ID');
-            show_404();
-            return;
-        }
-        
-        if($uid == $this->userinfo->user->getId()) {
-            $this->log->warning('Maintenance/setrole - cannot change own user data');
-            show_404();
-            return;
-        }
-        
-        $this->load->library('em');
-        $user = $this->em->findUser($uid);
+        $user = $this->_getNonSelfUser($uid);
         if(!$user) {
-            $this->log->warning('Maintenance/setrole - invalid User ID');
-            show_404();
             return;
         }
+        
         $user->setFailedLogins(0);
         $this->em->persistAndFlush($user);
         
@@ -234,32 +244,14 @@ class Maintenance extends CI_Controller
     }
     
     public function block($uid) {
-        $this->load->library('userinfo');
-        if(!$this->userinfo->user || (!$this->userinfo->user->isModerator() && !$this->userinfo->user->isAdministrator())) {
-            show_error(_('Forbidden'), 403);
+        if(!$this->_checkAdminOrModerator()) {
             return;
         }
         
         $this->load->library('log');
         
-        $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
-        if($uid === null || $uid === false) {
-            $this->log->warning('Maintenance/setrole - invalid User ID');
-            show_404();
-            return;
-        }
-        
-        if($uid == $this->userinfo->user->getId()) {
-            $this->log->warning('Maintenance/setrole - cannot block own account');
-            show_404();
-            return;
-        }
-        
-        $this->load->library('em');
-        $user = $this->em->findUser($uid);
+        $user = $this->_getNonSelfUser($uid);
         if(!$user) {
-            $this->log->warning('Maintenance/setrole - invalid User ID');
-            show_404();
             return;
         }
         $user->setBlocked(true);
@@ -270,32 +262,14 @@ class Maintenance extends CI_Controller
     }
     
     public function unblock($uid) {
-        $this->load->library('userinfo');
-        if(!$this->userinfo->user || (!$this->userinfo->user->isModerator() && !$this->userinfo->user->isAdministrator())) {
-            show_error(_('Forbidden'), 403);
+        if(!$this->_checkAdminOrModerator()) {
             return;
         }
         
         $this->load->library('log');
         
-        $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
-        if($uid === null || $uid === false) {
-            $this->log->warning('Maintenance/setrole - invalid User ID');
-            show_404();
-            return;
-        }
-        
-        if($uid == $this->userinfo->user->getId()) {
-            $this->log->warning('Maintenance/setrole - cannot unblock own account');
-            show_404();
-            return;
-        }
-        
-        $this->load->library('em');
-        $user = $this->em->findUser($uid);
+        $user = $this->_getNonSelfUser($uid);
         if(!$user) {
-            $this->log->warning('Maintenance/setrole - invalid User ID');
-            show_404();
             return;
         }
         $user->setBlocked(false);
