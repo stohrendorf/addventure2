@@ -180,6 +180,15 @@ class Maintenance extends CI_Controller
         $this->load->helper('smarty');
         $smarty = createSmarty();
         $smarty->assign('user', $user->toSmarty());
+        
+        $queryBuilder = $this->em->getEntityManager()->createQueryBuilder();
+        $query = $queryBuilder->select('n')->from('addventure\Notification', 'n')
+                ->where('n.user = :uid')->setParameter('uid', $uid)->getQuery();
+        $notifications = array();
+        foreach($query->getResult() as $n) {
+            $notifications[] = $n->toSmarty();
+        }
+        $smarty->assign('notifications', $notifications);
 
         $smarty->display('maintenance_userinfo.tpl');
     }
@@ -276,6 +285,29 @@ class Maintenance extends CI_Controller
         
         $this->em->persistAndFlush($user);
         
+        $this->load->helper('url');
+        redirect(array('maintenance', 'userinfo', $uid));
+    }
+    
+    public function deletesubscription($uid, $docid) {
+        if(!$this->_checkAdmin()) {
+            return;
+        }
+        $user = $this->_getNonSelfUser($uid);
+        if(!$user) {
+            return;
+        }
+        
+        $queryBuilder = $this->em->getEntityManager()->createQueryBuilder();
+        $query = $queryBuilder->select('n')->from('addventure\Notification', 'n')
+                ->where('n.user = :uid')->andWhere('n.episode = :eid')
+                ->setParameter('uid', $uid)
+                ->setParameter('eid', $docid)
+                ->getQuery();
+        foreach($query->getResult() as $n) {
+            $this->em->getEntityManager()->remove($n);
+        }
+        $this->em->getEntityManager()->flush();
         $this->load->helper('url');
         redirect(array('maintenance', 'userinfo', $uid));
     }

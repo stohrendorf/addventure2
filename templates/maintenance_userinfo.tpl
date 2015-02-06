@@ -39,4 +39,21 @@
             </tr>
         </tbody>
     </table>
+    {if !empty($notifications)}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3>{t}Subscriptions{/t}</h3>
+            </div>
+            <div class="panel-body">
+                <ul>
+                    {foreach $notifications as $n}
+                        <li>
+                            <a href="{$url.site}/maintenance/deletesubscription/{$user.userid}/{$n.episode.id}"><span class="glyphicon glyphicon-trash"></span></a>
+                            <a href="{$url.site}/doc/{$n.episode.id}">{$n.episode.autoTitle|escape}</a>
+                        </li>
+                    {/foreach}
+                </ul>
+            </div>
+        </div>
+    {/if}
 {/block}

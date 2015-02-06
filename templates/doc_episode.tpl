@@ -218,10 +218,17 @@
             {/foreach}
             {if $canSubscribe && $client.canSubscribe}
                 <p>
-                    <a type="button" href="{$url.site}/doc/subscribe/{$episode.id}" class="btn btn-block btn-default btn-sm">
-                        <span class="glyphicon glyphicon-envelope"></span>
-                        {t}Notify me when new options are filled.{/t}
-                    </a>
+                    {if !$isSubscribed}
+                        <a type="button" href="{$url.site}/doc/subscribe/{$episode.id}" class="btn btn-block btn-default btn-sm">
+                            <span class="glyphicon glyphicon-envelope"></span>
+                            {t}Notify me when new options are filled.{/t}
+                        </a>
+                    {else}
+                        <a type="button" href="{$url.site}/doc/unsubscribe/{$episode.id}" class="btn btn-block btn-default btn-sm">
+                            <span class="glyphicon glyphicon-envelope"></span>
+                            {t}Do not notify me anymore when new options are filled.{/t}
+                        </a>
+                    {/if}
                 </p>
             {/if}
             {if !empty($episode.backlinks)}

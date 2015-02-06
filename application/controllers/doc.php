@@ -36,6 +36,21 @@ class Doc extends CI_Controller
         $episode->setHitCount($episode->getHitCount() + 1);
         $this->em->persistAndFlush($episode);
         $smarty->assign('episode', $episode->toSmarty());
+
+        $this->load->library('userinfo');
+        $queryBuilder = $this->em->getEntityManager()->createQueryBuilder();
+        if($this->userinfo->user) {
+            $query = $queryBuilder->select('n')->from('addventure\Notification', 'n')
+                            ->where('n.user = :uid')->andWhere('n.episode = :eid')
+                            ->setParameter('uid', $this->userinfo->user->getId())
+                            ->setParameter('eid', $docId)
+                            ->getQuery()->getOneOrNullResult();
+            $smarty->assign('isSubscribed', $query !== null);
+        }
+        else {
+            $smarty->assign('isSubscribed', false);
+        }
+
         $smarty->display('doc_episode.tpl');
     }
 
@@ -291,25 +306,25 @@ class Doc extends CI_Controller
         if($preNotes === false) {
             $preNotes = $isCreation ? '' : $episode->getPreNotes();
         }
-        $episode->setPreNotes( xss_clean2($preNotes) );
+        $episode->setPreNotes(xss_clean2($preNotes));
 
         $title = $this->input->post('title');
         if($title === false) {
             $title = $isCreation ? '' : $episode->getTitle();
         }
-        $episode->setTitle( xss_clean2(strip_tags($title)) );
+        $episode->setTitle(xss_clean2(strip_tags($title)));
 
         $content = $this->input->post('content');
         if($content === false) {
             $content = $isCreation ? '' : $episode->getText();
         }
-        $episode->setText( xss_clean2($content) );
+        $episode->setText(xss_clean2($content));
 
         $postNotes = $this->input->post('postNotes');
         if($postNotes === false) {
             $postNotes = $isCreation ? '' : $episode->getPostNotes();
         }
-        $episode->setPostNotes( xss_clean2($postNotes) );
+        $episode->setPostNotes(xss_clean2($postNotes));
 
         $signedoff = $this->input->post('signedoff');
         if($signedoff === false || empty($signedoff)) {
@@ -322,7 +337,7 @@ class Doc extends CI_Controller
         }
         $signedoff = trim(xss_clean2($signedoff));
 
-        $episode->setLinkable( $isCreation ? ($this->input->post('linkable') === 'true') : $episode->getLinkable() );
+        $episode->setLinkable($isCreation ? ($this->input->post('linkable') === 'true') : $episode->getLinkable() );
 
         $options = $this->input->post('options');
         $targets = $this->input->post('targets');
@@ -367,12 +382,12 @@ class Doc extends CI_Controller
             }
             $smarty->assign('options', $combinedOpts);
             $smarty->assign('signedoff', $signedoff);
-            
+
             $smarty->assign('episode', $episode->toSmarty());
             if($episode->getParent()) {
                 $smarty->assign('parent', $episode->getParent()->toSmarty());
             }
-            
+
             $smarty->display('doc_create.tpl');
             return;
         }
