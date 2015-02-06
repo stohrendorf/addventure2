@@ -13,6 +13,7 @@ class Welcome extends CI_Controller
         $this->load->library('em');
         
         $query = $this->em->getEntityManager()->createQuery('SELECT e FROM addventure\Episode e WHERE e.parent IS NULL ORDER BY e.id');
+        $query->setQueryCacheLifetime(24*60*60); // a day should be enough
         $roots = array();
         foreach($query->iterate() as $row) {
             $ep = $row[0];

@@ -105,7 +105,8 @@ class Stat extends CI_Controller {
         $queryBuilder = $this->em->getEntityManager()->createQueryBuilder();
         $queryBuilder->select('COUNT(u) AS userCount')
                 ->from('addventure\User', 'u');
-        $res = $queryBuilder->getQuery()->getOneOrNullResult();
+        $query = $queryBuilder->getQuery();
+        $res = $query->getOneOrNullResult();
         $smarty->assign('usercount', $res['userCount']);
         
         $smarty->display('stat_summary.tpl');

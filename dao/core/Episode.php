@@ -427,6 +427,7 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
 
         $dql = "SELECT e FROM addventure\Episode e WHERE e.text IS NOT NULL ORDER BY e.$column $order";
         $queryBuilder = $this->getEntityManager()->createQuery($dql)->setFirstResult($page * $count)->setMaxResults($count);
+        $queryBuilder->setResultCacheLifetime(60*60); // 1 hour caching
         return new \Doctrine\ORM\Tools\Pagination\Paginator($queryBuilder, false);
     }
 
@@ -505,7 +506,9 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         }
         $queryBuilder->setFirstResult($page * $count);
         $queryBuilder->setMaxResults($count);
-        return new \Doctrine\ORM\Tools\Pagination\Paginator($queryBuilder->getQuery(), false);
+        $query = $queryBuilder->getQuery();
+        $query->setResultCacheLifetime(60*60);
+        return new \Doctrine\ORM\Tools\Pagination\Paginator($query, false);
     }
 
     /**
@@ -537,7 +540,9 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
                 ->orderBy('episodeCount', 'DESC');
         $queryBuilder->setFirstResult($page * $count);
         $queryBuilder->setMaxResults($count);
-        $result = new \Doctrine\ORM\Tools\Pagination\Paginator($queryBuilder->getQuery(), false);
+        $query = $queryBuilder->getQuery();
+        $query->setResultCacheLifetime(60*60);
+        $result = new \Doctrine\ORM\Tools\Pagination\Paginator($query, false);
 
         return $result;
     }
@@ -563,7 +568,9 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         foreach($user->getAuthorNames() as $a) {
             $queryBuilder->orWhere('e.author=' . $a->getId());
         }
-        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($queryBuilder->getQuery(), false);
+        $query = $queryBuilder->getQuery();
+        $query->setResultCacheLifetime(60*60);
+        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query, false);
         foreach($paginator as $ep) {
             $func($ep);
             $this->getEntityManager()->detach($ep);
@@ -621,6 +628,7 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
                 . 'FROM Episode WHERE created IS NOT NULL '
                 . 'GROUP BY EXTRACT(YEAR FROM created), EXTRACT(WEEK FROM created) '
                 . 'ORDER BY EXTRACT(YEAR FROM created), EXTRACT(WEEK FROM created)', $rsm);
+        $query->setResultCacheLifetime(60*60);
         $result = array();
         foreach($query->getArrayResult() as $entry) {
             $result[] = sprintf('[\'%s\', %d]', $entry['date'], $entry['count']);
