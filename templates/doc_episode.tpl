@@ -32,7 +32,7 @@
                         {if isset($episode.author)}
                             {t}by{/t} <a href="{$url.site}/user/{$episode.author.user}">{$episode.author.name}</a>
                             {if $client.isAdministrator or $client.isModerator}
-                                <sup><a href="{$url.site}/maintenance/userinfo/{$episode.author.user}"><span class="glyphicon glyphicon-list"></span> {t}User info{/t}</a></sup>
+                                <sup><a href="{$url.site}/maintenance/userinfo/{$episode.author.user}"><span class="glyphicon glyphicon-user"></span> {t}User info{/t}</a></sup>
                             {/if}
                         {/if}
                         {if isset($episode.created)}

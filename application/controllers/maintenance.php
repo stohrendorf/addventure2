@@ -311,4 +311,38 @@ class Maintenance extends CI_Controller
         $this->load->helper('url');
         redirect(array('maintenance', 'userinfo', $uid));
     }
+    
+    public function userlist($page = 0) {
+        if(!$this->_checkAdminOrModerator()) {
+            return;
+        }
+        
+        
+        $this->load->library('em');
+        $page = filter_var($page, FILTER_SANITIZE_NUMBER_INT);
+        if(!$page || $page<0) {
+            $page = 0;
+        }
+
+        $queryBuilder = $this->em->getEntityManager()->createQueryBuilder();
+        $queryBuilder->select('u')
+                ->from('addventure\User', 'u')
+                ->orderBy('u.username');
+        $queryBuilder->setFirstResult($page * ADDVENTURE_RESULTS_PER_PAGE);
+        $queryBuilder->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+        $query = $queryBuilder->getQuery();
+        $users = new \Doctrine\ORM\Tools\Pagination\Paginator($query, false);
+        
+        $this->load->helper('pagination');
+        $this->load->helper('url');
+        $this->load->helper('smarty');
+        $smarty = createSmarty();
+        $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
+        $maxPage = floor(($users->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('pagination', createPagination($maxPage, $page, site_url('maintenance/userlist') . '/'));
+        foreach($users as $user) {
+            $smarty->append('users', $user->toSmarty());
+        }
+        $smarty->display('maintenance_userlist.tpl');
+    }
 }

@@ -37,6 +37,7 @@
                     {/if}
                 </td>
             </tr>
+            <tr><td>{t}Episodes{/t}</td><td><a href="{$url.site}/recent/user/{$user.userid}">{t}Show{/t}</a></td></tr>
         </tbody>
     </table>
     {if !empty($notifications)}
