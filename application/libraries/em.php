@@ -152,4 +152,24 @@ class EM
         return $author;
     }
 
+    public function mergeUser(addventure\User &$destination, addventure\User &$source) {
+        if(!$source->getRole()->get() === addventure\UserRole::Anonymous) {
+            return false;
+        }
+        if($destination->getRole()->get < addventure\UserRole::Registered) {
+            return false;
+        }
+        $names = $source->getAuthorNames();
+        foreach($names as $name) {
+            $destination->getAuthorNames()->add($name);
+            $name->setUser($destination);
+            $source->getAuthorNames()->removeElement($name);
+            $this->getEntityManager()->persist($name);
+            $this->getEntityManager()->persist($source);
+            $this->getEntityManager()->persist($destination);
+        }
+        $this->getEntityManager()->remove($source);
+        $this->getEntityManager()->flush();
+        return true;
+    }
 }

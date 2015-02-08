@@ -404,4 +404,14 @@ class Maintenance extends CI_Controller
         redirect("maintenance/reports/$returnPage");
     }
 
+    public function mergeuser($destination, $source) {
+        $this->load->library('em');
+        $sourceUser = $this->em->findUser($source);
+        $destinationUser = $this->em->findUser($destinationUser);
+        if($sourceUser && $destinationUser) {
+            $this->em->mergeUser($destinationUser, $sourceUser);
+        }
+        $this->load->helper('url');
+        redirect(array('maintenance', 'userinfo', $destination));
+    }
 }

@@ -83,7 +83,7 @@ class UserRole {
  * @HasLifecycleCallbacks
  * @package DAO
  */
-class User {
+class User implements IAddventure {
 
     /**
      * @Id
@@ -354,6 +354,24 @@ class User {
             'canEdit' => false,
             'registeredSince' => ''
         );
+    }
+
+    public function toAtom(\SimpleXMLElement &$parent)
+    {
+        
+    }
+
+    public function toJson()
+    {
+        return array(
+            'id' => $this->getId(),
+            'username' => $this->getUsername()
+        );
+    }
+
+    public function toRss(\SimpleXMLElement &$parent)
+    {
+        
     }
 
 }

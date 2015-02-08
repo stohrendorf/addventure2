@@ -4,6 +4,8 @@ if(!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
+include_once 'dao/core/User.php';
+
 class Api extends CI_Controller
 {
 
@@ -54,7 +56,49 @@ class Api extends CI_Controller
         }
 
         echo json_encode(array('entries' => $result));
-        return;
+    }
+
+    public function anonymoususers()
+    {
+        $this->load->library('em');
+
+        $filter = $this->input->post('query');
+        $result = array();
+
+        if($filter === false || empty($filter)) {
+            echo json_encode(array('entries' => $result));
+            return;
+        }
+
+        if(preg_match('/^[0-9]+$/', $filter)) {
+            $filter = filter_var($filter, FILTER_SANITIZE_NUMBER_INT);
+            $qb = $this->em->getEntityManager()->createQueryBuilder();
+            $qb->select('DISTINCT u')->from('addventure\User', 'u')
+                    ->where('u.role = ' . \addventure\UserRole::Anonymous)
+                    ->andWhere('CONCAT(IDENTITY(u.id), \'\') LIKE :filter')
+                    ->orderBy('u.id') // and then ordered by target
+                    ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+            $qb->setParameter('filter', '%' . addcslashes($filter, '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
+            foreach($qb->getQuery()->getResult() as $link) {
+                $result[] = $link->toJson();
+            }
+        }
+        else {
+            $filter = filter_var($filter, FILTER_SANITIZE_STRING);
+            $qb = $this->em->getEntityManager()->createQueryBuilder();
+            $qb->select('DISTINCT u, LENGTH(u.username) AS HIDDEN len')->from('addventure\User', 'u')
+                    ->where('u.role = ' . \addventure\UserRole::Anonymous)
+                    ->andWhere('UPPER(u.username) LIKE :filter')
+                    ->orderBy('len') // the most-matching first
+                    ->addOrderBy('u.username') // and then ordered by target
+                    ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+            $qb->setParameter('filter', '%' . addcslashes(mb_convert_case($filter, MB_CASE_UPPER), '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
+            foreach($qb->getQuery()->getResult() as $link) {
+                $result[] = $link->toJson();
+            }
+        }
+
+        echo json_encode(array('entries' => $result));
     }
 
     public function addcomment($docId)
@@ -73,7 +117,7 @@ class Api extends CI_Controller
         if(empty($commentText)) {
             return;
         }
-        
+
         $authorName = $this->input->post('author');
         if($authorName === false) {
             return;
@@ -96,12 +140,12 @@ class Api extends CI_Controller
         if($episode->getText() === NULL) {
             return;
         }
-        
+
         $author = $this->em->findOrCreateAuthorForUser($this->userinfo->user, $authorName, true);
         if(!$author) {
             return;
         }
-        
+
         $cmt = new addventure\Comment();
         $cmt->setAuthorName($author);
         $cmt->setEpisode($episode);
