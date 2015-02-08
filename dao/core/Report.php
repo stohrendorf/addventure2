@@ -5,7 +5,7 @@ namespace addventure;
 /**
  * @Entity
  */
-class Report {
+class Report implements IAddventure {
 
     const ILLEGAL = 0;
     const WRONG_TOP_NOTES = 1;
@@ -43,6 +43,29 @@ class Report {
     public function setType($type) {
         $this->type = $type;
         return $this;
+    }
+
+    public function toAtom(\SimpleXMLElement &$parent)
+    {
+        
+    }
+
+    public function toJson()
+    {
+        
+    }
+
+    public function toRss(\SimpleXMLElement &$parent)
+    {
+        
+    }
+
+    public function toSmarty()
+    {
+        return array(
+            'episode' => $this->getEpisode()->toSmarty(),
+            'type' => $this->getType()
+        );
     }
 
 }

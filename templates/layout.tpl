@@ -56,9 +56,12 @@
                                 <li><a href="{$url.site}/treehouse/mosthated"><span class="glyphicon glyphicon-heart-empty"></span> {t}Most hated episodes{/t}</a></li>
                                 <li><a href="{$url.site}/treehouse/mostepisodes"><span class="glyphicon glyphicon-pencil"></span> {t}Write-a-holics{/t}</a></li>
                                 <li><a href="{$url.site}/stat/summary"><span class="glyphicon glyphicon-signal"></span> {t}Statistics{/t}</a></li>
+                                {if $client.isAdministrator or $client.isModerator}
+                                    <li><a href="{$url.site}/maintenance/reports"><span class="glyphicon glyphicon-fire"></span> {t}Report management{/t}</a></li>
+                                    <li><a href="{$url.site}/maintenance/userlist"><span class="glyphicon glyphicon-globe"></span> {t}User administration{/t}</a></li>
+                                {/if}
                                 {if $client.isAdministrator}
                                     <li><a href="{$url.site}/maintenance/cacheinfo"><span class="glyphicon glyphicon-hdd"></span> {t}Cache info{/t}</a></li>
-                                    <li><a href="{$url.site}/maintenance/userlist"><span class="glyphicon glyphicon-globe"></span> {t}User administration{/t}</a></li>
                                 {/if}
                             </ul>
                         </li>

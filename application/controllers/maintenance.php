@@ -30,9 +30,11 @@ class Maintenance extends CI_Controller
         try {
             $this->em->persistAndFlush($report);
         }
-        catch(PDOException $e) {
+        catch(Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
             $this->log->debug('Maintenance/' . $description . ': Duplicate ' . $docId);
         }
+        $this->load->helper('url');
+        redirect(array('doc', $docId));
     }
 
     public function illegal($docId)
@@ -87,7 +89,8 @@ class Maintenance extends CI_Controller
         $smarty->display('maintenance_cacheinfo.tpl');
     }
 
-    public function deletecomment($commentid) {
+    public function deletecomment($commentid)
+    {
         $this->load->library('userinfo');
         if(!$this->userinfo->user || !$this->userinfo->user->canEdit()) {
             show_error(_('Forbidden'), 403);
@@ -100,7 +103,7 @@ class Maintenance extends CI_Controller
             show_404();
             return;
         }
-        
+
         $this->load->library('em');
         $comment = $this->em->getEntityManager()->find('addventure\Comment', $commentid);
         if(!$comment) {
@@ -114,7 +117,7 @@ class Maintenance extends CI_Controller
         $this->load->helper('url');
         redirect("doc/$docid");
     }
-    
+
     private function _checkAdminOrModerator()
     {
         $this->load->library('userinfo');
@@ -124,7 +127,7 @@ class Maintenance extends CI_Controller
         }
         return true;
     }
-    
+
     private function _checkAdmin()
     {
         $this->load->library('userinfo');
@@ -134,8 +137,9 @@ class Maintenance extends CI_Controller
         }
         return true;
     }
-    
-    private function _getNonSelfUser($uid) {
+
+    private function _getNonSelfUser($uid)
+    {
         $this->load->library('log');
         $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
         if($uid === null || $uid === false) {
@@ -143,14 +147,14 @@ class Maintenance extends CI_Controller
             show_404();
             return null;
         }
-        
+
         $this->load->library('userinfo');
         if($uid == $this->userinfo->user->getId()) {
             $this->log->warning('Maintenance - cannot change own account');
             show_404();
             return null;
         }
-        
+
         $this->load->library('em');
         $user = $this->em->findUser($uid);
         if(!$user) {
@@ -160,12 +164,13 @@ class Maintenance extends CI_Controller
         }
         return $user;
     }
-    
-    public function userinfo($uid) {
+
+    public function userinfo($uid)
+    {
         if(!$this->_checkAdminOrModerator()) {
             return;
         }
-        
+
         $this->load->library('log');
         $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
         if($uid === null || $uid === false) {
@@ -173,17 +178,17 @@ class Maintenance extends CI_Controller
             show_404();
             return;
         }
-        
+
         $this->load->library('em');
         $user = $this->em->findUser($uid);
-        
+
         $this->load->helper('smarty');
         $smarty = createSmarty();
         $smarty->assign('user', $user->toSmarty());
-        
+
         $queryBuilder = $this->em->getEntityManager()->createQueryBuilder();
         $query = $queryBuilder->select('n')->from('addventure\Notification', 'n')
-                ->where('n.user = :uid')->setParameter('uid', $uid)->getQuery();
+                        ->where('n.user = :uid')->setParameter('uid', $uid)->getQuery();
         $notifications = array();
         foreach($query->getResult() as $n) {
             $notifications[] = $n->toSmarty();
@@ -192,18 +197,19 @@ class Maintenance extends CI_Controller
 
         $smarty->display('maintenance_userinfo.tpl');
     }
-    
-    public function setrole($uid, $role) {
+
+    public function setrole($uid, $role)
+    {
         if(!$this->_checkAdmin()) {
             return;
         }
-        
+
         $this->load->library('log');
         $user = $this->_getNonSelfUser($uid);
         if(!$user) {
             return;
         }
-        
+
         $role = filter_var($role, FILTER_SANITIZE_NUMBER_INT);
         if($role === null || $role === false) {
             $this->log->warning('Maintenance/setrole - invalid User role');
@@ -211,85 +217,89 @@ class Maintenance extends CI_Controller
             return;
         }
         try {
-            $role = new addventure\UserRole((int)$role);
+            $role = new addventure\UserRole((int) $role);
         }
         catch(\InvalidArgumentException $ex) {
             $this->log->warning('Maintenance/setrole - invalid User role');
             show_404();
             return;
         }
-        
+
         $user->setRole($role);
         try {
             $user->checkInvariants();
         }
-        catch (\InvalidArgumentException $ex) {
+        catch(\InvalidArgumentException $ex) {
             show_error($ex->getMessage());
             return;
         }
         $this->em->persistAndFlush($user);
-        
+
         $this->load->helper('url');
         redirect(array('maintenance', 'userinfo', $uid));
     }
-    
-    public function resetlogins($uid) {
+
+    public function resetlogins($uid)
+    {
         if(!$this->_checkAdmin()) {
             return;
         }
-        
+
         $this->load->library('log');
-        
+
         $user = $this->_getNonSelfUser($uid);
         if(!$user) {
             return;
         }
-        
+
         $user->setFailedLogins(0);
         $this->em->persistAndFlush($user);
-        
+
         $this->load->helper('url');
         redirect(array('maintenance', 'userinfo', $uid));
     }
-    
-    public function block($uid) {
+
+    public function block($uid)
+    {
         if(!$this->_checkAdminOrModerator()) {
             return;
         }
-        
+
         $this->load->library('log');
-        
+
         $user = $this->_getNonSelfUser($uid);
         if(!$user) {
             return;
         }
         $user->setBlocked(true);
         $this->em->persistAndFlush($user);
-        
+
         $this->load->helper('url');
         redirect(array('maintenance', 'userinfo', $uid));
     }
-    
-    public function unblock($uid) {
+
+    public function unblock($uid)
+    {
         if(!$this->_checkAdminOrModerator()) {
             return;
         }
-        
+
         $this->load->library('log');
-        
+
         $user = $this->_getNonSelfUser($uid);
         if(!$user) {
             return;
         }
         $user->setBlocked(false);
-        
+
         $this->em->persistAndFlush($user);
-        
+
         $this->load->helper('url');
         redirect(array('maintenance', 'userinfo', $uid));
     }
-    
-    public function deletesubscription($uid, $docid) {
+
+    public function deletesubscription($uid, $docid)
+    {
         if(!$this->_checkAdmin()) {
             return;
         }
@@ -297,30 +307,26 @@ class Maintenance extends CI_Controller
         if(!$user) {
             return;
         }
-        
-        $queryBuilder = $this->em->getEntityManager()->createQueryBuilder();
-        $query = $queryBuilder->select('n')->from('addventure\Notification', 'n')
-                ->where('n.user = :uid')->andWhere('n.episode = :eid')
-                ->setParameter('uid', $uid)
-                ->setParameter('eid', $docid)
-                ->getQuery();
-        foreach($query->getResult() as $n) {
+
+        $n = $this->em->getEntityManager()->find('addventure\Notification', array('episode' => $docId, 'user' => $uid));
+        if($n) {
             $this->em->getEntityManager()->remove($n);
+            $this->em->getEntityManager()->flush();
         }
-        $this->em->getEntityManager()->flush();
         $this->load->helper('url');
         redirect(array('maintenance', 'userinfo', $uid));
     }
-    
-    public function userlist($page = 0) {
+
+    public function userlist($page = 0)
+    {
         if(!$this->_checkAdminOrModerator()) {
             return;
         }
-        
-        
+
+
         $this->load->library('em');
         $page = filter_var($page, FILTER_SANITIZE_NUMBER_INT);
-        if(!$page || $page<0) {
+        if(!$page || $page < 0) {
             $page = 0;
         }
 
@@ -332,7 +338,7 @@ class Maintenance extends CI_Controller
         $queryBuilder->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
         $query = $queryBuilder->getQuery();
         $users = new \Doctrine\ORM\Tools\Pagination\Paginator($query, false);
-        
+
         $this->load->helper('pagination');
         $this->load->helper('url');
         $this->load->helper('smarty');
@@ -345,4 +351,57 @@ class Maintenance extends CI_Controller
         }
         $smarty->display('maintenance_userlist.tpl');
     }
+
+    public function reports($page = 0)
+    {
+        if(!$this->_checkAdminOrModerator()) {
+            return;
+        }
+
+        $page = filter_var($page, FILTER_SANITIZE_NUMBER_INT);
+        if(!$page || $page < 0) {
+            $page = 0;
+        }
+
+        $this->load->library('em');
+        $queryBuilder = $this->em->getEntityManager()->createQueryBuilder();
+        $queryBuilder->select('r')
+                ->from('addventure\Report', 'r')
+                ->orderBy('r.episode');
+        $queryBuilder->setFirstResult($page * ADDVENTURE_RESULTS_PER_PAGE);
+        $queryBuilder->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+        $query = $queryBuilder->getQuery();
+        $reports = new \Doctrine\ORM\Tools\Pagination\Paginator($query, false);
+
+        $this->load->helper('pagination');
+        $this->load->helper('url');
+        $this->load->helper('smarty');
+        $smarty = createSmarty();
+        $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('currentPage', $page);
+        $maxPage = floor(($reports->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('pagination', createPagination($maxPage, $page, site_url('maintenance/reports') . '/'));
+        $smarty->assign('reports', array());
+        foreach($reports as $report) {
+            $smarty->append('reports', $report->toSmarty());
+        }
+        $smarty->display('maintenance_reports.tpl');
+    }
+
+    public function deletereport($docId, $type, $returnPage)
+    {
+        if(!$this->_checkAdminOrModerator()) {
+            return;
+        }
+
+        $this->load->library('em');
+        $report = $this->em->getEntityManager()->find('addventure\Report', array('episode' => $docId, 'type' => $type));
+        if($report) {
+            $this->em->getEntityManager()->remove($report);
+            $this->em->getEntityManager()->flush();
+        }
+        $this->load->helper('url');
+        redirect("maintenance/reports/$returnPage");
+    }
+
 }
