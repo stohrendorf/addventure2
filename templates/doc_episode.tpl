@@ -40,6 +40,11 @@
                         {/if}
                     </span>
                 {/if}
+                {if isset($episode.storyline)}
+                    <br/><span class="text-info">
+                        <a href="{$url.site}/tags/storyline/{$episode.storyline.id}"><span class="glyphicon glyphicon-tag"></span> {$episode.storyline.title|escape}</a>
+                    </span>
+                {/if}
             </h3>
             <a href="{$url.site}/maintenance/illegal/{$episode.id}" style="color:red;" class="pull-right" id="report"
                data-toggle="tooltip" data-placement="right auto" title="{t}This function is for reporting content that breaks the rules, not for crying about a bad story.{/t}"> <span class="glyphicon glyphicon-fire"></span> {t}Report inappropriate content{/t}</a>

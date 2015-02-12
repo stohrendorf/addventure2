@@ -243,4 +243,48 @@ class StorylineTag extends \addventure\StorylineTag implements \Doctrine\ORM\Pro
         return parent::setEpisodes($episodes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function toAtom(\SimpleXMLElement &$parent)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'toAtom', array($parent));
+
+        return parent::toAtom($parent);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toJson()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'toJson', array());
+
+        return parent::toJson();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toRss(\SimpleXMLElement &$parent)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'toRss', array($parent));
+
+        return parent::toRss($parent);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toSmarty()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'toSmarty', array());
+
+        return parent::toSmarty();
+    }
+
 }

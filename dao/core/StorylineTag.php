@@ -5,7 +5,7 @@ namespace addventure;
 /**
  * @Entity
  */
-class StorylineTag {
+class StorylineTag implements IAddventure {
 
     /**
      * @Id
@@ -63,6 +63,29 @@ class StorylineTag {
         }
         $this->episodes = $episodes;
         return $this;
+    }
+
+    public function toAtom(\SimpleXMLElement &$parent)
+    {
+        
+    }
+
+    public function toJson()
+    {
+        
+    }
+
+    public function toRss(\SimpleXMLElement &$parent)
+    {
+        
+    }
+
+    public function toSmarty()
+    {
+        return array(
+            'title' => $this->getTitle(),
+            'id' => $this->getId()
+        );
     }
 
 }

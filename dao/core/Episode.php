@@ -322,6 +322,9 @@ class Episode implements IAddventure {
             'comments' => array(),
             'tags' => array()
         );
+        if($this->getStorylineTag()) {
+            $result['storyline'] = $this->getStorylineTag()->toSmarty();
+        }
         if(($created = $this->getCreated())) {
             $result['created'] = $created->format("l, d M Y H:i");
         }
