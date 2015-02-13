@@ -621,7 +621,37 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         }
         return null;
     }
-    
+
+    public function findByStoryline($tagId, callable $func, $page = 0) {
+        if(!is_numeric($tagId)) {
+            throw new \InvalidArgumentException('Tag ID is not numeric.');
+        }
+        if($page === false || $page === null) {
+            $page = 0;
+        }
+        elseif(!is_numeric($page)) {
+            throw new \InvalidArgumentException('Page is not numeric.');
+        }
+        $tag = $this->getEntityManager()->find('addventure\StorylineTag', $tagId);
+        if(!$tag) {
+            return 0;
+        }
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+        $queryBuilder->setFirstResult($page * ADDVENTURE_RESULTS_PER_PAGE);
+        $queryBuilder->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+        $queryBuilder->select('e')->from('addventure\Episode', 'e')->orderBy('e.created', 'DESC')
+                ->where("e.storylineTag = $tagId");
+        $query = $queryBuilder->getQuery();
+        $query->setResultCacheLifetime(60*60);
+        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query, false);
+        foreach($paginator as $ep) {
+            $func($ep);
+            $this->getEntityManager()->detach($ep);
+            $this->getEntityManager()->clear();
+        }
+        return $paginator->count();
+    }
+
     public function getWeeklyStat() {
         $rsm = new \Doctrine\ORM\Query\ResultSetMapping();
         $rsm->addScalarResult('count', 'count', 'integer');
