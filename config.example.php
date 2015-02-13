@@ -67,3 +67,7 @@ define('ADDVENTURE_MAX_LINKS', 6);
  * Show "This comment has automatically been..." warnings.
  */
 define('ADDVENTURE_LEGACY_INFO', FALSE);
+/**
+ * Maximum number of episodes to show in chains.
+ */
+define('ADDVENTURE_CHAIN_LIMIT', 100);

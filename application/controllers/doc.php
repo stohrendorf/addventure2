@@ -95,6 +95,9 @@ class Doc extends CI_Controller
     private function _createChain(\addventure\Episode &$episode, $numEps)
     {
         $eps = array();
+        if($numEps > ADDVENTURE_CHAIN_LIMIT) {
+            $numEps = ADDVENTURE_CHAIN_LIMIT;
+        }
         while($episode && --$numEps >= 0) {
             $smarty = $episode->toSmarty();
             $parent = $episode->getParent();
