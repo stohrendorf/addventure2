@@ -156,9 +156,6 @@ class EM
         if(!$source->getRole()->get() === addventure\UserRole::Anonymous) {
             return false;
         }
-        if($destination->getRole()->get < addventure\UserRole::Registered) {
-            return false;
-        }
         $names = $source->getAuthorNames();
         foreach($names as $name) {
             $destination->getAuthorNames()->add($name);

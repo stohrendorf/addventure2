@@ -17,16 +17,22 @@ class Api extends CI_Controller
 
     public function backlinks()
     {
-        $this->load->library('em');
+        $result = array();
+        
+        $this->load->library('userinfo');
+        if(!$this->userinfo->user || (!$this->userinfo->user->isModerator() && !$this->userinfo->user->isAdministrator()))
+        {
+            echo json_encode(array('entries' => $result));
+            return;
+        }
 
         $filter = $this->input->post('query');
-        $result = array();
-
         if($filter === false || empty($filter)) {
             echo json_encode(array('entries' => $result));
             return;
         }
 
+        $this->load->library('em');
         if(preg_match('/^[0-9]+$/', $filter)) {
             $filter = filter_var($filter, FILTER_SANITIZE_NUMBER_INT);
             $qb = $this->em->getEntityManager()->createQueryBuilder();
@@ -58,7 +64,7 @@ class Api extends CI_Controller
         echo json_encode(array('entries' => $result));
     }
 
-    public function anonymoususers()
+    public function users()
     {
         $this->load->library('em');
 
@@ -74,8 +80,7 @@ class Api extends CI_Controller
             $filter = filter_var($filter, FILTER_SANITIZE_NUMBER_INT);
             $qb = $this->em->getEntityManager()->createQueryBuilder();
             $qb->select('DISTINCT u')->from('addventure\User', 'u')
-                    ->where('u.role = ' . \addventure\UserRole::Anonymous)
-                    ->andWhere('CONCAT(IDENTITY(u.id), \'\') LIKE :filter')
+                    ->where('CONCAT(IDENTITY(u.id), \'\') LIKE :filter')
                     ->orderBy('u.id') // and then ordered by target
                     ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
             $qb->setParameter('filter', '%' . addcslashes($filter, '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
@@ -87,8 +92,7 @@ class Api extends CI_Controller
             $filter = filter_var($filter, FILTER_SANITIZE_STRING);
             $qb = $this->em->getEntityManager()->createQueryBuilder();
             $qb->select('DISTINCT u, LENGTH(u.username) AS HIDDEN len')->from('addventure\User', 'u')
-                    ->where('u.role = ' . \addventure\UserRole::Anonymous)
-                    ->andWhere('UPPER(u.username) LIKE :filter')
+                    ->where('UPPER(u.username) LIKE :filter')
                     ->orderBy('len') // the most-matching first
                     ->addOrderBy('u.username') // and then ordered by target
                     ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);

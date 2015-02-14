@@ -38,6 +38,10 @@ class Recent extends CI_Controller
 
         $userId = filter_var($userId, FILTER_SANITIZE_NUMBER_INT);
         $user = $this->em->findUser($userId);
+        if(!$user) {
+            show_404();
+            return;
+        }
         $page = filter_var($page, FILTER_SANITIZE_NUMBER_INT);
         if($page === null || $page === false) {
             $page = 0;

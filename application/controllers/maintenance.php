@@ -407,7 +407,7 @@ class Maintenance extends CI_Controller
     public function mergeuser($destination, $source) {
         $this->load->library('em');
         $sourceUser = $this->em->findUser($source);
-        $destinationUser = $this->em->findUser($destinationUser);
+        $destinationUser = $this->em->findUser($destination);
         if($sourceUser && $destinationUser) {
             $this->em->mergeUser($destinationUser, $sourceUser);
         }
