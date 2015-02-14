@@ -427,6 +427,11 @@ class Doc extends CI_Controller
             }
             $author->getEpisodes()->add($episode);
             $this->em->getEntityManager()->persist($author);
+
+            // inherit storyline tag if present
+            if($episode->getParent() && $episode->getParent()->getStorylineTag()) {
+                $episode->setStorylineTag($episode->getParent()->getStorylineTag());
+            }
         }
         else {
             foreach($combinedOpts as $opt) {
