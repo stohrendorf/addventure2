@@ -40,9 +40,15 @@
                         {/if}
                     </span>
                 {/if}
+                <br/>
                 {if isset($episode.storyline)}
-                    <br/><span class="text-info">
+                    <span class="text-info">
                         <a href="{$url.site}/tags/storyline/{$episode.storyline.id}"><span class="glyphicon glyphicon-tag"></span> {$episode.storyline.title|escape}</a>
+                        <a href="#" id="edit-storyline" class="btn btn-primary btn-sm">{t}Change tag{/t}</a>
+                    </span>
+                {else}
+                    <span class="text-info">
+                        <a href="#" id="add-storyline" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-plus-sign"></span>{t}Add storyline tag{/t}</a>
                     </span>
                 {/if}
             </h3>
