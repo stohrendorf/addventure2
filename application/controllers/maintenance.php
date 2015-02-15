@@ -436,6 +436,16 @@ class Maintenance extends CI_Controller
 
         $this->load->library('em');
         $tag = $this->em->getEntityManager()->find('addventure\StorylineTag', $tagId);
+        if(!$tag && !is_numeric($tagId)) {
+            $tagId = trim(strip_tags($tagId));
+            if(empty($tagId)) {
+                show_404();
+                return;
+            }
+            $tag = new addventure\StorylineTag();
+            $tag->setTitle($tagId);
+        }
+        
         $doc = $this->em->findEpisode($docId);
         if(!$tag || !$doc) {
             show_404();
@@ -455,23 +465,28 @@ class Maintenance extends CI_Controller
                 $doc = array_shift($childQueue);
                 if($doc->getStorylineTag()==null xor $initialTag==null) {
                     // only one of both is null
-                    $this->em->getEntityManager()->detach($doc);
                     continue;
                 }
                 elseif($initialTag!=null && $doc->getStorylineTag()->getId() != $initialTag->getId()) {
                     // both are not null and have different tags
-                    $this->em->getEntityManager()->detach($doc);
                     continue;
                 }
                 $doc->setStorylineTag($tag);
-                $this->em->persistAndFlush($doc);
+                $tag->getEpisodes()->add($doc);
+                $this->em->getEntityManager()->persist($doc);
+                $this->em->getEntityManager()->persist($tag);
                 ++$updateCount;
+                if($updateCount % 100 == 0) {
+                    $this->em->getEntityManager()->flush();
+                    $this->em->getEntityManager()->clear();
+                }
                 foreach($doc->getChildLinks() as $link) {
                     array_push($childQueue, $link->getToEp());
                     $this->em->getEntityManager()->detach($link);
                 }
-                $this->em->getEntityManager()->detach($doc);
             }
+            $this->em->getEntityManager()->flush();
+            $this->em->getEntityManager()->clear();
             $this->load->library('log');
             $this->log->warning("Storyline update affected $updateCount episodes");
         }
