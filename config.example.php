@@ -45,10 +45,18 @@ function getAddventureConfigValue() {
         'legacyInfo' => false,
         
         'email' => array(
+            // smtp, sendmail
+            'type' => 'sendmail',
             // The e-mail address used for e-mails.
             'senderAddress' => 'noreply@add.venture',
             // The name of the sender of the e-mails.
             'senderName' => 'Addventure2'
+            // Additional fields for 'type'='smtp':
+            //  - host (e.g. smtp.google.com)
+            //  - port (e.g. 25, 587, ...)
+            //  - encryption (null, 'ssl', 'tls')
+            //  - username, password
+            //  - authMode (null, 'CRAM-MD5', 'LOGIN', 'NTLM', 'PLAIN', 'XOAUTH2')
         )
     );
     

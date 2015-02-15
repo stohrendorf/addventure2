@@ -37,14 +37,6 @@ class Account extends CI_Controller {
         return password_hash($password, PASSWORD_DEFAULT);
     }
 
-    private function _createMessage($to, $subject) {
-        $message = Swift_Message::newInstance();
-        $message->setFrom(getAddventureConfigValue('email', 'senderAddress'), getAddventureConfigValue('email', 'senderName'));
-        $message->setTo($to);
-        $message->setSubject($subject);
-        return $message;
-    }
-
     public function register() {
         $this->load->helper('smarty');
         $smarty = createSmarty();
@@ -87,8 +79,11 @@ class Account extends CI_Controller {
         $verificationUrl .= 'a=' . rawurlencode(self::_getVerificationCode($email));
         $verificationUrl .= '&b=' . rawurlencode(base64_encode($this->encrypt->encode($email)));
 
-        $message = $this->_createMessage($email, _('Addventure2 E-Mail Verification'));
-        $message->setBody(sprintf(_(<<<'MSG'
+        $this->load->helper('email');
+        $message = createMailSender();
+        $message->setSubject(_('Addventure2 E-Mail Verification'));
+        $message->setReceiver($email, $username);
+        $message->setMessage(sprintf(_(<<<'MSG'
 Dear writer!
 
 To verify your e-mail address, please open the following link in your browser:
@@ -98,9 +93,7 @@ To verify your e-mail address, please open the following link in your browser:
 Happy writing!
 MSG
         ), $verificationUrl));
-        $transport = Swift_SendmailTransport::newInstance();
-        $mailer = Swift_Mailer::newInstance($transport);
-        if($mailer->send($message, $failures)) {
+        if($message->send($failures)) {
             $smarty->display('account_register_mail_sent.tpl');
             return;
         }
@@ -248,9 +241,12 @@ MSG
         $this->load->helper('string');
         $generatedPw = random_string();
 
-        $message = $this->_createMessage($user->getEmail(), _('Addventure2 Password Recovery'));
+        $this->load->helper('email');
+        $message = createMailSender();
+        $message->setReceiver($user->getEmail(), $user->getUsername());
+        $message->setSubject(_('Addventure2 Password Recovery'));
 
-        $message->setBody(sprintf(_(<<<'MSG'
+        $message->setMessage(sprintf(_(<<<'MSG'
 Dear writer!
 
 Here is your new password:
@@ -260,9 +256,7 @@ Here is your new password:
 Happy writing!
 MSG
         ), $generatedPw));
-        $transport = Swift_SendmailTransport::newInstance();
-        $mailer = Swift_Mailer::newInstance($transport);
-        if($mailer->send($message, $failures)) {
+        if($message->send($failures)) {
             $user->setPassword(self::_encodePassword($generatedPw));
             $this->em->persistAndFlush($user);
             $smarty->display('account_recover_mail_sent.tpl');

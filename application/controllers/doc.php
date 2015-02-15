@@ -479,13 +479,13 @@ class Doc extends CI_Controller
 
     private function _sendNotification(addventure\Episode $srcDoc, addventure\User $recipient)
     {
-        $message = Swift_Message::newInstance();
-        $message->setFrom(getAddventureConfigValue('email', 'senderAddress'), getAddventureConfigValue('email', 'senderName'));
-        $message->setTo($recipient->getEmail());
+        $this->load->helper('email');
+        $message = createMailSender();
         $message->setSubject(_('Option filled'));
+        $message->setReceiver($recipient->getEmail(), $recipient->getUsername());
         $docurl = site_url(array('doc', $srcDoc->getId()));
         $unsubscribe = site_url(array('doc', 'unsubscribe', $srcDoc->getId()));
-        $message->setBody(sprintf(_(<<<'MSG'
+        $message->setMessage(sprintf(_(<<<'MSG'
 Dear %1$s,
 
 an option of episode "%2$s" (%3$s) has been filled.
@@ -495,9 +495,7 @@ episode.  You can unsubscribe from further notifications by clicking on this
 link: %4$s
 MSG
                         ), $recipient->getUsername(), $srcDoc->getAutoTitle(), $docurl, $unsubscribe));
-        $transport = Swift_SendmailTransport::newInstance();
-        $mailer = Swift_Mailer::newInstance($transport);
-        if(!$mailer->send($message, $failures)) {
+        if(!$message->send($failures)) {
             $this->load->library('log');
             $this->log->crit('Could not send notification e-mail: ' . print_r($failures, true));
         }

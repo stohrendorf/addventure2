@@ -40,6 +40,7 @@ function getAddventureConfigValue() {
         'legacyInfo' => false,
         
         'email' => array(
+            'type' => 'sendmail',
             // The e-mail address used for e-mails.
             'senderAddress' => 'noreply@add.venture',
             // The name of the sender of the e-mails.
