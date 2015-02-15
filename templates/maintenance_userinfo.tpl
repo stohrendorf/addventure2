@@ -117,7 +117,7 @@
                     
                     var uid = $(this).attr('userid');
                     
-                    var question = $('#verification-dialog').modal('show');
+                    $('#verification-dialog').modal('show');
                     $('#do-merge').click(function(){
                         window.location.href = '{$url.site}/maintenance/mergeuser/' + uid + '/' + {$user.userid};
                     });

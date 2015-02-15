@@ -20,7 +20,7 @@ class Api extends CI_Controller
         $result = array();
         
         $this->load->library('userinfo');
-        if(!$this->userinfo->user || $this->userinfo->user->getRole() < addventure\UserRole::Registered)
+        if(!$this->userinfo->user || $this->userinfo->user->getRole()->get() < addventure\UserRole::Registered)
         {
             echo json_encode(array('entries' => $result));
             return;
@@ -70,7 +70,7 @@ class Api extends CI_Controller
         
         $this->load->library('em');
         $this->load->library('userinfo');
-        if(!$this->userinfo->user || $this->userinfo->user->getRole() < addventure\UserRole::Moderator)
+        if(!$this->userinfo->user || $this->userinfo->user->getRole()->get() < addventure\UserRole::Moderator)
         {
             echo json_encode(array('entries' => $result));
             return;
@@ -173,7 +173,7 @@ class Api extends CI_Controller
 
 
         $this->load->library('userinfo');
-        if(!$this->userinfo->user || $this->userinfo->user->getRole() < addventure\UserRole::Moderator)
+        if(!$this->userinfo->user || $this->userinfo->user->getRole()->get() < addventure\UserRole::Moderator)
         {
             echo json_encode(array('entries' => $result));
             return;
@@ -185,30 +185,16 @@ class Api extends CI_Controller
             return;
         }
 
-        if(preg_match('/^[0-9]+$/', $filter)) {
-            $filter = filter_var($filter, FILTER_SANITIZE_NUMBER_INT);
-            $qb = $this->em->getEntityManager()->createQueryBuilder();
-            $qb->select('DISTINCT t')->from('addventure\StorylineTag', 't')
-                    ->where('CONCAT(IDENTITY(t.id), \'\') LIKE :filter')
-                    ->orderBy('t.id')
-                    ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
-            $qb->setParameter('filter', '%' . addcslashes($filter, '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
-            foreach($qb->getQuery()->getResult() as $link) {
-                $result[] = $link->toJson();
-            }
-        }
-        else {
-            $filter = filter_var($filter, FILTER_SANITIZE_STRING);
-            $qb = $this->em->getEntityManager()->createQueryBuilder();
-            $qb->select('DISTINCT t, LENGTH(t.title) AS HIDDEN len')->from('addventure\StorylineTag', 't')
-                    ->where('UPPER(t.title) LIKE :filter')
-                    ->orderBy('len') // the most-matching first
-                    ->addOrderBy('t.id')
-                    ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
-            $qb->setParameter('filter', '%' . addcslashes(mb_convert_case($filter, MB_CASE_UPPER), '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
-            foreach($qb->getQuery()->getResult() as $link) {
-                $result[] = $link->toJson();
-            }
+        $filter = filter_var($filter, FILTER_SANITIZE_STRING);
+        $qb = $this->em->getEntityManager()->createQueryBuilder();
+        $qb->select('DISTINCT t, LENGTH(t.title) AS HIDDEN len')->from('addventure\StorylineTag', 't')
+                ->where('UPPER(t.title) LIKE :filter')
+                ->orderBy('len') // the most-matching first
+                ->addOrderBy('t.id')
+                ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+        $qb->setParameter('filter', '%' . addcslashes(mb_convert_case($filter, MB_CASE_UPPER), '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
+        foreach($qb->getQuery()->getResult() as $tag) {
+            $result[] = $tag->toJson();
         }
 
         echo json_encode(array('entries' => $result));

@@ -72,7 +72,10 @@ class StorylineTag implements IAddventure {
 
     public function toJson()
     {
-        
+        return array(
+            'title' => $this->getTitle(),
+            'id' => $this->getId()
+        );
     }
 
     public function toRss(\SimpleXMLElement &$parent)

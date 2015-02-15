@@ -10,6 +10,17 @@
         <link href="{$url.site}/feed/atom/{$episode.author.user}" rel="alternate" type="application/atom+xml"
               title="{t escape=no 1={$episode.author.name|escape}}Recent episodes by &raquo;%1&laquo; (ATOM){/t}"/>
     {/if}
+    <style type="text/css">
+        #storyline-dialog .modal-dialog,
+        #storyline-dialog .modal-content {
+            height: 90%;
+        }
+
+        #storyline-dialog .modal-body {
+            max-height: calc(100% - 120px);
+            overflow-y: scroll;
+        }
+    </style>
 {/block}
 
 {block name=body}
@@ -44,12 +55,16 @@
                 {if isset($episode.storyline)}
                     <span class="text-info">
                         <a href="{$url.site}/tags/storyline/{$episode.storyline.id}"><span class="glyphicon glyphicon-tag"></span> {$episode.storyline.title|escape}</a>
-                        <a href="#" id="edit-storyline" class="btn btn-primary btn-sm">{t}Change tag{/t}</a>
+                        {if $client.isAdministrator or $client.isModerator}
+                            <a href="#" id="storyline-btn" class="btn btn-primary btn-sm">{t}Change tag{/t}</a>
+                        {/if}
                     </span>
                 {else}
-                    <span class="text-info">
-                        <a href="#" id="add-storyline" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-plus-sign"></span>{t}Add storyline tag{/t}</a>
-                    </span>
+                    {if $client.isAdministrator or $client.isModerator}
+                        <span class="text-info">
+                            <a href="#" id="storyline-btn" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-plus-sign"></span>{t}Add storyline tag{/t}</a>
+                        </span>
+                    {/if}
                 {/if}
             </h3>
             <a href="{$url.site}/maintenance/illegal/{$episode.id}" style="color:red;" class="pull-right" id="report"
@@ -272,4 +287,100 @@
         {/if}
     </div>
 
+    {if $client.isAdministrator or $client.isModerator}
+        <script>
+            $(function () {
+                $('#verification-dialog').modal('hide');
+                $('#storyline-dialog').modal('hide');
+                var handleStorylineBtn = function () {
+                    $('#storyline-dialog').modal('show');
+                    return false;
+                };
+                $('#storyline-btn').click(handleStorylineBtn);
+
+                var typeaheadHandler = function () {
+                    var query = $('#storyline-filter').val();
+                    if (query.length <= 0) {
+                        return;
+                    }
+                    $.post(
+                            '{$url.site}/api/storylines/',
+                            {
+                                {csrf_json},
+                                'query': query
+                            },
+                            function (data) {
+                                var list = $('#storylines');
+                                list.empty();
+                                data.entries.forEach(function (e) {
+                                    var clone = $('#storyline-template').clone(true);
+                                    clone.text(e.title);
+                                    clone.html(e.id + '&mdash;' + clone.html())
+                                    clone.attr('storylineid', e.id);
+                                    clone.appendTo(list);
+                                    clone.removeClass('hidden');
+                                });
+                            },
+                            'json'
+                            );
+                };
+                $('#storyline-filter').keyup(typeaheadHandler);
+
+                var selectStorylineTag = function () {
+                    $('#storyline-dialog').modal('hide');
+                    var tagid = $(this).attr('storylineid');
+                    
+                    $('#verification-dialog').modal('show');
+                    $('#do-apply').click(function(){
+                        window.location.href = '{$url.site}/maintenance/setstoryline/{$episode.id}/' + tagid + '/false';
+                    });
+                    $('#do-apply-all').click(function(){
+                        window.location.href = '{$url.site}/maintenance/setstoryline/{$episode.id}/' + tagid + '/true';
+                    });
+                    return false;
+                };
+                $('#storyline-template').click(selectStorylineTag);
+            });
+        </script>
+        <div class="modal fade" id="storyline-dialog" role="dialog" aria-labelledby="" aria-hidden="true" title="{t}Select storyline tag{/t}">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{t}Select storyline tag{/t}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" id="storyline-filter" class="form-control" placeholder="{t}Find storyline tag{/t}">
+                        <a class="list-group-item hidden" id="storyline-template" href="#"></a>
+                        <div class="list-group" id="storylines">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{t}Abort{/t}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+                    
+        <div class="modal fade" id="verification-dialog" role="dialog" aria-labelledby="" aria-hidden="true" title="{t}Verficiation needed{/t}">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{t}Verification needed{/t}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger">
+                            {t}You are about to change the storyline tag for this episode. Shall the child episodes with the same tag be changed as well?{/t}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a type="button" class="btn btn-default" id="do-apply-all" href="#">{t}Yes, apply to children{/t}</a>
+                        <a type="button" class="btn btn-default" id="do-apply" href="#">{t}No, only this one{/t}</a>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">{t}Abort{/t}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {/if}
 {/block}

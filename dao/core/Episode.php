@@ -298,8 +298,7 @@ class Episode implements IAddventure {
 
     /**
      * Get the direct child links of an episode, excluding backlinks.
-     * @param int $from Source episode ID
-     * @return Episode[]
+     * @return Link[]
      */
     public function getChildLinks() {
         $CI = & get_instance();

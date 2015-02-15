@@ -405,6 +405,10 @@ class Maintenance extends CI_Controller
     }
 
     public function mergeuser($destination, $source) {
+        if(!$this->_checkAdmin()) {
+            return;
+        }
+        
         $this->load->library('em');
         $sourceUser = $this->em->findUser($source);
         $destinationUser = $this->em->findUser($destination);
@@ -413,5 +417,66 @@ class Maintenance extends CI_Controller
         }
         $this->load->helper('url');
         redirect(array('maintenance', 'userinfo', $destination));
+    }
+
+    public function setstoryline($docId, $tagId, $recursive) {
+        if(!$this->_checkAdminOrModerator()) {
+            return;
+        }
+        
+        if($recursive === 'false') {
+            $recursive = false;
+        }
+        elseif($recursive === 'true') {
+            $recursive = true;
+        }
+        else {
+            show_404();
+        }
+
+        $this->load->library('em');
+        $tag = $this->em->getEntityManager()->find('addventure\StorylineTag', $tagId);
+        $doc = $this->em->findEpisode($docId);
+        if(!$tag || !$doc) {
+            show_404();
+            return;
+        }
+        
+        if(!$recursive) {
+            $doc->setStorylineTag($tag);
+            $this->em->persistAndFlush($doc);
+        }
+        else {
+            $childQueue = array();
+            $childQueue[] = $doc;
+            $initialTag = $doc->getStorylineTag();
+            $updateCount = 0;
+            while(!empty($childQueue)) {
+                $doc = array_shift($childQueue);
+                if($doc->getStorylineTag()==null xor $initialTag==null) {
+                    // only one of both is null
+                    $this->em->getEntityManager()->detach($doc);
+                    continue;
+                }
+                elseif($initialTag!=null && $doc->getStorylineTag()->getId() != $initialTag->getId()) {
+                    // both are not null and have different tags
+                    $this->em->getEntityManager()->detach($doc);
+                    continue;
+                }
+                $doc->setStorylineTag($tag);
+                $this->em->persistAndFlush($doc);
+                ++$updateCount;
+                foreach($doc->getChildLinks() as $link) {
+                    array_push($childQueue, $link->getToEp());
+                    $this->em->getEntityManager()->detach($link);
+                }
+                $this->em->getEntityManager()->detach($doc);
+            }
+            $this->load->library('log');
+            $this->log->warning("Storyline update affected $updateCount episodes");
+        }
+        
+        $this->load->helper('url');
+        redirect(array('doc', $docId));
     }
 }
