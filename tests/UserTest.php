@@ -373,14 +373,14 @@ class UserTest extends \PHPUnit_Framework_TestCase {
      */
     public function testLockedOut() {
         $this->assertEquals( 0, $this->object->getFailedLogins() );
-        for( $i=0; $i < ADDVENTURE_MAX_FAILED_LOGINS; ++$i ) {
+        for( $i=0; $i < getAddventureConfigValue('maxFailedLogins'); ++$i ) {
             $this->object->setFailedLogins($i);
             $this->assertEquals( $i, $this->object->getFailedLogins() );
             $this->assertFalse( $this->object->isLockedOut() );
         }
-        for( $i=ADDVENTURE_MAX_FAILED_LOGINS; $i < ADDVENTURE_MAX_FAILED_LOGINS+2; ++$i ) {
+        for( $i=getAddventureConfigValue('maxFailedLogins'); $i < getAddventureConfigValue('maxFailedLogins')+2; ++$i ) {
             $this->object->setFailedLogins($i);
-            $this->assertEquals( ADDVENTURE_MAX_FAILED_LOGINS, $this->object->getFailedLogins() );
+            $this->assertEquals( getAddventureConfigValue('maxFailedLogins'), $this->object->getFailedLogins() );
             $this->assertTrue( $this->object->isLockedOut() );
         }
     }

@@ -416,8 +416,8 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
      * @throws \InvalidArgumentException if the page is invalid
      */
     private function getOrderedEpisodeList($column, $order, $count, $page = null) {
-        if(!is_numeric($count) || $count < 1 || $count > ADDVENTURE_RESULTS_PER_PAGE) {
-            $count = ADDVENTURE_RESULTS_PER_PAGE;
+        if(!is_numeric($count) || $count < 1 || $count > getAddventureConfigValue('resultsPerPage')) {
+            $count = getAddventureConfigValue('resultsPerPage');
         }
 
         if($page === false || $page === null) {
@@ -486,8 +486,8 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
      * @throws \InvalidArgumentException if the page is invalid
      */
     public function getRecentEpisodesByUser($count, $user, $page = null) {
-        if(!is_numeric($count) || $count < 1 || $count > ADDVENTURE_MAX_RECENT) {
-            $count = ADDVENTURE_MAX_RECENT;
+        if(!is_numeric($count) || $count < 1 || $count > getAddventureConfigValue('maxRecent')) {
+            $count = getAddventureConfigValue('maxRecent');
         }
 
         if($page === false || $page === null) {
@@ -521,8 +521,8 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
      * @throws \InvalidArgumentException if the page is invalid
      */
     public function getMostEpisodesByUser($count, $page = null) {
-        if(!is_numeric($count) || $count < 1 || $count > ADDVENTURE_RESULTS_PER_PAGE) {
-            $count = ADDVENTURE_RESULTS_PER_PAGE;
+        if(!is_numeric($count) || $count < 1 || $count > getAddventureConfigValue('resultsPerPage')) {
+            $count = getAddventureConfigValue('resultsPerPage');
         }
 
         if($page === false || $page === null) {
@@ -564,8 +564,8 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
             return 0;
         }
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
-        $queryBuilder->setFirstResult($page * ADDVENTURE_RESULTS_PER_PAGE);
-        $queryBuilder->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+        $queryBuilder->setFirstResult($page * getAddventureConfigValue('resultsPerPage'));
+        $queryBuilder->setMaxResults(getAddventureConfigValue('resultsPerPage'));
         $queryBuilder->select('e')->from('addventure\Episode', 'e')->orderBy('e.created', 'DESC');
         foreach($user->getAuthorNames() as $a) {
             $queryBuilder->orWhere('e.author=' . $a->getId());
@@ -636,8 +636,8 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
             return 0;
         }
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
-        $queryBuilder->setFirstResult($page * ADDVENTURE_RESULTS_PER_PAGE);
-        $queryBuilder->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+        $queryBuilder->setFirstResult($page * getAddventureConfigValue('resultsPerPage'));
+        $queryBuilder->setMaxResults(getAddventureConfigValue('resultsPerPage'));
         $queryBuilder->select('e')->from('addventure\Episode', 'e')->orderBy('e.created', 'DESC')
                 ->where("e.storylineTag = $tagId");
         $query = $queryBuilder->getQuery();

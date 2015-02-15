@@ -49,13 +49,13 @@ $active_group = 'default';
 $active_record = TRUE;
 
 $db['default']['hostname'] = 'localhost';
-$db['default']['username'] = ADDVENTURE_DB_USER;
-$db['default']['password'] = ADDVENTURE_DB_PASSWORD;
-$db['default']['database'] = ADDVENTURE_DB_SCHEMA;
-if(ADDVENTURE_DB_DRIVER === 'pdo_mysql') {
+$db['default']['username'] = getAddventureConfigValue('database', 'user');
+$db['default']['password'] = getAddventureConfigValue('database', 'password');
+$db['default']['database'] = getAddventureConfigValue('database', 'schema');
+if(getAddventureConfigValue('database', 'driver') === 'pdo_mysql') {
     $db['default']['dbdriver'] = 'mysql';
 }
-elseif(ADDVENTURE_DB_DRIVER === 'pdo_pgsql') {
+elseif(getAddventureConfigValue('database', 'driver') === 'pdo_pgsql') {
     $db['default']['dbdriver'] = 'postgre';
 }
 $db['default']['dbprefix'] = '';

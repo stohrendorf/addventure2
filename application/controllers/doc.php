@@ -95,8 +95,8 @@ class Doc extends CI_Controller
     private function _createChain(\addventure\Episode &$episode, $numEps)
     {
         $eps = array();
-        if($numEps > ADDVENTURE_CHAIN_LIMIT) {
-            $numEps = ADDVENTURE_CHAIN_LIMIT;
+        if($numEps > getAddventureConfigValue('chainLimit')) {
+            $numEps = getAddventureConfigValue('chainLimit');
         }
         while($episode && --$numEps >= 0) {
             $smarty = $episode->toSmarty();
@@ -372,11 +372,11 @@ class Doc extends CI_Controller
                 }
             }
         }
-        if(count($combinedOpts) < ADDVENTURE_MIN_LINKS) {
-            $errors[] = sprintf(_('You have to provide at least %1$d links.'), ADDVENTURE_MIN_LINKS);
+        if(count($combinedOpts) < getAddventureConfigValue('minLinks')) {
+            $errors[] = sprintf(_('You have to provide at least %1$d links.'), getAddventureConfigValue('minLinks'));
         }
-        elseif(count($combinedOpts) > ADDVENTURE_MAX_LINKS) {
-            $errors[] = sprintf(_('You may not provide more than %1$d links.'), ADDVENTURE_MAX_LINKS);
+        elseif(count($combinedOpts) > getAddventureConfigValue('maxLinks')) {
+            $errors[] = sprintf(_('You may not provide more than %1$d links.'), getAddventureConfigValue('maxLinks'));
         }
 
         if(!empty($errors) || (!$isCreation && false === $this->input->post('content'))) {
@@ -480,7 +480,7 @@ class Doc extends CI_Controller
     private function _sendNotification(addventure\Episode $srcDoc, addventure\User $recipient)
     {
         $message = Swift_Message::newInstance();
-        $message->setFrom(ADDVENTURE_EMAIL_ADDRESS, ADDVENTURE_EMAIL_NAME);
+        $message->setFrom(getAddventureConfigValue('email', 'senderAddress'), getAddventureConfigValue('email', 'senderName'));
         $message->setTo($recipient->getEmail());
         $message->setSubject(_('Option filled'));
         $docurl = site_url(array('doc', $srcDoc->getId()));

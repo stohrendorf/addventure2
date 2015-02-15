@@ -27,12 +27,12 @@ class Tags extends CI_Controller
             },
             $page
         );
-        $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('firstIndex', $page * getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('episodeCount', $numEpisodes);
         $tag = $this->em->getEntityManager()->find('addventure\StorylineTag', $tagId);
         $smarty->assign('storyline', $tag->toSmarty());
         $smarty->assign('page', $page);
-        $maxPage = floor(($numEpisodes + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
+        $maxPage = floor(($numEpisodes + getAddventureConfigValue('resultsPerPage') - 1) / getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url(array('tags/storyline', $tagId)) . '/'));
         $smarty->display('tags_storyline.tpl');
     }
@@ -53,16 +53,16 @@ class Tags extends CI_Controller
         $queryBuilder->select('t')
                 ->from('addventure\StorylineTag', 't')
                 ->orderBy('t.title');
-        $queryBuilder->setFirstResult($page * ADDVENTURE_RESULTS_PER_PAGE);
-        $queryBuilder->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+        $queryBuilder->setFirstResult($page * getAddventureConfigValue('resultsPerPage'));
+        $queryBuilder->setMaxResults(getAddventureConfigValue('resultsPerPage'));
         $query = $queryBuilder->getQuery();
         $query->setQueryCacheLifetime(60*60);
         $tags = new \Doctrine\ORM\Tools\Pagination\Paginator($query, false);
         
         $smarty = createSmarty();
-        $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('firstIndex', $page * getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('page', $page);
-        $maxPage = floor(($tags->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
+        $maxPage = floor(($tags->count() + getAddventureConfigValue('resultsPerPage') - 1) / getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url('tags/storylines') . '/'));
         foreach($tags as $tag) {
             $smarty->append('tags', $tag->toSmarty());

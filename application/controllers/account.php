@@ -30,7 +30,7 @@ if(!defined('BASEPATH')) {
 class Account extends CI_Controller {
 
     private static function _getVerificationCode($email) {
-        return sha1($email . sha1(ADDVENTURE_KEY));
+        return sha1($email . sha1(getAddventureConfigValue('encryptionKey')));
     }
 
     private static function _encodePassword($password) {
@@ -39,7 +39,7 @@ class Account extends CI_Controller {
 
     private function _createMessage($to, $subject) {
         $message = Swift_Message::newInstance();
-        $message->setFrom(ADDVENTURE_EMAIL_ADDRESS, ADDVENTURE_EMAIL_NAME);
+        $message->setFrom(getAddventureConfigValue('email', 'senderAddress'), getAddventureConfigValue('email', 'senderName'));
         $message->setTo($to);
         $message->setSubject($subject);
         return $message;
@@ -124,7 +124,7 @@ MSG
         
         if($user && $user->getRole()->get() === \addventure\UserRole::AwaitApproval) {
             $diff = abs( (new \DateTime())->getTimestamp() - $user->getRegisteredSince()->getTimestamp() );
-            if( $diff > ADDVENTURE_MAX_AWAITING_APPROVAL_HOURS * 60 * 60 ) {
+            if( $diff > getAddventureConfigValue('maxAwaitingApprovalHours') * 60 * 60 ) {
                 $this->em->getEntityManager()->remove($user);
                 $this->em->getEntityManager()->flush();
                 $smarty->display('account_verify_expired.tpl');

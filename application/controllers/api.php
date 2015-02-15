@@ -40,7 +40,7 @@ class Api extends CI_Controller
                     ->where('e.linkable = TRUE')
                     ->andWhere('CONCAT(IDENTITY(e.id), \'\') LIKE :filter')
                     ->orderBy('e.id') // and then ordered by target
-                    ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+                    ->setMaxResults(getAddventureConfigValue('resultsPerPage'));
             $qb->setParameter('filter', '%' . addcslashes($filter, '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
             foreach($qb->getQuery()->getResult() as $link) {
                 $result[] = $link->toJson();
@@ -54,7 +54,7 @@ class Api extends CI_Controller
                     ->andWhere('UPPER(e.title) LIKE :filter')
                     ->orderBy('len') // the most-matching first
                     ->addOrderBy('e.title') // and then ordered by target
-                    ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+                    ->setMaxResults(getAddventureConfigValue('resultsPerPage'));
             $qb->setParameter('filter', '%' . addcslashes(mb_convert_case($filter, MB_CASE_UPPER), '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
             foreach($qb->getQuery()->getResult() as $link) {
                 $result[] = $link->toJson();
@@ -88,7 +88,7 @@ class Api extends CI_Controller
             $qb->select('DISTINCT u')->from('addventure\User', 'u')
                     ->where('CONCAT(IDENTITY(u.id), \'\') LIKE :filter')
                     ->orderBy('u.id') // and then ordered by target
-                    ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+                    ->setMaxResults(getAddventureConfigValue('resultsPerPage'));
             $qb->setParameter('filter', '%' . addcslashes($filter, '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
             foreach($qb->getQuery()->getResult() as $link) {
                 $result[] = $link->toJson();
@@ -101,7 +101,7 @@ class Api extends CI_Controller
                     ->where('UPPER(u.username) LIKE :filter')
                     ->orderBy('len') // the most-matching first
                     ->addOrderBy('u.username') // and then ordered by target
-                    ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+                    ->setMaxResults(getAddventureConfigValue('resultsPerPage'));
             $qb->setParameter('filter', '%' . addcslashes(mb_convert_case($filter, MB_CASE_UPPER), '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
             foreach($qb->getQuery()->getResult() as $link) {
                 $result[] = $link->toJson();
@@ -191,7 +191,7 @@ class Api extends CI_Controller
                 ->where('UPPER(t.title) LIKE :filter')
                 ->orderBy('len') // the most-matching first
                 ->addOrderBy('t.id')
-                ->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+                ->setMaxResults(getAddventureConfigValue('resultsPerPage'));
         $qb->setParameter('filter', '%' . addcslashes(mb_convert_case($filter, MB_CASE_UPPER), '%_') . '%', Doctrine\DBAL\Types\Type::STRING);
         foreach($qb->getQuery()->getResult() as $tag) {
             $result[] = $tag->toJson();

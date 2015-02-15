@@ -56,10 +56,10 @@ function initDoctrineConnection()
     if(ENVIRONMENT !== 'testing') {
         $doctrineDbConfig = array(
             'host' => 'localhost',
-            'driver' => ADDVENTURE_DB_DRIVER,
-            'user' => ADDVENTURE_DB_USER,
-            'password' => ADDVENTURE_DB_PASSWORD,
-            'dbname' => ADDVENTURE_DB_SCHEMA,
+            'driver' => getAddventureConfigValue('database', 'driver'),
+            'user' => getAddventureConfigValue('database', 'user'),
+            'password' => getAddventureConfigValue('database', 'password'),
+            'dbname' => getAddventureConfigValue('database', 'schema'),
             'charset' => 'utf8'
         );
     }

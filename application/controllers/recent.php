@@ -18,9 +18,9 @@ class Recent extends CI_Controller
         }
         $this->load->library('em');
         $eps = $this->em->getEpisodeRepository()->getRecentEpisodes(-1, $page);
-        $maxPage = floor(($eps->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
+        $maxPage = floor(($eps->count() + getAddventureConfigValue('resultsPerPage') - 1) / getAddventureConfigValue('resultsPerPage'));
         $smarty = createSmarty();
-        $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('firstIndex', $page * getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url('recent') . '/'));
         $smarty->assign('episodes', array());
         foreach($eps as $ep) {
@@ -55,7 +55,7 @@ class Recent extends CI_Controller
                 },
                 $page
         );
-        $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('firstIndex', $page * getAddventureConfigValue('resultsPerPage'));
         $firstCreated = $this->em->getEpisodeRepository()->firstCreatedByUser($userId);
         if($firstCreated) {
             $smarty->assign('firstCreated', $firstCreated->format("l, d M Y H:i"));
@@ -67,7 +67,7 @@ class Recent extends CI_Controller
         $smarty->assign('episodeCount', $numEpisodes);
         $smarty->assign('user', $user->toSmarty());
         $smarty->assign('page', $page);
-        $maxPage = floor(($numEpisodes + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
+        $maxPage = floor(($numEpisodes + getAddventureConfigValue('resultsPerPage') - 1) / getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url(array('recent/user', $userId)) . '/'));
         $smarty->display('recent_user.tpl');
     }

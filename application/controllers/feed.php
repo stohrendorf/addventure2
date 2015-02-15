@@ -60,10 +60,10 @@ class Feed extends CI_Controller {
     private function _getRecentEpisodes($user) {
         try {
             if($user !== null && $user !== false) {
-                $eps = $this->em->getEpisodeRepository()->getRecentEpisodesByUser(ADDVENTURE_FEED_SIZE, $user);
+                $eps = $this->em->getEpisodeRepository()->getRecentEpisodesByUser(getAddventureConfigValue('feedSize'), $user);
             }
             else {
-                $eps = $this->em->getEpisodeRepository()->getRecentEpisodes(ADDVENTURE_FEED_SIZE);
+                $eps = $this->em->getEpisodeRepository()->getRecentEpisodes(getAddventureConfigValue('feedSize'));
             }
             if(!$eps) {
                 http_response_code(400);

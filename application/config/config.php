@@ -224,7 +224,7 @@ $config['cache_path'] = '';
 | MUST set an encryption key.  See the user guide for info.
 |
 */
-$config['encryption_key'] = ADDVENTURE_KEY;
+$config['encryption_key'] = getAddventureConfigValue('encryptionKey');
 
 /*
 |--------------------------------------------------------------------------

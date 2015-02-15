@@ -244,7 +244,7 @@ class User implements IAddventure {
     }
 
     public function isLockedOut() {
-        return $this->failedLogins >= ADDVENTURE_MAX_FAILED_LOGINS;    
+        return $this->failedLogins >= getAddventureConfigValue('maxFailedLogins');    
     }
     
     public function isAnonymous() {
@@ -310,7 +310,7 @@ class User implements IAddventure {
     }
 
     public function setFailedLogins($failedLogins) {
-        $this->failedLogins = ($failedLogins > ADDVENTURE_MAX_FAILED_LOGINS ? ADDVENTURE_MAX_FAILED_LOGINS : $failedLogins);
+        $this->failedLogins = ($failedLogins > getAddventureConfigValue('maxFailedLogins') ? getAddventureConfigValue('maxFailedLogins') : $failedLogins);
         return $this;
     }
 

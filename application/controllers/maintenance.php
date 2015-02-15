@@ -334,8 +334,8 @@ class Maintenance extends CI_Controller
         $queryBuilder->select('u')
                 ->from('addventure\User', 'u')
                 ->orderBy('u.username');
-        $queryBuilder->setFirstResult($page * ADDVENTURE_RESULTS_PER_PAGE);
-        $queryBuilder->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+        $queryBuilder->setFirstResult($page * getAddventureConfigValue('resultsPerPage'));
+        $queryBuilder->setMaxResults(getAddventureConfigValue('resultsPerPage'));
         $query = $queryBuilder->getQuery();
         $users = new \Doctrine\ORM\Tools\Pagination\Paginator($query, false);
 
@@ -343,8 +343,8 @@ class Maintenance extends CI_Controller
         $this->load->helper('url');
         $this->load->helper('smarty');
         $smarty = createSmarty();
-        $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
-        $maxPage = floor(($users->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('firstIndex', $page * getAddventureConfigValue('resultsPerPage'));
+        $maxPage = floor(($users->count() + getAddventureConfigValue('resultsPerPage') - 1) / getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url('maintenance/userlist') . '/'));
         foreach($users as $user) {
             $smarty->append('users', $user->toSmarty());
@@ -368,8 +368,8 @@ class Maintenance extends CI_Controller
         $queryBuilder->select('r')
                 ->from('addventure\Report', 'r')
                 ->orderBy('r.episode');
-        $queryBuilder->setFirstResult($page * ADDVENTURE_RESULTS_PER_PAGE);
-        $queryBuilder->setMaxResults(ADDVENTURE_RESULTS_PER_PAGE);
+        $queryBuilder->setFirstResult($page * getAddventureConfigValue('resultsPerPage'));
+        $queryBuilder->setMaxResults(getAddventureConfigValue('resultsPerPage'));
         $query = $queryBuilder->getQuery();
         $reports = new \Doctrine\ORM\Tools\Pagination\Paginator($query, false);
 
@@ -377,9 +377,9 @@ class Maintenance extends CI_Controller
         $this->load->helper('url');
         $this->load->helper('smarty');
         $smarty = createSmarty();
-        $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('firstIndex', $page * getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('currentPage', $page);
-        $maxPage = floor(($reports->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
+        $maxPage = floor(($reports->count() + getAddventureConfigValue('resultsPerPage') - 1) / getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url('maintenance/reports') . '/'));
         $smarty->assign('reports', array());
         foreach($reports as $report) {

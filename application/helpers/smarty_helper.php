@@ -47,6 +47,11 @@ if(!function_exists('createSmarty')) {
                 'canvasTextRenderer' => base_url('vendor/jqplot/plugins/jqplot.canvasTextRenderer.min.js')
             )
         ));
+        $smarty->assign('config', array(
+            'legacyInfo' => getAddventureConfigValue('legacyInfo'),
+            'maxAwaitingApprovalHours' => getAddventureConfigValue('maxAwaitingApprovalHours'),
+            'maxFailedLogins' => getAddventureConfigValue('maxFailedLogins')
+        ));
         return $smarty;
     }
 

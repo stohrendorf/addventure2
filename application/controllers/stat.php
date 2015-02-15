@@ -16,9 +16,9 @@ class Stat extends CI_Controller {
         }
         $this->load->library('em');
         $eps = $this->em->getEpisodeRepository()->getMostReadEpisodes(-1, $page);
-        $maxPage = floor(($eps->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
+        $maxPage = floor(($eps->count() + getAddventureConfigValue('resultsPerPage') - 1) / getAddventureConfigValue('resultsPerPage'));
         $smarty = createSmarty();
-        $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('firstIndex', $page * getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url('treehouse/mostread') . '/'));
         foreach($eps as $ep) {
             $smarty->append('episodes', $ep->toSmarty());
@@ -36,9 +36,9 @@ class Stat extends CI_Controller {
         }
         $this->load->library('em');
         $eps = $this->em->getEpisodeRepository()->getMostLikedEpisodes(-1, $page);
-        $maxPage = floor(($eps->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
+        $maxPage = floor(($eps->count() + getAddventureConfigValue('resultsPerPage') - 1) / getAddventureConfigValue('resultsPerPage'));
         $smarty = createSmarty();
-        $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('firstIndex', $page * getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url('treehouse/mostliked') . '/'));
         foreach($eps as $ep) {
             $smarty->append('episodes', $ep->toSmarty());
@@ -56,9 +56,9 @@ class Stat extends CI_Controller {
         }
         $this->load->library('em');
         $eps = $this->em->getEpisodeRepository()->getMostHatedEpisodes(-1, $page);
-        $maxPage = floor(($eps->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
+        $maxPage = floor(($eps->count() + getAddventureConfigValue('resultsPerPage') - 1) / getAddventureConfigValue('resultsPerPage'));
         $smarty = createSmarty();
-        $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('firstIndex', $page * getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url('treehouse/mosthated') . '/'));
         foreach($eps as $ep) {
             $smarty->append('episodes', $ep->toSmarty());
@@ -76,9 +76,9 @@ class Stat extends CI_Controller {
         }
         $this->load->library('em');
         $users = $this->em->getEpisodeRepository()->getMostEpisodesByUser(-1, $page);
-        $maxPage = floor(($users->count() + ADDVENTURE_RESULTS_PER_PAGE - 1) / ADDVENTURE_RESULTS_PER_PAGE);
+        $maxPage = floor(($users->count() + getAddventureConfigValue('resultsPerPage') - 1) / getAddventureConfigValue('resultsPerPage'));
         $smarty = createSmarty();
-        $smarty->assign('firstIndex', $page * ADDVENTURE_RESULTS_PER_PAGE);
+        $smarty->assign('firstIndex', $page * getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('pagination', createPagination($maxPage, $page, site_url('treehouse/mostepisodes') . '/'));
         foreach($users as $user) {
             $smarty->append('users', array('count'=>$user['episodeCount'], 'user'=>$user[0]->toSmarty()));

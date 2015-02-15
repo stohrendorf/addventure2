@@ -6,68 +6,59 @@
 if(!defined('ENVIRONMENT')) {
     define('ENVIRONMENT', 'production');
 }
-/**
- * The database driver.
- */
-define('ADDVENTURE_DB_DRIVER', 'pdo_mysql');
-/**
- * The database user.
- */
-define('ADDVENTURE_DB_USER', 'A. U. Thor');
-/**
- * Password for the database user;
- */
-define('ADDVENTURE_DB_PASSWORD', 'hammer');
-/**
- * Database name.
- */
-define('ADDVENTURE_DB_SCHEMA', 'addventure');
-/**
- * Maximum number of recent episodes returned by the "/recent/*" requests.
- */
-define('ADDVENTURE_MAX_RECENT', 100);
-/**
- * Maximum number of entries on a general result page.
- * This also affects the number of results in the backlink search dialog.
- */
-define('ADDVENTURE_RESULTS_PER_PAGE', 20);
-/**
- * Key used for CSRF protection and password encryption.
- */
-define('ADDVENTURE_KEY', '');
-/**
- * The e-mail address used for e-mails.
- */
-define('ADDVENTURE_EMAIL_ADDRESS', 'noreply@add.venture');
-/**
- * The name of the sender of the e-mails.
- */
-define('ADDVENTURE_EMAIL_NAME', 'Addventure2');
-/**
- * Number of episodes in a feed.
- */
-define('ADDVENTURE_FEED_SIZE', 100);
-/**
- * The maximum number of failed login attempts before a user gets locked out.
- */
-define('ADDVENTURE_MAX_FAILED_LOGINS', 5);
-/**
- * After this many hours, an "AwaitingApproval" account will become invalid.
- */
-define('ADDVENTURE_MAX_AWAITING_APPROVAL_HOURS', 8);
-/**
- * Minimum number of required links when creating an episode.
- */
-define('ADDVENTURE_MIN_LINKS', 3);
-/**
- * Maximum number of allowed links when creating an episode.
- */
-define('ADDVENTURE_MAX_LINKS', 6);
-/**
- * Show "This comment has automatically been..." warnings.
- */
-define('ADDVENTURE_LEGACY_INFO', FALSE);
-/**
- * Maximum number of episodes to show in chains.
- */
-define('ADDVENTURE_CHAIN_LIMIT', 100);
+
+function getAddventureConfigValue() {
+    static $config = array(
+        'database' => array(
+            // The database driver.
+            'driver' => 'pdo_mysql',
+            // The database user.
+            'user' => 'A. U. Thor',
+            // Password for the database user.
+            'password' => 'hammer',
+            // Database name.
+            'schema' => 'addventure'
+        ),
+        // Maximum number of recent episodes returned by the "/recent/*" requests.
+        'maxRecent' => 100,
+        // Maximum number of entries on a general result page.
+        // This also affects the number of results in the backlink search dialog.
+        'resultsPerPage' => 20,
+        // Number of episodes in a feed.
+        'feedSize' => 100,
+        // Maximum number of episodes to show in chains.
+        'chainLimit' => 100,
+        
+        // Minimum number of required links when creating an episode.
+        'minLinks' => 3,
+        // Maximum number of allowed links when creating an episode.
+        'maxLinks' => 6,
+        
+        // Key used for CSRF protection and password encryption.
+        'encryptionKey' => '',
+        // The maximum number of failed login attempts before a user gets locked out.
+        'maxFailedLogins' => 5,
+        // After this many hours, an "AwaitingApproval" account will become invalid.
+        'maxAwaitingApprovalHours' => 8,
+        
+        // Show "This comment has automatically been..." warnings.
+        'legacyInfo' => false,
+        
+        'email' => array(
+            // The e-mail address used for e-mails.
+            'senderAddress' => 'noreply@add.venture',
+            // The name of the sender of the e-mails.
+            'senderName' => 'Addventure2'
+        )
+    );
+    
+    $args = func_get_args();
+    $cfgIt = $config;
+    foreach($args as $key) {
+        if(!isset($cfgIt[$key])) {
+            throw new \InvalidArgumentException("Invalid config key");
+        }
+        $cfgIt = $cfgIt[$key];
+    }
+    return $cfgIt;
+}

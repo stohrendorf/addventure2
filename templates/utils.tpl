@@ -26,7 +26,7 @@
                 {if isset($episode.preNotes)}
                     <h4><b>{t}Author's Notes{/t}</b></h4>
                     <p>{$episode.preNotes|smileys}</p>
-                    {if $smarty.const.ADDVENTURE_LEGACY_INFO}
+                    {if $config.legacyInfo}
                         <small style="font-style: italic;">{t escape=no 1="{$url.site}/maintenance/reportTitle/{$episode.id}"}This note has been <em>automatically</em> taken from the episode's legacy title, as it seemed pretty long.
                             But machines aren't perfect: do you think this is wrong? <a href="%1">Report it!</a>{/t}</small>
                     {/if}
@@ -45,7 +45,7 @@
             <div class="panel-footer">
                 <h4><b>{t}Author's Notes{/t}</b></h4>
                 <p>{$episode.postNotes|smileys}</p>
-                {if $smarty.const.ADDVENTURE_LEGACY_INFO}
+                {if $config.legacyInfo}
                     <small style="font-style: italic;">{t escape=no 1="{$url.site}/maintenance/reportNotes/{$episode.id}"}This note has been <em>automatically</em> extracted from the legacy episode's author name.
                         But machines aren't perfect: do you think this was done wrong? <a href="%1">Report it!</a>{/t}</small>
                 {/if}
