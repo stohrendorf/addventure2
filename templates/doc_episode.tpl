@@ -320,6 +320,13 @@
                                     clone.appendTo(list);
                                     clone.removeClass('hidden');
                                 });
+                                if(data.entries.length == 0) {
+                                    $('#add-new-tag').removeClass('hidden');
+                                }
+                                else {
+                                    $('#add-new-tag').addClass('hidden');
+                                    $('#add-new-tag').attr('storylinetitle', $('#storyline-filter').val());
+                                }
                             },
                             'json'
                             );
@@ -340,6 +347,21 @@
                     return false;
                 };
                 $('#storyline-template').click(selectStorylineTag);
+
+                var addStorylineTag = function () {
+                    $('#storyline-dialog').modal('hide');
+                    var tagid = $(this).attr('storylinetitle');
+                    
+                    $('#verification-dialog').modal('show');
+                    $('#do-apply').click(function(){
+                        window.location.href = '{$url.site}/maintenance/setstoryline/{$episode.id}/' + encodeURIComponent(tagid) + '/false';
+                    });
+                    $('#do-apply-all').click(function(){
+                        window.location.href = '{$url.site}/maintenance/setstoryline/{$episode.id}/' + encodeURIComponent(tagid) + '/true';
+                    });
+                    return false;
+                };
+                $('#add-new-tag').click(addStorylineTag);
             });
         </script>
         <div class="modal fade" id="storyline-dialog" role="dialog" aria-labelledby="" aria-hidden="true" title="{t}Select storyline tag{/t}">
@@ -354,6 +376,7 @@
                         <a class="list-group-item hidden" id="storyline-template" href="#"></a>
                         <div class="list-group" id="storylines">
                         </div>
+                        <a class="hidden btn btn-block btn-default" href="#" id="add-new-tag">{t}Add new tag{/t}</a>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">{t}Abort{/t}</button>
