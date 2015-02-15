@@ -79,7 +79,7 @@ class Account extends CI_Controller {
         $verificationUrl .= 'a=' . rawurlencode(self::_getVerificationCode($email));
         $verificationUrl .= '&b=' . rawurlencode(base64_encode($this->encrypt->encode($email)));
 
-        $this->load->helper('email');
+        $this->load->helper('emailsender');
         $message = createMailSender();
         $message->setSubject(_('Addventure2 E-Mail Verification'));
         $message->setReceiver($email, $username);
@@ -241,7 +241,7 @@ MSG
         $this->load->helper('string');
         $generatedPw = random_string();
 
-        $this->load->helper('email');
+        $this->load->helper('emailsender');
         $message = createMailSender();
         $message->setReceiver($user->getEmail(), $user->getUsername());
         $message->setSubject(_('Addventure2 Password Recovery'));

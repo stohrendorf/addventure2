@@ -50,6 +50,7 @@
         "twitter/bootstrap": "~3.3",
         "frameworks/jquery": "~2.1",
         "swiftmailer/swiftmailer": "~5.0",
+        "mandrill/mandrill": "~1.0",
         "ircmaxell/password-compat": "~1.0",
         "monolog/monolog": "~1.9",
         "jqplot": "~1.0",
@@ -61,6 +62,7 @@
         "ext-SimpleXML": "*",
         "ext-tidy": "*",
         "ext-mcrypt": "*",
+        "ext-curl": "*",
         "php": ">=5.4"
     },
     "autoload": {

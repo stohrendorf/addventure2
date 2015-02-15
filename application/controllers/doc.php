@@ -479,7 +479,7 @@ class Doc extends CI_Controller
 
     private function _sendNotification(addventure\Episode $srcDoc, addventure\User $recipient)
     {
-        $this->load->helper('email');
+        $this->load->helper('emailsender');
         $message = createMailSender();
         $message->setSubject(_('Option filled'));
         $message->setReceiver($recipient->getEmail(), $recipient->getUsername());

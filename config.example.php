@@ -45,7 +45,7 @@ function getAddventureConfigValue() {
         'legacyInfo' => false,
         
         'email' => array(
-            // smtp, sendmail
+            // smtp, sendmail, mandrill
             'type' => 'sendmail',
             // The e-mail address used for e-mails.
             'senderAddress' => 'noreply@add.venture',
@@ -57,6 +57,8 @@ function getAddventureConfigValue() {
             //  - encryption (null, 'ssl', 'tls')
             //  - username, password
             //  - authMode (null, 'CRAM-MD5', 'LOGIN', 'NTLM', 'PLAIN', 'XOAUTH2')
+            // Additional fields for 'type'='mandrill':
+            //  - apikey
         )
     );
     

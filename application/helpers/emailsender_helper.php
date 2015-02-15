@@ -11,7 +11,7 @@ class EmailSender
     private $subject = null;
 
     /**
-     * @param array[] $recv Array of email=>name mappings
+     * @param string[] $recv email=>name mappings
      */
     public function setReceivers($recv)
     {
@@ -20,9 +20,14 @@ class EmailSender
 
     public function setReceiver($mail, $name)
     {
-        $this->receivers = array(array($mail=>$name));
+        $this->receivers = array($mail => $name);
     }
-    
+
+    public function addReceiver($mail, $name)
+    {
+        $this->receivers[$mail] = $name;
+    }
+
     public function setMessage($msg)
     {
         $this->message = $msg;
@@ -41,6 +46,9 @@ class EmailSender
         }
         elseif($type == 'sendmail') {
             return $this->sendSendmail($failures);
+        }
+        elseif($type == 'mandrill') {
+            return $this->sendMandrill($failures);
         }
         else {
             throw new \InvalidArgumentException('Invalid mail type');
@@ -92,6 +100,42 @@ class EmailSender
             }
         }
         return !$hadErrors;
+    }
+
+    private function sendMandrill(&$failures = null)
+    {
+        $to = array();
+        foreach($this->receivers as $mail => $name) {
+            $to[] = array(
+                'email' => $mail,
+                'name' => $name,
+                'type' => 'to'
+            );
+        }
+        $messageData = array(
+            'text' => $this->message,
+            'subject' => $this->subject,
+            'from_email' => getAddventureConfigValue('email', 'senderAddress'),
+            'from_name' => getAddventureConfigValue('email', 'senderName'),
+            'to' => $to,
+            'preserve_recipients' => false
+        );
+        
+        $async = true;
+        $ip_pool = 'Main Pool';
+        try {
+            $mandrill = new Mandrill(getAddventureConfigValue('email', 'apikey'));
+            $mandrill->messages->send($messageData, $async, $ip_pool);
+        }
+        catch(Mandrill_Error $e) {
+            if($failures != null && !is_array($failures)) {
+                $failures = array();
+            }
+            if(is_array($failures)) {
+                $failures[] = get_class($e) . ': ' . $e->getMessage();
+            }
+        }
+        return true; // assume that everything is OK
     }
 
 }
