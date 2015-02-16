@@ -58,6 +58,7 @@
                                 <li><a href="{$url.site}/tags/storylines"><span class="glyphicon glyphicon-tag"></span> {t}Storyline tags{/t}</a></li>
                                 <li><a href="{$url.site}/stat/summary"><span class="glyphicon glyphicon-signal"></span> {t}Statistics{/t}</a></li>
                                 {if $client.isAdministrator or $client.isModerator}
+                                    <li class="divider"></li>
                                     <li><a href="{$url.site}/maintenance/reports"><span class="glyphicon glyphicon-fire"></span> {t}Report management{/t}</a></li>
                                     <li><a href="{$url.site}/maintenance/userlist"><span class="glyphicon glyphicon-user"></span> {t}User administration{/t}</a></li>
                                 {/if}
