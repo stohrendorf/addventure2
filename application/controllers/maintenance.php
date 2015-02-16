@@ -437,13 +437,14 @@ class Maintenance extends CI_Controller
         $this->load->library('em');
         $tag = $this->em->getEntityManager()->find('addventure\StorylineTag', $tagId);
         if(!$tag && !is_numeric($tagId)) {
-            $tagId = trim(strip_tags($tagId));
+            $tagId = trim(strip_tags(rawurldecode($tagId)));
             if(empty($tagId)) {
                 show_404();
                 return;
             }
             $tag = new addventure\StorylineTag();
             $tag->setTitle($tagId);
+            $this->em->persistAndFlush($tag);
         }
         
         $doc = $this->em->findEpisode($docId);
@@ -454,7 +455,9 @@ class Maintenance extends CI_Controller
         
         if(!$recursive) {
             $doc->setStorylineTag($tag);
+            $tag->getEpisodes()->add($doc);
             $this->em->persistAndFlush($doc);
+            $this->em->persistAndFlush($tag);
         }
         else {
             $childQueue = array();
@@ -463,7 +466,10 @@ class Maintenance extends CI_Controller
             $updateCount = 0;
             while(!empty($childQueue)) {
                 $doc = array_shift($childQueue);
-                if($doc->getStorylineTag()==null xor $initialTag==null) {
+                if(!$doc->getText()) {
+                    continue;
+                }
+                elseif($doc->getStorylineTag()==null xor $initialTag==null) {
                     // only one of both is null
                     continue;
                 }

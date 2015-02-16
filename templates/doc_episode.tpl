@@ -322,10 +322,10 @@
                                 });
                                 if(data.entries.length == 0) {
                                     $('#add-new-tag').removeClass('hidden');
+                                    $('#add-new-tag').attr('storylinetitle', $('#storyline-filter').val());
                                 }
                                 else {
                                     $('#add-new-tag').addClass('hidden');
-                                    $('#add-new-tag').attr('storylinetitle', $('#storyline-filter').val());
                                 }
                             },
                             'json'
