@@ -65,11 +65,17 @@ class StorylineTag implements IAddventure {
         return $this;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toAtom(\SimpleXMLElement &$parent)
     {
         
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toJson()
     {
         return array(
@@ -78,11 +84,17 @@ class StorylineTag implements IAddventure {
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toRss(\SimpleXMLElement &$parent)
     {
         
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toSmarty()
     {
         return array(

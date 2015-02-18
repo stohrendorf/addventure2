@@ -239,6 +239,7 @@ class UserTest extends \PHPUnit_Framework_TestCase {
      * @covers addventure\User::canCreateEpisode
      * @covers addventure\User::canCreateComment
      * @covers addventure\User::canSubscribe
+     * @covers addventure\User::canEdit
      */
     public function testUserPermissions() {
         $this->object->setRole(UserRole::Anonymous);
@@ -250,6 +251,7 @@ class UserTest extends \PHPUnit_Framework_TestCase {
         $this->assertFalse($this->object->canCreateEpisode());
         $this->assertFalse($this->object->canCreateComment());
         $this->assertFalse($this->object->canSubscribe());
+        $this->assertFalse($this->object->canEdit());
         
         $this->object->setRole(UserRole::AwaitApproval);
         $this->assertFalse($this->object->isAnonymous());
@@ -260,6 +262,7 @@ class UserTest extends \PHPUnit_Framework_TestCase {
         $this->assertFalse($this->object->canCreateEpisode());
         $this->assertFalse($this->object->canCreateComment());
         $this->assertFalse($this->object->canSubscribe());
+        $this->assertFalse($this->object->canEdit());
         
         $this->object->setRole(UserRole::Registered);
         $this->assertFalse($this->object->isAnonymous());
@@ -270,6 +273,7 @@ class UserTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue($this->object->canCreateEpisode());
         $this->assertTrue($this->object->canCreateComment());
         $this->assertTrue($this->object->canSubscribe());
+        $this->assertFalse($this->object->canEdit());
         
         $this->object->setRole(UserRole::Moderator);
         $this->assertFalse($this->object->isAnonymous());
@@ -280,6 +284,7 @@ class UserTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue($this->object->canCreateEpisode());
         $this->assertTrue($this->object->canCreateComment());
         $this->assertTrue($this->object->canSubscribe());
+        $this->assertTrue($this->object->canEdit());
         
         $this->object->setRole(UserRole::Administrator);
         $this->assertFalse($this->object->isAnonymous());
@@ -290,6 +295,7 @@ class UserTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue($this->object->canCreateEpisode());
         $this->assertTrue($this->object->canCreateComment());
         $this->assertTrue($this->object->canSubscribe());
+        $this->assertTrue($this->object->canEdit());
     }
 
     /**

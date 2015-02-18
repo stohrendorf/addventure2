@@ -356,11 +356,17 @@ class User implements IAddventure {
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toAtom(\SimpleXMLElement &$parent)
     {
         
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toJson()
     {
         return array(
@@ -369,6 +375,9 @@ class User implements IAddventure {
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function toRss(\SimpleXMLElement &$parent)
     {
         
