@@ -1,6 +1,11 @@
 <?php
 
-(@include_once 'config.php') or require_once 'config-testing.php';
+if(ENVIRONMENT === 'testing') {
+    require_once 'config-testing.php';
+}
+else {
+    require_once 'config.php';
+}
 require_once 'vendor/autoload.php';
 
 ini_set('mbstring.internal_encoding', 'UTF-8');
@@ -24,12 +29,13 @@ function initLogger()
     }
     $logger = new \Monolog\Logger('');
     $logger->pushHandler(new Monolog\Handler\RotatingFileHandler(LOG_FILENAME, 7, (ENVIRONMENT !== 'production') ? \Monolog\Logger::DEBUG : \Monolog\Logger::WARNING));
-    Monolog\ErrorHandler::register($logger);
+    if(ENVIRONMENT !== 'testing') {
+        // let PHPUnit catch the errors
+        Monolog\ErrorHandler::register($logger);
+    }
 
     return $logger;
 }
-
-initLogger();
 
 if(ENVIRONMENT !== 'production') {
     initLogger()->warning('You are not running the Addventure in production mode');
