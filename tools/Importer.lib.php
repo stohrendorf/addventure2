@@ -362,7 +362,7 @@ class Importer
             echo "\r[", count($this->imported), '/', $this->total, "] #$current already retrieved";
             $this->imported[] = $current;
 
-            $entityManager->clear();
+            $entityManager->clear($legacy);
             return true;
         }
 
@@ -606,7 +606,7 @@ class Transformer
         assert($legacy != null);
         if($legacy->getEpisode() !== null && $legacy->getEpisode()->getText() !== null && $legacy->getEpisode()->getTitle() !== null) {
             echo "\r[", $this->totalEpisodes - count($this->queue), '/', $this->totalEpisodes, "] #$current already parsed";
-            $entityManager->clear();
+            $entityManager->clear($legacy);
             return true;
         }
 
