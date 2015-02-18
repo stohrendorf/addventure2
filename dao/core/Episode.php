@@ -563,22 +563,27 @@ class EpisodeRepository extends \Doctrine\ORM\EntityRepository {
         if(!$user) {
             return 0;
         }
-        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
-        $queryBuilder->setFirstResult($page * getAddventureConfigValue('resultsPerPage'));
-        $queryBuilder->setMaxResults(getAddventureConfigValue('resultsPerPage'));
-        $queryBuilder->select('e')->from('addventure\Episode', 'e')->orderBy('e.created', 'DESC');
-        foreach($user->getAuthorNames() as $a) {
-            $queryBuilder->orWhere('e.author=' . $a->getId());
+        if(count($user->getAuthorNames())>0) {
+            $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+            $queryBuilder->setFirstResult($page * getAddventureConfigValue('resultsPerPage'));
+            $queryBuilder->setMaxResults(getAddventureConfigValue('resultsPerPage'));
+            $queryBuilder->select('e')->from('addventure\Episode', 'e')->orderBy('e.created', 'DESC');
+            foreach($user->getAuthorNames() as $a) {
+                $queryBuilder->orWhere('e.author=' . $a->getId());
+            }
+            $query = $queryBuilder->getQuery();
+            $query->setResultCacheLifetime(60*60);
+            $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query, false);
+            foreach($paginator as $ep) {
+                $func($ep);
+                $this->getEntityManager()->detach($ep);
+                $this->getEntityManager()->clear();
+            }
+            return $paginator->count();
         }
-        $query = $queryBuilder->getQuery();
-        $query->setResultCacheLifetime(60*60);
-        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query, false);
-        foreach($paginator as $ep) {
-            $func($ep);
-            $this->getEntityManager()->detach($ep);
-            $this->getEntityManager()->clear();
+        else {
+            return 0;
         }
-        return $paginator->count();
     }
 
     public function firstCreatedByUser($userId) {

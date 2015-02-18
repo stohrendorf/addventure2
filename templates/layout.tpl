@@ -73,6 +73,8 @@
                             {if $client.userid!=-1}
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">{$client.username} <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
+                                    <li><a href="{$url.site}/recent/user/{$client.userid}"><span class="glyphicon glyphicon-pencil"></span> {t}My episodes{/t}</a></li>
+                                    <li class="divider"></li>
                                     <li><a href="{$url.site}/account/logout"><span class="glyphicon glyphicon-off"></span> {t}Log out{/t}</a></li>
                                     <li><a href="{$url.site}/account/changepassword"><span class="glyphicon glyphicon-cog"></span> {t}Change password{/t}</a></li>
                                 </ul>
