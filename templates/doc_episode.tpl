@@ -113,24 +113,23 @@
             {/foreach}
             {if $client.canCreateComment}
                 <div class="list-group-item">
-                    <button class="btn btn-default btn-sm btn-block" id="add-comment">
+                    <a href="#" class="btn btn-primary btn-xs btn-block" id="add-comment">
                         <span class="glyphicon glyphicon-comment"></span>
                         {t}Add a comment{/t}
-                    </button>
+                    </a>
                 </div>
             {/if}
         {else}
             <h4 class="list-group-item list-group-item-info">
                 <span class="glyphicon glyphicon-comment"></span> {t}No comments yet{/t}
-            </h4>
-            {if $client.canCreateComment}
-                <div class="list-group-item">
-                    <button class="btn btn-default btn-sm btn-block" id="add-comment">
+                {if $client.canCreateComment}
+                    <a href="#" class="btn btn-primary btn-xs pull-right" id="add-comment">
                         <span class="glyphicon glyphicon-comment"></span>
                         {t}Be the first to comment on this episode!{/t}
-                    </button>
-                </div>
-            {/if}
+                    </a>
+                {/if}
+                <span class="clearfix"></span>
+            </h4>
         {/if}
     </div>
 
@@ -148,7 +147,20 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="publish-comment">{t}Publish!{/t}</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">{t}Abort{/t}</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{t}Cancel{/t}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="comment-wait" role="dialog" aria-labelledby="" aria-hidden="true" title="{t}Please wait...{/t}">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{t}Please wait...{/t}</h4>
+                </div>
+                <div class="modal-body">
+                    {t}Please wait while your comment is being published...{/t}
                 </div>
             </div>
         </div>
@@ -158,6 +170,7 @@
         $(function () {
             var dlg = $('#comment-dialog');
             dlg.modal('hide');
+            $('#comment-wait').modal('hide');
             var addCommentBtn = function () {
                 dlg.modal('show');
                 return false;
@@ -165,6 +178,8 @@
             $('#add-comment').click(addCommentBtn);
 
             var publishComment = function () {
+                dlg.modal('hide');
+                $('#comment-wait').modal('show');
                 $.post(
                     '{$url.site}/api/addcomment/{$episode.id}',
                     {
@@ -386,12 +401,12 @@
             </div>
         </div>
                     
-        <div class="modal fade" id="verification-dialog" role="dialog" aria-labelledby="" aria-hidden="true" title="{t}Verficiation needed{/t}">
+        <div class="modal fade" id="verification-dialog" role="dialog" aria-labelledby="" aria-hidden="true" title="{t}Approval needed{/t}">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">{t}Verification needed{/t}</h4>
+                        <h4 class="modal-title">{t}Approval needed{/t}</h4>
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-danger">

@@ -113,6 +113,8 @@ class Api extends CI_Controller
 
     public function addcomment($docId)
     {
+        $this->output->set_content_type('text/plain');
+        
         $this->load->library('userinfo');
         if(!$this->userinfo->user || !$this->userinfo->user->canCreateComment()) {
             return;
