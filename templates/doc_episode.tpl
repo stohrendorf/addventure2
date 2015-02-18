@@ -283,6 +283,7 @@
             <div class="panel-footer">
                 <a href="{$url.site}/doc/{$episode.parent}"><span class="glyphicon glyphicon-circle-arrow-left"></span> {t}Go to the parent episode.{/t}</a>
                 <a href="{$url.site}/doc/chain/{$episode.id}/10" class="pull-right"><span class="glyphicon glyphicon-circle-arrow-up"></span> {t}What leads here?{/t}</a>
+                <span class="clearfix"></span>
             </div>
         {/if}
     </div>
