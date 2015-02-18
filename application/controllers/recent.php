@@ -39,7 +39,7 @@ class Recent extends CI_Controller
         $userId = filter_var($userId, FILTER_SANITIZE_NUMBER_INT);
         $user = $this->em->findUser($userId);
         if(!$user) {
-            show_404();
+            show_error(_('User not found'), 404);
             return;
         }
         $page = filter_var($page, FILTER_SANITIZE_NUMBER_INT);

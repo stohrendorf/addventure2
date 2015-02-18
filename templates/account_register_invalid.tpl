@@ -8,7 +8,7 @@
             {t}Sorry!{/t}
         </div>
         <div class="panel-body">
-            {t escape=no 1={$url.site}}The data you supplied for registration was a bit weird.
+            {t escape=no 1={$url.site} 2=$error}The data you supplied for registration was a bit weird: %2.
             Please check the spelling of your e-mail address and that you have entered a password.
             You may <a href="%1/account/register">try again</a> now.{/t}
         </div>

@@ -48,14 +48,17 @@ class Account extends CI_Controller {
         }
         $this->load->helper('email');
         if(!valid_email($email)) {
+            $smarty->assign('error', _('You entered an invalid E-mail address.'));
             $smarty->display('account_register_invalid.tpl');
             return;
         }
 
+        $this->load->helper('xss_clean');
         try {
-            $username = simplifyWhitespace($this->input->post('username', TRUE), 1000, false);
+            $username = simplifyWhitespace(xss_clean2($this->input->post('username', TRUE)), 1000, false);
         }
         catch(\InvalidArgumentException $ex) {
+            $smarty->assign('error', _('You entered an invalid username.'));
             $smarty->display('account_register_invalid.tpl');
             return;
         }
@@ -71,6 +74,7 @@ class Account extends CI_Controller {
             $this->em->persistAndFlush($user);
         }
         catch(Exception $e) {
+            $smarty->assign('error', _('Somebody else already uses your username or E-mail address.'));
             $smarty->display('account_register_invalid.tpl');
             return;
         }
@@ -189,7 +193,7 @@ MSG
     public function changepassword() {
         $this->load->library('userinfo');
         if(!$this->userinfo->user) {
-            show_error('Access denied.');
+            show_error(_('Access denied.'), 403);
             return;
         }
         $oldPw = $this->input->post('oldpassword');

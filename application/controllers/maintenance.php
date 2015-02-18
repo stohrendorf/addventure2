@@ -13,14 +13,14 @@ class Maintenance extends CI_Controller
         $docId = filter_var($docId, FILTER_SANITIZE_NUMBER_INT);
         if($docId === null || $docId === false) {
             $this->log->warning('Maintenance/' . $description . ' - invalid DocID');
-            show_404();
+            show_error(_('Document not found'), 404);
             return;
         }
         $this->load->library('em');
         $episode = $this->em->findEpisode($docId);
         if(!$episode) {
             $this->log->warning('Maintenance/' . $description . ' - Document not found: ' . $docId);
-            show_404();
+            show_error(_('Document not found'), 404);
             return;
         }
         $this->log->debug('Maintenance/' . $description . ': ' . $docId);
@@ -100,7 +100,7 @@ class Maintenance extends CI_Controller
         $commentid = filter_var($commentid, FILTER_SANITIZE_NUMBER_INT);
         if($commentid === null || $commentid === false) {
             $this->log->warning('Maintenance/deletecomment - invalid ID');
-            show_404();
+            show_error(_('Comment not found'), 404);
             return;
         }
 
@@ -108,7 +108,7 @@ class Maintenance extends CI_Controller
         $comment = $this->em->getEntityManager()->find('addventure\Comment', $commentid);
         if(!$comment) {
             $this->log->warning('Maintenance/deletecomment - comment not found');
-            show_404();
+            show_error(_('Comment not found'), 404);
             return;
         }
         $docid = $comment->getEpisode()->getId();
@@ -144,14 +144,14 @@ class Maintenance extends CI_Controller
         $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
         if($uid === null || $uid === false) {
             $this->log->warning('Maintenance - invalid User ID');
-            show_404();
+            show_error(_('User not found'), 404);
             return null;
         }
 
         $this->load->library('userinfo');
         if($uid == $this->userinfo->user->getId()) {
             $this->log->warning('Maintenance - cannot change own account');
-            show_404();
+            show_error(_('Cannot change own account'), 403);
             return null;
         }
 
@@ -159,7 +159,7 @@ class Maintenance extends CI_Controller
         $user = $this->em->findUser($uid);
         if(!$user) {
             $this->log->warning('Maintenance - invalid User ID');
-            show_404();
+            show_error(_('User not found'), 404);
             return null;
         }
         return $user;
@@ -175,7 +175,7 @@ class Maintenance extends CI_Controller
         $uid = filter_var($uid, FILTER_SANITIZE_NUMBER_INT);
         if($uid === null || $uid === false) {
             $this->log->warning('Maintenance/userinfo - invalid User ID');
-            show_404();
+            show_error(_('User not found'), 404);
             return;
         }
 
@@ -213,7 +213,7 @@ class Maintenance extends CI_Controller
         $role = filter_var($role, FILTER_SANITIZE_NUMBER_INT);
         if($role === null || $role === false) {
             $this->log->warning('Maintenance/setrole - invalid User role');
-            show_404();
+            show_error(_('Invalid user role'), 500);
             return;
         }
         try {
@@ -221,7 +221,7 @@ class Maintenance extends CI_Controller
         }
         catch(\InvalidArgumentException $ex) {
             $this->log->warning('Maintenance/setrole - invalid User role');
-            show_404();
+            show_error(_('Invalid user role'), 500);
             return;
         }
 
@@ -431,7 +431,7 @@ class Maintenance extends CI_Controller
             $recursive = true;
         }
         else {
-            show_404();
+            show_error(_('Invalid request'), 500);
         }
 
         $this->load->library('em');
@@ -439,7 +439,7 @@ class Maintenance extends CI_Controller
         if(!$tag && !is_numeric($tagId)) {
             $tagId = trim(strip_tags(rawurldecode($tagId)));
             if(empty($tagId)) {
-                show_404();
+                show_error(_('Invalid tag'), 500);
                 return;
             }
             $tag = new addventure\StorylineTag();
@@ -449,7 +449,7 @@ class Maintenance extends CI_Controller
         
         $doc = $this->em->findEpisode($docId);
         if(!$tag || !$doc) {
-            show_404();
+            show_error(_('Tag or episode not found'), 404);
             return;
         }
         

@@ -288,7 +288,7 @@ class Doc extends CI_Controller
 
         if($isCreation) {
             if($episode->getText() !== NULL) {
-                show_error(_('Document already created'));
+                show_error(_('Document already created'), 500);
                 return;
             }
             if(!$this->userinfo->user || !$this->userinfo->user->canCreateEpisode()) {
