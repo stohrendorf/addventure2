@@ -1,6 +1,6 @@
 <?php
 
-if(ENVIRONMENT === 'testing') {
+if(!file_exists(dirname(__FILE__) . '/config.php')) {
     require_once 'config-testing.php';
 }
 else {
