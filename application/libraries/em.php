@@ -58,6 +58,13 @@ class EM
         $entityManager->flush();
     }
 
+    public function removeAndFlush($object)
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->remove($object);
+        $entityManager->flush();
+    }
+
     /**
      * @param int $id Episode ID
      * @return null|\addventure\Episode
@@ -78,13 +85,27 @@ class EM
 
     /**
      * Find a link between two episodes
-     * @param int $from Source episode
-     * @param int $to Destination episode
+     * @param int|\addventure\Episode $from Source episode
+     * @param int|\addventure\Episode $to Destination episode
      * @return null|\addventure\Link
      */
     public function findLink($from, $to)
     {
         return $this->getEntityManager()->find('addventure\Link', array('fromEp' => $from, 'toEp' => $to));
+    }
+    
+    /**
+     * @return null|\addventure\Comment
+     */
+    public function findComment($id) {
+        return $this->getEntityManager()->find('addventure\Comment', $id);
+    }
+
+    /**
+     * @return null|\addventure\StorylineTag
+     */
+    public function findStorylineTag($id) {
+        return $this->getEntityManager()->find('addventure\StorylineTag', $id);
     }
 
     /**

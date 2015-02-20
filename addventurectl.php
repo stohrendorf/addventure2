@@ -40,6 +40,9 @@ class PatchAuthorNames extends Command
         $updates = 0;
         foreach($qb->getQuery()->iterate() as $row) {
             $ep = $row[0];
+            if($ep->getAuthor()->getUser()->getRole()->get() != \addventure\UserRole::Anonymous)
+                continue;
+            
             $authorName = $ep->getAuthor()->getName();
             $output->writeln('Checking: ``' . $authorName . "''");
 
@@ -128,6 +131,53 @@ class PatchAuthorNames extends Command
             return array($author, $comment);
         }
         return FALSE;
+    }
+
+}
+
+// -----------------------------------------------------------------------------
+
+class CleanupUsers extends Command
+{
+
+    protected function configure()
+    {
+        $this
+                ->setName('cleanup-users')
+                ->setDescription('Remove unused author names, unused anonymous users, and '
+                        . 'expired "awaiting approval" users')
+        ;
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $em = initDoctrineConnection();
+        $q = $em->createQuery('DELETE addventure\AuthorName n WHERE'
+                . ' NOT EXISTS (SELECT 1 FROM addventure\Episode e WHERE e.author=n)'
+                . ' AND NOT EXISTS (SELECT 1 FROM addventure\Comment c WHERE c.authorName=n)');
+        $deleted = $q->execute();
+        $em->flush();
+        $em->clear();
+        $output->writeln("Deleted $deleted unused author names");
+
+        $q = $em->createQuery('DELETE addventure\User u WHERE'
+                . ' u.role=0'
+                . ' AND NOT EXISTS (SELECT 1 FROM addventure\AuthorName n WHERE n.user=u)');
+        $deleted = $q->execute();
+        $em->flush();
+        $em->clear();
+        $output->writeln("Deleted $deleted unused anonymous users");
+
+        $ts = new \DateTime();
+        $ts->sub(new \DateInterval('PT' . getAddventureConfigValue('maxAwaitingApprovalHours') . 'H'));
+        $q = $em->createQuery('DELETE addventure\User u WHERE'
+                        . ' u.role=1'
+                        . ' AND u.registeredSince < :when')
+                ->setParameter('when', $ts);
+        $deleted = $q->execute();
+        $em->flush();
+        $em->clear();
+        $output->writeln("Deleted $deleted expired users");
     }
 
 }
@@ -234,6 +284,7 @@ function addventureCtl()
     chdir(dirname(__FILE__));
     $application = new Application();
     $application->add(new PatchAuthorNames());
+    $application->add(new CleanupUsers());
     $application->add(new CreateTranslations());
     $application->add(new FindOrphans());
     $application->add(new FindRoots());

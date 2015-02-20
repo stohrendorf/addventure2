@@ -122,8 +122,7 @@ MSG
         if($user && $user->getRole()->get() === \addventure\UserRole::AwaitApproval) {
             $diff = abs( (new \DateTime())->getTimestamp() - $user->getRegisteredSince()->getTimestamp() );
             if( $diff > getAddventureConfigValue('maxAwaitingApprovalHours') * 60 * 60 ) {
-                $this->em->getEntityManager()->remove($user);
-                $this->em->getEntityManager()->flush();
+                $this->em->removeAndFlush($user);
                 $smarty->display('account_verify_expired.tpl');
                 return;
             }

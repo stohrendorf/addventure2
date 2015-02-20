@@ -105,15 +105,14 @@ class Maintenance extends CI_Controller
         }
 
         $this->load->library('em');
-        $comment = $this->em->getEntityManager()->find('addventure\Comment', $commentid);
+        $comment = $this->em->findComment($commentid);
         if(!$comment) {
             $this->log->warning('Maintenance/deletecomment - comment not found');
             show_error(_('Comment not found'), 404);
             return;
         }
         $docid = $comment->getEpisode()->getId();
-        $this->em->getEntityManager()->remove($comment);
-        $this->em->getEntityManager()->flush();
+        $this->em->removeAndFlush($comment);
         $this->load->helper('url');
         redirect("doc/$docid");
     }
@@ -310,8 +309,7 @@ class Maintenance extends CI_Controller
 
         $n = $this->em->getEntityManager()->find('addventure\Notification', array('episode' => $docId, 'user' => $uid));
         if($n) {
-            $this->em->getEntityManager()->remove($n);
-            $this->em->getEntityManager()->flush();
+            $this->em->removeAndFlush($n);
         }
         $this->load->helper('url');
         redirect(array('maintenance', 'userinfo', $uid));
@@ -397,8 +395,7 @@ class Maintenance extends CI_Controller
         $this->load->library('em');
         $report = $this->em->getEntityManager()->find('addventure\Report', array('episode' => $docId, 'type' => $type));
         if($report) {
-            $this->em->getEntityManager()->remove($report);
-            $this->em->getEntityManager()->flush();
+            $this->em->removeAndFlush($report);
         }
         $this->load->helper('url');
         redirect("maintenance/reports/$returnPage");
@@ -435,7 +432,7 @@ class Maintenance extends CI_Controller
         }
 
         $this->load->library('em');
-        $tag = $this->em->getEntityManager()->find('addventure\StorylineTag', $tagId);
+        $tag = $this->em->findStorylineTag($tagId);
         if(!$tag && !is_numeric($tagId)) {
             $tagId = trim(strip_tags(rawurldecode($tagId)));
             if(empty($tagId)) {

@@ -252,8 +252,7 @@ class Doc extends CI_Controller
         $subscriptions = $this->em->getNotificationsForDoc($docId);
         foreach($subscriptions as $sub) {
             if($sub->getUser()->getId() == $this->userinfo->user->getId()) {
-                $this->em->getEntityManager()->remove($sub);
-                $this->em->getEntityManager()->flush();
+                $this->em->removeAndFlush($sub);
                 break;
             }
         }
@@ -435,10 +434,7 @@ class Doc extends CI_Controller
         }
         else {
             foreach($combinedOpts as $opt) {
-                $query = $this->em->getEntityManager()->createQuery('SELECT l FROM addventure\Link l WHERE l.fromEp=?1 AND l.toEp=?2')
-                        ->setParameter(1, $episode->getId())
-                        ->setParameter(2, $opt['target']);
-                $link = $query->getOneOrNullResult();
+                $link = $this->em->findLink($episode->getId(), $opt['target']);
                 if(!$link) {
                     show_error(_('Internal fault'), 503);
                     return;

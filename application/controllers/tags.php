@@ -29,7 +29,7 @@ class Tags extends CI_Controller
         );
         $smarty->assign('firstIndex', $page * getAddventureConfigValue('resultsPerPage'));
         $smarty->assign('episodeCount', $numEpisodes);
-        $tag = $this->em->getEntityManager()->find('addventure\StorylineTag', $tagId);
+        $tag = $this->em->findStorylineTag($tagId);
         $smarty->assign('storyline', $tag->toSmarty());
         $smarty->assign('page', $page);
         $maxPage = floor(($numEpisodes + getAddventureConfigValue('resultsPerPage') - 1) / getAddventureConfigValue('resultsPerPage'));
