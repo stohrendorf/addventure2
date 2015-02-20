@@ -15,8 +15,9 @@
         <exclude name="logs/**"/>
         <exclude name="templates/cache/**"/>
         <exclude name="templates/compiled/**"/>
-        <exclude name="templates/cache/**"/>
-        <exclude name="dao/proxies/**"/>
+        <exclude name="reports/**"/>
+        <exclude name="doc/api/**"/>
+        <exclude name="nbproject/private/**"/>
     </fileset>
     
     <target name="download-vendor-dev">
